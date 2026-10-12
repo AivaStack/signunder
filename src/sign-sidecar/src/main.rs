@@ -42,11 +42,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .parse()?;
 
     let (reporter, health) = tonic_health::server::health_reporter();
-    reporter
-        .set_serving::<SignServiceServer<Sidecar>>()
-        .await;
+    reporter.set_serving::<SignServiceServer<Sidecar>>().await;
 
-    println!("sign-sidecar listening on {addr} (c2pa-rs {})", c2pa::VERSION);
+    println!(
+        "sign-sidecar listening on {addr} (c2pa-rs {})",
+        c2pa::VERSION
+    );
 
     Server::builder()
         .add_service(health)
