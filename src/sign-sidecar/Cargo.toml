@@ -1,0 +1,16 @@
+[package]
+name = "sign-sidecar"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+# Pinned exactly: manifest construction must not drift under us (SIGNUNDER.md §4.10).
+c2pa = "=0.91.2"
+prost = "0.14.4"
+tokio = { version = "1.53.2", features = ["macros", "rt-multi-thread", "signal"] }
+tonic = "0.14.6"
+tonic-health = "0.14.6"
+tonic-prost = "0.14.6"
+
+[build-dependencies]
+tonic-prost-build = "0.14.6"

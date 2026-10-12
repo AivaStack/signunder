@@ -1,0 +1,45 @@
+syntax = "proto3";
+
+package signunder.sign.v1;
+
+option csharp_namespace = "Signunder.Sign.V1";
+
+// Contract between the .NET control plane and the Rust sign sidecar (SIGNUNDER.md §4.3).
+// Assets travel as unary bytes, so callers must raise the gRPC message size limit
+// above the 4 MB default; video will need a streaming RPC.
+service SignService {
+  rpc Sign(SignRequest) returns (SignResponse);
+  rpc Validate(ValidateRequest) returns (ValidateResponse);
+}
+
+message SignerRef {
+  // KMS key ARN, or a local key identifier for the non-conformant dev signer.
+  string key_ref = 1;
+  // "es256" or "ps256".
+  string algorithm = 2;
+  string cert_chain_pem = 3;
+  // RFC 3161 timestamp authority URL.
+  string tsa_url = 4;
+}
+
+message SignRequest {
+  bytes asset = 1;
+  string mime_type = 2;
+  string manifest_definition_json = 3;
+  SignerRef signer = 4;
+}
+
+message SignResponse {
+  bytes signed_asset = 1;
+  bytes manifest_store = 2;
+  string validation_report_json = 3;
+}
+
+message ValidateRequest {
+  bytes asset = 1;
+  string mime_type = 2;
+}
+
+message ValidateResponse {
+  string validation_report_json = 1;
+}

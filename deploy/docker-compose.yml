@@ -1,0 +1,58 @@
+# Local development stack. Credentials here are for local use only.
+name: signunder
+
+services:
+  api:
+    build:
+      context: ..
+      dockerfile: src/Signunder.Api/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      Sidecar__Address: http://sign-sidecar:50051
+      ConnectionStrings__Postgres: Host=postgres;Database=signunder;Username=signunder;Password=signunder
+      ConnectionStrings__Redis: redis:6379
+    ports:
+      - "8080:8080"
+    depends_on:
+      sign-sidecar:
+        condition: service_started
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  sign-sidecar:
+    build:
+      context: ..
+      dockerfile: src/sign-sidecar/Dockerfile
+    ports:
+      - "50051:50051"
+
+  postgres:
+    image: postgres:18
+    environment:
+      POSTGRES_USER: signunder
+      POSTGRES_PASSWORD: signunder
+      POSTGRES_DB: signunder
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U signunder -d signunder"]
+      interval: 2s
+      timeout: 2s
+      retries: 30
+
+  redis:
+    image: redis:8-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 2s
+      timeout: 2s
+      retries: 30
+
+volumes:
+  pgdata:

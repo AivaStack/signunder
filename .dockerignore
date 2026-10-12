@@ -1,0 +1,9 @@
+.git
+.vscode
+**/bin
+**/obj
+**/target
+**/.venv
+docs
+tests
+*.md
