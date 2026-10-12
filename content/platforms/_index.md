@@ -53,10 +53,10 @@ The Commission's guidelines on Article 50 of the AI Act, adopted on 20 July 2026
 
 ## Method
 
-Each page quotes the clause from the platform's current terms, with the section and the date read, and says whether the platform's documentation mentions Content Credentials, C2PA or watermarks. Region information was read on 8 October 2026. The reads are repeated when a platform changes its terms, and every change is logged on the page. To cite this table: Signunder, "Which AI inference platforms mark their output?", signunder.com/platforms, as read on the date shown.
+Each page quotes the clause from the platform's current terms, with the section and the date read, and says whether the platform's documentation mentions Content Credentials, C2PA or watermarks. Region information was read on 8 October 2026. The reads are repeated when a platform changes its terms, and every change is logged on the page. To cite this table: SignUnder, "Which AI inference platforms mark their output?", signunder.com/platforms, as read on the date shown.
 
 ## Changes
 
 - 2026-10-12 — First published, replacing the table on the homepage, which had been read on 8 October 2026.
 
-*Signunder is not a law firm and this is not legal advice.*
+*SignUnder is not a law firm and this is not legal advice.*

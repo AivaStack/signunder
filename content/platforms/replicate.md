@@ -56,10 +56,10 @@ The Commission's guidelines on Article 50, adopted on 20 July 2026, treat a busi
 
 Nothing arrives marked. Every image, clip or audio file you get back from Replicate is unmarked, and the terms say what happens to it is yours to manage. If your users are in the EU and your system was on the market before 2 August 2026, the grace period for marking ends on 2 December 2026.
 
-Signunder is built to sit in front of APIs like this one and sign every output under your own name, with an invisible watermark and a public verification page; it is pre-launch, and the waitlist is on the homepage.
+SignUnder is built to sit in front of APIs like this one and sign every output under your own name, with an invisible watermark and a public verification page; it is pre-launch, and the waitlist is on the homepage.
 
 ## Changes
 
 - 2026-10-12 — First published.
 
-*Read from Replicate's own terms and documentation on 12 October 2026, and its region pages on 8 October 2026. Platforms change; tell us if this is out of date. Signunder is not a law firm and this is not legal advice.*
+*Read from Replicate's own terms and documentation on 12 October 2026, and its region pages on 8 October 2026. Platforms change; tell us if this is out of date. SignUnder is not a law firm and this is not legal advice.*

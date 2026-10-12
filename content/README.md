@@ -65,7 +65,7 @@ draft: false
 9. **A real byline.** Every page has an author with a bio on `/about`.
 10. **Last reviewed.** Visible on every hub, from `reviewed`.
 11. **FAQ block.** Three to five pairs in `faq`, rendered with `FAQPage` markup. Each answer stands alone.
-12. **Not legal advice.** Once per page that touches law: "Signunder is not a law firm and this is not legal advice. Every rule here cites its primary source and the date we read it."
+12. **Not legal advice.** Once per page that touches law: "SignUnder is not a law firm and this is not legal advice. Every rule here cites its primary source and the date we read it."
 13. **No fear.** The enforcement watch says "none found" as long as that is true. We sell the fixed deadline and the weeks of work, not a knock at the door.
 14. **No filler.** No "in today's fast-paced world", no "it is important to note". Short paragraphs, one idea each.
 15. **Nothing gated.** No email walls, no truncated posts.

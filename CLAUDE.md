@@ -1,4 +1,4 @@
-# Signunder
+# SignUnder
 
 Hosted service that gets a company signing AI-generated content under its own name (C2PA conformance, signing, watermarking, verification, rule packs). The folder is still called `Cereal`, the old placeholder name.
 

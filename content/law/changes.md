@@ -1,6 +1,6 @@
 ---
 title: "Changes to AI content marking rules"
-description: "Dated log of every change to the laws, codes and platform policies that Signunder tracks, newest first, each with its primary source."
+description: "Dated log of every change to the laws, codes and platform policies that SignUnder tracks, newest first, each with its primary source."
 slug: changes
 type: law
 date: 2026-10-12

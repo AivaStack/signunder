@@ -1,7 +1,7 @@
 [project]
 name = "wm-worker"
 version = "0.1.0"
-description = "Signunder watermark and fingerprint worker (TrustMark, PDQ)"
+description = "SignUnder watermark and fingerprint worker (TrustMark, PDQ)"
 requires-python = ">=3.12"
 dependencies = []
 

@@ -29,4 +29,4 @@ draft: true
 <!-- One short paragraph per persona the post touches: multi-provider product; EU-exposed SaaS; self-hoster. -->
 
 <!-- If the post touches law: -->
-*Signunder is not a law firm and this is not legal advice. Every rule here cites its primary source and the date we read it.*
+*SignUnder is not a law firm and this is not legal advice. Every rule here cites its primary source and the date we read it.*

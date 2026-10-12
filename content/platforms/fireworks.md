@@ -54,10 +54,10 @@ The Commission's guidelines on Article 50, adopted on 20 July 2026, treat a busi
 
 Nothing arrives marked, and the terms define output as your content. If Fireworks is one of several providers behind your product, the record that names you has to be added after generation, consistently, whichever provider served the request.
 
-Signunder is built to sit in front of APIs like this one and sign every output under your own name, with an invisible watermark and a public verification page; it is pre-launch, and the waitlist is on the homepage.
+SignUnder is built to sit in front of APIs like this one and sign every output under your own name, with an invisible watermark and a public verification page; it is pre-launch, and the waitlist is on the homepage.
 
 ## Changes
 
 - 2026-10-12 — First published.
 
-*Read from Fireworks AI's own terms and documentation on 12 October 2026, and its region pages on 8 October 2026. Platforms change; tell us if this is out of date. Signunder is not a law firm and this is not legal advice.*
+*Read from Fireworks AI's own terms and documentation on 12 October 2026, and its region pages on 8 October 2026. Platforms change; tell us if this is out of date. SignUnder is not a law firm and this is not legal advice.*

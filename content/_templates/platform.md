@@ -53,10 +53,10 @@ draft: true
 
 ## What this means if you generate through {Platform}
 
-<!-- The practical paragraph. Signunder's proxy mode in one sentence at most, at the end. -->
+<!-- The practical paragraph. SignUnder's proxy mode in one sentence at most, at the end. -->
 
 ## Changes
 
 - 2026-01-01 — First published.
 
-*Read from {Platform}'s own documentation and terms on {D Mon YYYY}. Platforms change; tell us if this is out of date. Signunder is not a law firm and this is not legal advice.*
+*Read from {Platform}'s own documentation and terms on {D Mon YYYY}. Platforms change; tell us if this is out of date. SignUnder is not a law firm and this is not legal advice.*

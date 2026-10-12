@@ -38,11 +38,11 @@ draft: true
 
 ## What this means if you…
 
-<!-- One short paragraph per persona: multi-provider product; EU-exposed SaaS; self-hoster. Say what Signunder does about it in one sentence at most, at the end. -->
+<!-- One short paragraph per persona: multi-provider product; EU-exposed SaaS; self-hoster. Say what SignUnder does about it in one sentence at most, at the end. -->
 
 ## Changes
 
 <!-- Newest first. One line each: "- 2026-10-21 — First published." Copy law changes into content/law/changes.md the same day. -->
 - 2026-01-01 — First published.
 
-*Signunder is not a law firm and this is not legal advice. Every rule here cites its primary source and the date we read it.*
+*SignUnder is not a law firm and this is not legal advice. Every rule here cites its primary source and the date we read it.*

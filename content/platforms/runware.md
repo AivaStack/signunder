@@ -56,10 +56,10 @@ The Commission's guidelines on Article 50, adopted on 20 July 2026, treat a busi
 
 EU processing solves data residency, not marking. Runware's outputs are unmarked, and its terms are among the clearest of the eleven in putting the compliant use of AI-generated content on you. The prohibition on misrepresenting the origin of outputs cuts the other way too: a signed manifest in your name is the strongest statement of origin there is.
 
-Signunder is built to sit in front of APIs like this one and sign every output under your own name, with an invisible watermark and a public verification page; it is pre-launch, and the waitlist is on the homepage.
+SignUnder is built to sit in front of APIs like this one and sign every output under your own name, with an invisible watermark and a public verification page; it is pre-launch, and the waitlist is on the homepage.
 
 ## Changes
 
 - 2026-10-12 — First published.
 
-*Read from Runware's own terms and documentation on 12 October 2026, and its region pages on 8 October 2026. Platforms change; tell us if this is out of date. Signunder is not a law firm and this is not legal advice.*
+*Read from Runware's own terms and documentation on 12 October 2026, and its region pages on 8 October 2026. Platforms change; tell us if this is out of date. SignUnder is not a law firm and this is not legal advice.*
