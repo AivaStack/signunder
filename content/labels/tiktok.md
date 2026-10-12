@@ -1,6 +1,6 @@
 ---
 title: "What TikTok does with Content Credentials and AI labels"
-description: "TikTok auto-labels uploads carrying Content Credentials and requires creators to label realistic AI content. Read 12 Oct 2026."
+description: "TikTok auto-labels uploads carrying Content Credentials and requires creators to label realistic AI content or risk removal. Read 12 Oct 2026."
 slug: tiktok
 type: label
 date: 2026-10-12

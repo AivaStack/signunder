@@ -1,6 +1,6 @@
 ---
 title: "SignUnder or do it yourself with c2pa-rs and TrustMark"
-description: "Open source covers signing: c2pa-rs, TrustMark, PDQ, a free listing and certificate. Left: paperwork, renewal, rules. Read 12 Oct 2026."
+description: "Open source signs and watermarks well: c2pa-rs, TrustMark, PDQ, free listing and certificate. Left: paperwork, renewal, rules, detection. Read 12 Oct 2026."
 slug: diy
 type: compare
 date: 2026-10-12

@@ -1,6 +1,6 @@
 ---
 title: "California's AI Transparency Act: SB 942 as amended by AB 853"
-description: "Operative 2 August 2026 for providers over a million monthly users: latent disclosures, a free detection tool, $5,000. Read 12 Oct 2026."
+description: "Operative 2 August 2026 for providers over a million monthly users: latent disclosures, a free detection tool, $5,000 a violation a day. Read 12 Oct 2026."
 slug: california-sb-942-ab-853
 type: law
 date: 2026-10-12

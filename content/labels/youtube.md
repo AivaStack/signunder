@@ -1,6 +1,6 @@
 ---
 title: "What YouTube does with Content Credentials and altered-content labels"
-description: "YouTube requires disclosure of realistic synthetic content, auto-labels uploads with C2PA metadata and keeps those labels. Read 12 Oct 2026."
+description: "YouTube requires disclosure of realistic synthetic content, auto-labels uploads with C2PA metadata, and does not penalise disclosure. Read 12 Oct 2026."
 slug: youtube
 type: label
 date: 2026-10-12

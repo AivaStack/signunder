@@ -1,6 +1,6 @@
 ---
 title: "What LinkedIn does with Content Credentials"
-description: "LinkedIn shows a C2PA icon on images and video with Content Credentials: issuer, app and whether AI was used. Read 12 Oct 2026."
+description: "LinkedIn shows a C2PA icon on images and video with Content Credentials, naming the issuer, the app and whether AI was used. Read 12 Oct 2026."
 slug: linkedin
 type: label
 date: 2026-10-12

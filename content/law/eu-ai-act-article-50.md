@@ -1,6 +1,6 @@
 ---
 title: "EU AI Act Article 50: who must mark AI content, by when, and how"
-description: "Article 50(2) applies since 2 August 2026; systems on the market before then have until 2 December 2026. Who is the provider. Read 12 Oct 2026."
+description: "Applies since 2 August 2026; systems on the market before then have until 2 December 2026. The provider, the marking, the fines. Read 12 Oct 2026."
 slug: eu-ai-act-article-50
 type: law
 date: 2026-10-12

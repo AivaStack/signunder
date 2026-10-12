@@ -1,6 +1,6 @@
 ---
 title: "Why a verifier says \"Unrecognized\" for your Content Credentials, and the fix"
-description: "Inspect shows Unrecognized when the signing certificate is not on the C2PA Trust List. Read 12 Oct 2026."
+description: "Inspect shows Unrecognized when the signing certificate is not on the C2PA Trust List; the only fix is a listed product's certificate. Read 12 Oct 2026."
 slug: why-content-credentials-say-unrecognized
 type: guide
 date: 2026-10-12

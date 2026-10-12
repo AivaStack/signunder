@@ -1,6 +1,6 @@
 ---
 title: "SignUnder and Resemble AI's Watermarker, compared"
-description: "Resemble signs C2PA records and detects SynthID but is not on the conforming products list. Read 12 Oct 2026."
+description: "Resemble signs C2PA records and detects SynthID, but is not on the conforming products list, so verifiers show Unrecognized. Read 12 Oct 2026."
 slug: resemble
 type: compare
 date: 2026-10-12

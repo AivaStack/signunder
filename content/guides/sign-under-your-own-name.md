@@ -1,6 +1,6 @@
 ---
 title: "Why hosted C2PA signers sign in their name, and the only way to sign in yours"
-description: "The Certificate Policy ties each signing certificate to a listed product and its name. Read 12 Oct 2026."
+description: "The Certificate Policy ties each signing certificate to a listed product and its name, so hosted signers sign as themselves. Read 12 Oct 2026."
 slug: sign-under-your-own-name
 type: guide
 date: 2026-10-12
