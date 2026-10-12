@@ -1,6 +1,6 @@
 ---
 title: "Durable Content Credentials: manifest, watermark and fingerprint"
-description: "The C2PA Deployment Guidance says no single technique suffices: metadata can be stripped, watermarks defeated, fingerprints are probabilistic. Together they recover provenance. Read 12 Oct 2026."
+description: "No single technique suffices, says the C2PA Deployment Guidance: metadata is stripped, watermarks defeated, fingerprints probabilistic. Together they hold."
 slug: durable-content-credentials
 type: guide
 date: 2026-10-12

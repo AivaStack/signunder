@@ -1,6 +1,6 @@
 ---
 title: "What the C2PA conformance forms actually ask"
-description: "We are applying to the C2PA Conformance Program ourselves. Here is every field on the expression-of-interest form, what the intake form wants, and the six objectives of the security document."
+description: "We are applying to the C2PA Conformance Program. Every field on the first form, what the intake form wants, and the security document's six objectives."
 slug: what-the-c2pa-conformance-forms-ask
 type: post
 date: 2026-10-12

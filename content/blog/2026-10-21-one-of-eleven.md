@@ -1,6 +1,6 @@
 ---
 title: "One of eleven: which inference platforms mark AI output"
-description: "We read the terms and documentation of eleven platforms hosting open-weight models. One attaches Content Credentials, signed as itself. All eleven put output on the customer."
+description: "We read the terms of eleven platforms hosting open-weight models. One attaches Content Credentials, signed as itself; all put output on the customer."
 slug: one-of-eleven
 type: post
 date: 2026-10-21

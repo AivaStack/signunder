@@ -1,13 +1,13 @@
 ---
 title: "Interoperable detection by 2 February 2027: what is actually required"
-description: "The Code of Practice asks signatories to make a detection solution available now and an interoperable access method or signpost by 2 February 2027. What the text says and what is still undefined. Read 12 Oct 2026."
+description: "The Code asks for a detection solution now and an interoperable access method or signpost by 2 February 2027. What is required, what is undefined."
 slug: interoperable-detection-2027
 type: guide
 date: 2026-10-12
 updated: 2026-10-12
 reviewed: 2026-10-12
 authors: [eoin]
-tags: [detection, code-of-practice, interoperability, 2027]
+tags: [detection, code-of-practice, interoperability, "2027"]
 sources:
   - title: "Code of Practice on Transparency of AI-Generated Content, Measures 2.1 and 3.4"
     url: https://ec.europa.eu/newsroom/dae/redirection/document/129555

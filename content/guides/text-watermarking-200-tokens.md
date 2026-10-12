@@ -1,6 +1,6 @@
 ---
 title: "The 200-token text rule in the EU Code of Practice"
-description: "The Code expects an imperceptible watermark on free-form AI text longer than 200 tokens, exempts shorter text, and expects the threshold to fall. What it says and where the limits are. Read 12 Oct 2026."
+description: "The Code expects an imperceptible watermark on free-form AI text longer than 200 tokens, exempts shorter text, and expects the threshold to fall."
 slug: text-watermarking-200-tokens
 type: guide
 date: 2026-10-12
