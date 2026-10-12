@@ -1,6 +1,6 @@
 ---
 title: "How to get on the C2PA conforming products list"
-description: "No fee, a median 17 days from intake to listing across 248 records, two assurance levels. The steps, the evidence the reviewers ask for, and the numbers. Read 12 Oct 2026."
+description: "No fee, a median 17 days from intake to listing across 248 records, two assurance levels: the steps, the evidence reviewers ask for. Read 12 Oct 2026."
 slug: c2pa-conformance-program
 type: guide
 date: 2026-10-12

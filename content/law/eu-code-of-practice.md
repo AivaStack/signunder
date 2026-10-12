@@ -1,6 +1,6 @@
 ---
 title: "The EU Code of Practice on AI-generated content: what it asks of you"
-description: "Signed metadata plus an imperceptible watermark, text over 200 tokens included, a detection solution, non-removal, and interoperable detection by 2 February 2027. Read 12 Oct 2026."
+description: "Signed metadata plus an imperceptible watermark, text over 200 tokens included, a detection solution. Read 12 Oct 2026."
 slug: eu-code-of-practice
 type: law
 date: 2026-10-12
