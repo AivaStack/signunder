@@ -1,6 +1,6 @@
 ---
 title: "Does Hugging Face Inference Providers sign your output?"
-description: "Hugging Face Inference Providers attach no manifest and no watermark; what arrives depends on the partner. Its 2022 terms put content on you. Read 12 Oct 2026."
+description: "Hugging Face Inference Providers attach no manifest and no watermark; what arrives depends on the partner. 2022 terms put content on you. Read 12 Oct 2026."
 slug: hugging-face
 type: platform
 date: 2026-10-12
