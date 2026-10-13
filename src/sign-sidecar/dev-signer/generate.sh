@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+# Regenerates the SignUnder development signer: an ES256 root CA and an end-entity
+# signing certificate. NON-CONFORMANT: the key is public, see README.md.
+# Needs OpenSSL 3 (not the LibreSSL that macOS ships as /usr/bin/openssl).
+set -euo pipefail
+cd "$(dirname "$0")"
+tmp=$(mktemp -d)
+trap 'rm -rf "$tmp"' EXIT
+
+cat > "$tmp/openssl.cnf" <<'CNF'
+[root]
+basicConstraints = critical, CA:TRUE
+keyUsage = critical, keyCertSign, cRLSign
+subjectKeyIdentifier = hash
+
+[signer]
+basicConstraints = critical, CA:FALSE
+keyUsage = critical, digitalSignature
+extendedKeyUsage = critical, emailProtection
+subjectKeyIdentifier = hash
+authorityKeyIdentifier = keyid
+CNF
+
+org="SignUnder DEV - NON-CONFORMANT"
+
+openssl ecparam -name prime256v1 -genkey -noout | openssl pkcs8 -topk8 -nocrypt -out "$tmp/root.key"
+openssl req -new -x509 -key "$tmp/root.key" -sha256 -days 3650 \
+  -subj "/O=$org/CN=SignUnder Development Root (not trusted)" \
+  -config "$tmp/openssl.cnf" -extensions root -out "$tmp/root.pem"
+
+openssl ecparam -name prime256v1 -genkey -noout | openssl pkcs8 -topk8 -nocrypt -out es256.key.pem
+openssl req -new -key es256.key.pem -sha256 \
+  -subj "/O=$org/CN=SignUnder Development Signer (not trusted)" -out "$tmp/signer.csr"
+openssl x509 -req -in "$tmp/signer.csr" -CA "$tmp/root.pem" -CAkey "$tmp/root.key" -CAcreateserial \
+  -sha256 -days 3650 -extfile "$tmp/openssl.cnf" -extensions signer -out "$tmp/signer.pem"
+
+# End-entity first, then the root. The root's key is discarded.
+cat "$tmp/signer.pem" "$tmp/root.pem" > es256.chain.pem
+echo "wrote es256.key.pem and es256.chain.pem"

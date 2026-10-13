@@ -2741,6 +2741,7 @@ version = "0.1.0"
 dependencies = [
  "c2pa",
  "prost",
+ "serde_json",
  "tokio",
  "tonic",
  "tonic-health",

@@ -12,5 +12,8 @@ tonic = "0.14.6"
 tonic-health = "0.14.6"
 tonic-prost = "0.14.6"
 
+[dev-dependencies]
+serde_json = "1.0.151"
+
 [build-dependencies]
 tonic-prost-build = "0.14.6"
