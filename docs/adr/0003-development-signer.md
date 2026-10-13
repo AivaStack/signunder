@@ -1,6 +1,6 @@
 # ADR 0003 — Development signer: a committed, public, non-conformant key
 
-- **Status:** Proposed
+- **Status:** Accepted
 - **Date:** 13 October 2026
 - **Deciders:** Eoin
 

@@ -29,9 +29,10 @@ make test    # dotnet test + cargo test
 make fmt     # dotnet format + cargo fmt
 make up      # build and start the local stack in Docker
 make down
+make sample  # with the stack up: sign the fixtures into docs/conformance/samples
 ```
 
-Toolchains come from the `Brewfile` (`brew bundle`).
+Toolchains are listed in the `Brewfile`. Install the missing formulae one by one (`brew install rustup protobuf`, then `rustup default stable`) rather than running `brew bundle`, which installs the `dotnet-sdk` cask over a dotnet that came from elsewhere. Homebrew's rustup is keg-only: `cargo` needs `/opt/homebrew/opt/rustup/bin` on PATH.
 
 ## Hosting
 
