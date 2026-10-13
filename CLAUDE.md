@@ -14,9 +14,10 @@ Hosted service that gets a company signing AI-generated content under its own na
 
 - `src/Signunder.Api`, `Signunder.Core`, `Signunder.Rules`, `Signunder.Sdk`: .NET 10 (version pinned in `global.json`, shared settings in `Directory.Build.props`, warnings are errors).
 - `src/sign-sidecar`: Rust, wraps c2pa-rs, talks gRPC to the API.
-- `src/wm-worker`: Python, managed with uv.
+- `src/wm-worker`: Python, managed with uv. TrustMark watermarking and PDQ fingerprinting over gRPC; its generated gRPC code (`src/wm_worker/pb`) is not committed, `uv run ./genproto.sh` makes it.
 - `proto/signunder/sign/v1/sign.proto`: the API-to-sidecar contract.
-- `tests/`: xUnit projects for Core, Rules and the API (`Signunder.Api.Tests` hosts the API against Postgres in a container with a stand-in sidecar); `tests/conformance` holds the sample generator; the other folders are placeholders.
+- `proto/signunder/wm/v1/wm.proto`: the API-to-watermark-worker contract.
+- `tests/`: xUnit projects for Core, Rules and the API (`Signunder.Api.Tests` hosts the API against Postgres in a container with a stand-in sidecar); `tests/conformance` holds the sample generator; `tests/robustness` holds the watermark survival suite, run from the worker's environment; the other folders are placeholders.
 - `deploy/docker-compose.yml`: local stack.
 - `content/`: blog posts and reference pages (law, platforms, labels, guides, compare) as Markdown, with templates in `content/_templates/`. Published by `signunder-web`, never rendered from here.
 - The web front end (Next.js, shadcn/ui, Zippay template) lives in a separate private repo, `signunder-web`. Never copy template code into this repo: it is licensed, and this repo is meant to be opened.
@@ -25,9 +26,10 @@ Hosted service that gets a company signing AI-generated content under its own na
 
 ```
 make build   # dotnet build + cargo build
-make test    # dotnet test + cargo test (the API tests start Postgres in Docker)
+make test    # dotnet test + cargo test + the worker's pytest (the API tests start Postgres in Docker)
 make test-kms  # sidecar tests that sign through the local-kms emulator (needs Docker)
-make fmt     # dotnet format + cargo fmt
+make robustness  # watermark and fingerprint survival table, then its assertions
+make fmt     # dotnet format + cargo fmt + ruff format
 make up      # build and start the local stack in Docker
 make down
 make sample  # with the stack up: sign the fixtures into docs/conformance/samples
