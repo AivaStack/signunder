@@ -9,10 +9,15 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       Sidecar__Address: http://sign-sidecar:50051
+      # The development key, held by the local-kms emulator. NON-CONFORMANT (ADR 0003).
+      Signer__KeyRef: arn:aws:kms:eu-central-1:111122223333:key/00000000-0000-4000-8000-00005160de01
+      Signer__CertChainPath: /dev-signer/es256.chain.pem
       # Optional RFC 3161 timestamp authority; unset means no timestamp.
       Signer__TsaUrl: ${SIGNUNDER_TSA_URL:-}
       ConnectionStrings__Postgres: Host=postgres;Database=signunder;Username=signunder;Password=signunder
       ConnectionStrings__Redis: redis:6379
+    volumes:
+      - ../src/sign-sidecar/dev-signer/es256.chain.pem:/dev-signer/es256.chain.pem:ro
     ports:
       - "8080:8080"
     depends_on:
@@ -28,12 +33,24 @@ services:
       context: ..
       dockerfile: src/sign-sidecar/Dockerfile
     environment:
-      # NON-CONFORMANT development signer; its key is public. Local use only.
-      SIGNUNDER_DEV_SIGNER_DIR: /dev-signer
-    volumes:
-      - ../src/sign-sidecar/dev-signer:/dev-signer:ro
+      AWS_ENDPOINT_URL: http://local-kms:8080
+      AWS_REGION: eu-central-1
+      AWS_ACCESS_KEY_ID: local
+      AWS_SECRET_ACCESS_KEY: local
     ports:
       - "50051:50051"
+    depends_on:
+      - local-kms
+
+  # Stands in for AWS KMS and holds the public, NON-CONFORMANT development key.
+  local-kms:
+    image: nsmithuk/local-kms:3
+    environment:
+      KMS_REGION: eu-central-1
+    volumes:
+      - ../src/sign-sidecar/dev-signer/local-kms-seed.yaml:/init/seed.yaml:ro
+    ports:
+      - "4599:8080"
 
   postgres:
     image: postgres:18

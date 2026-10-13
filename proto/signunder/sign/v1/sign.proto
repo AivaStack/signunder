@@ -13,10 +13,11 @@ service SignService {
 }
 
 message SignerRef {
-  // KMS key ARN, or a local key identifier for the non-conformant dev signer.
+  // KMS key ARN, or "dev:local" for the non-conformant development signer.
   string key_ref = 1;
   // "es256" or "ps256".
   string algorithm = 2;
+  // Signing certificate first. Required with a KMS key; empty for the development signer.
   string cert_chain_pem = 3;
   // RFC 3161 timestamp authority URL.
   string tsa_url = 4;

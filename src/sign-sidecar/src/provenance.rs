@@ -4,7 +4,9 @@
 use std::io::Cursor;
 use std::path::Path;
 
-use c2pa::{Builder, Context, Reader, SigningAlg, ValidationState, create_signer};
+use c2pa::{
+    BoxedSigner, Builder, Context, Reader, Signer, SigningAlg, ValidationState, create_signer,
+};
 use tonic::Status;
 
 /// `SignerRef.key_ref` that selects the development signer.
@@ -26,6 +28,11 @@ impl DevSigner {
             chain_pem: std::fs::read(dir.join(DEV_CHAIN_FILE))?,
             key_pem: std::fs::read(dir.join(DEV_KEY_FILE))?,
         })
+    }
+
+    pub fn signer(&self, tsa_url: Option<String>) -> Result<BoxedSigner, Status> {
+        create_signer::from_keys(&self.chain_pem, &self.key_pem, SigningAlg::Es256, tsa_url)
+            .map_err(internal)
     }
 }
 
@@ -49,17 +56,13 @@ fn invalid(e: c2pa::Error) -> Status {
     Status::invalid_argument(format!("c2pa: {e}"))
 }
 
-/// Signs `asset` with the development signer and validates the result before returning it.
+/// Signs `asset` and validates the result before returning it.
 pub fn sign(
-    dev: &DevSigner,
+    signer: &dyn Signer,
     asset: &[u8],
     mime_type: &str,
     manifest_definition_json: &str,
-    tsa_url: Option<String>,
 ) -> Result<Signed, Status> {
-    let signer = create_signer::from_keys(&dev.chain_pem, &dev.key_pem, SigningAlg::Es256, tsa_url)
-        .map_err(internal)?;
-
     let mut builder = Builder::from_context(context()?)
         .with_definition(manifest_definition_json)
         .map_err(invalid)?;
@@ -67,7 +70,7 @@ pub fn sign(
     let mut source = Cursor::new(asset);
     let mut dest = Cursor::new(Vec::with_capacity(asset.len() + 32 * 1024));
     let manifest_store = builder
-        .sign(signer.as_ref(), mime_type, &mut source, &mut dest)
+        .sign(signer, mime_type, &mut source, &mut dest)
         .map_err(|e| match e {
             c2pa::Error::UnsupportedType | c2pa::Error::InvalidAsset(_) => invalid(e),
             e => internal(e),
@@ -122,8 +125,11 @@ mod tests {
         }]
     }"#;
 
-    fn dev() -> DevSigner {
-        DevSigner::load(&Path::new(env!("CARGO_MANIFEST_DIR")).join("dev-signer")).unwrap()
+    fn dev() -> BoxedSigner {
+        DevSigner::load(&Path::new(env!("CARGO_MANIFEST_DIR")).join("dev-signer"))
+            .unwrap()
+            .signer(None)
+            .unwrap()
     }
 
     fn codes<'a>(report: &'a serde_json::Value, outcome: &str) -> Vec<&'a str> {
@@ -136,7 +142,7 @@ mod tests {
     }
 
     fn signs_and_validates(original: &[u8], mime_type: &str) {
-        let signed = sign(&dev(), original, mime_type, DEFINITION, None).unwrap();
+        let signed = sign(dev().as_ref(), original, mime_type, DEFINITION).unwrap();
         assert!(signed.asset.len() > original.len());
         assert!(!signed.manifest_store.is_empty());
 
@@ -172,7 +178,7 @@ mod tests {
     }
 
     fn detects_tampering(original: &[u8], mime_type: &str) {
-        let mut tampered = sign(&dev(), original, mime_type, DEFINITION, None)
+        let mut tampered = sign(dev().as_ref(), original, mime_type, DEFINITION)
             .unwrap()
             .asset;
         // The manifest is embedded near the start of both formats, so this is image data.
@@ -214,7 +220,7 @@ mod tests {
 
     #[test]
     fn bad_manifest_definition_is_rejected() {
-        let status = sign(&dev(), JPEG, "image/jpeg", "not json", None)
+        let status = sign(dev().as_ref(), JPEG, "image/jpeg", "not json")
             .err()
             .unwrap();
         assert_eq!(status.code(), tonic::Code::InvalidArgument);
@@ -222,7 +228,7 @@ mod tests {
 
     #[test]
     fn unparseable_asset_is_rejected() {
-        let status = sign(&dev(), b"not a jpeg", "image/jpeg", DEFINITION, None)
+        let status = sign(dev().as_ref(), b"not a jpeg", "image/jpeg", DEFINITION)
             .err()
             .unwrap();
         assert_eq!(status.code(), tonic::Code::InvalidArgument);
@@ -230,7 +236,7 @@ mod tests {
 
     #[test]
     fn unsupported_format_is_rejected() {
-        let status = sign(&dev(), b"plain text", "text/plain", DEFINITION, None)
+        let status = sign(dev().as_ref(), b"plain text", "text/plain", DEFINITION)
             .err()
             .unwrap();
         assert_eq!(status.code(), tonic::Code::InvalidArgument);

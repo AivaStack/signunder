@@ -59,6 +59,10 @@ app.MapPost("/v1/sign", async (
         return Results.Problem("Only image/jpeg and image/png are supported.", statusCode: 415);
     }
 
+    // A KMS key needs its certificate chain sent along; the development signer has its own.
+    var certChainPath = config["Signer:CertChainPath"];
+    var certChainPem = string.IsNullOrEmpty(certChainPath) ? "" : await File.ReadAllTextAsync(certChainPath, ct);
+
     await using var upload = file.OpenReadStream();
     var request = new SignRequest
     {
@@ -91,6 +95,7 @@ app.MapPost("/v1/sign", async (
         {
             KeyRef = keyRef,
             Algorithm = config["Signer:Algorithm"] ?? "es256",
+            CertChainPem = certChainPem,
             TsaUrl = config["Signer:TsaUrl"] ?? "",
         },
     };

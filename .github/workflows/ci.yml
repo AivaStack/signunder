@@ -25,3 +25,4 @@ jobs:
           components: rustfmt
       - run: cargo fmt --manifest-path src/sign-sidecar/Cargo.toml --check
       - run: cargo test --locked --manifest-path src/sign-sidecar/Cargo.toml
+      - run: make test-kms

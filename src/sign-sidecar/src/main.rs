@@ -5,12 +5,14 @@ use std::sync::Arc;
 use tokio::signal::unix::{SignalKind, signal};
 use tonic::{Request, Response, Status, transport::Server};
 
+mod kms;
 mod provenance;
 
 pub mod pb {
     tonic::include_proto!("signunder.sign.v1");
 }
 
+use kms::KEY_ARN_PREFIX;
 use pb::sign_service_server::{SignService, SignServiceServer};
 use pb::{SignRequest, SignResponse, SignerRef, ValidateRequest, ValidateResponse};
 use provenance::{DEV_KEY_REF, DevSigner};
@@ -20,17 +22,12 @@ const MAX_MESSAGE_BYTES: usize = 64 * 1024 * 1024;
 
 struct Sidecar {
     dev_signer: Option<Arc<DevSigner>>,
+    kms: aws_sdk_kms::Client,
 }
 
 impl Sidecar {
-    /// Only the development signer exists so far; KMS-backed signers are Phase 1.
-    fn dev_signer(&self, signer: Option<&SignerRef>) -> Result<Arc<DevSigner>, Status> {
-        let signer = signer.ok_or_else(|| Status::invalid_argument("signer is required"))?;
-        if signer.key_ref != DEV_KEY_REF {
-            return Err(Status::unimplemented(format!(
-                "only the development signer ({DEV_KEY_REF}) is implemented"
-            )));
-        }
+    /// Checks a development-signer request and returns the signer's key material.
+    fn dev_signer(&self, signer: &SignerRef) -> Result<Arc<DevSigner>, Status> {
         if signer.algorithm != "es256" {
             return Err(Status::invalid_argument(
                 "the development signer only signs with es256",
@@ -61,19 +58,40 @@ async fn blocking<T: Send + 'static>(
 impl SignService for Sidecar {
     async fn sign(&self, request: Request<SignRequest>) -> Result<Response<SignResponse>, Status> {
         let request = request.into_inner();
-        let dev = self.dev_signer(request.signer.as_ref())?;
-        let tsa_url = request
+        let signer = request
             .signer
-            .map(|signer| signer.tsa_url)
-            .filter(|url| !url.is_empty());
+            .ok_or_else(|| Status::invalid_argument("signer is required"))?;
+        let tsa_url = Some(signer.tsa_url.clone()).filter(|url| !url.is_empty());
+
+        let dev = if signer.key_ref == DEV_KEY_REF {
+            Some(self.dev_signer(&signer)?)
+        } else if signer.key_ref.starts_with(KEY_ARN_PREFIX) {
+            None
+        } else {
+            return Err(Status::invalid_argument(format!(
+                "key_ref must be a KMS key ARN or {DEV_KEY_REF}"
+            )));
+        };
+        let kms = self.kms.clone();
+        let runtime = tokio::runtime::Handle::current();
 
         let signed = blocking(move || {
+            let signer: Box<dyn c2pa::Signer> = match dev {
+                Some(dev) => dev.signer(tsa_url)?,
+                None => Box::new(kms::signer(
+                    kms,
+                    runtime,
+                    signer.key_ref,
+                    &signer.algorithm,
+                    &signer.cert_chain_pem,
+                    tsa_url,
+                )?),
+            };
             provenance::sign(
-                &dev,
+                signer.as_ref(),
                 &request.asset,
                 &request.mime_type,
                 &request.manifest_definition_json,
-                tsa_url,
             )
         })
         .await?;
@@ -139,9 +157,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     Server::builder()
         .add_service(health)
         .add_service(
-            SignServiceServer::new(Sidecar { dev_signer })
-                .max_decoding_message_size(MAX_MESSAGE_BYTES)
-                .max_encoding_message_size(MAX_MESSAGE_BYTES),
+            SignServiceServer::new(Sidecar {
+                dev_signer,
+                kms: kms::client().await,
+            })
+            .max_decoding_message_size(MAX_MESSAGE_BYTES)
+            .max_encoding_message_size(MAX_MESSAGE_BYTES),
         )
         .serve_with_shutdown(addr, shutdown())
         .await?;
