@@ -24,6 +24,7 @@
 
   <ItemGroup>
     <Protobuf Include="..\..\proto\signunder\sign\v1\sign.proto" ProtoRoot="..\..\proto" GrpcServices="Client" />
+    <Protobuf Include="..\..\proto\signunder\wm\v1\wm.proto" ProtoRoot="..\..\proto" GrpcServices="Client" />
   </ItemGroup>
 
 </Project>

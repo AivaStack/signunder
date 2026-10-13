@@ -9,6 +9,7 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       Sidecar__Address: http://sign-sidecar:50051
+      Watermark__Address: http://wm-worker:50052
       # The development key, held by the local-kms emulator. NON-CONFORMANT (ADR 0003).
       Signer__KeyRef: arn:aws:kms:eu-central-1:111122223333:key/00000000-0000-4000-8000-00005160de01
       Signer__CertChainPath: /dev-signer/es256.chain.pem
@@ -29,6 +30,8 @@ services:
     depends_on:
       sign-sidecar:
         condition: service_started
+      wm-worker:
+        condition: service_healthy
       postgres:
         condition: service_healthy
       redis:
@@ -47,6 +50,19 @@ services:
       - "50051:50051"
     depends_on:
       - local-kms
+
+  wm-worker:
+    build:
+      context: ..
+      dockerfile: src/wm-worker/Dockerfile
+    ports:
+      - "50052:50052"
+    # The model takes a few seconds to load before the port opens.
+    healthcheck:
+      test: ["CMD", "python", "-c", "import socket; socket.create_connection(('localhost', 50052), 2)"]
+      interval: 2s
+      timeout: 3s
+      retries: 60
 
   # Stands in for AWS KMS and holds the public, NON-CONFORMANT development key.
   local-kms:

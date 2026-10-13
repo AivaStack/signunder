@@ -38,6 +38,8 @@ message SignerRef {
 message SignRequest {
   bytes asset = 1;
   string mime_type = 2;
+  // A c2pa-rs manifest definition. In a c2pa.soft-binding assertion, each block's value
+  // is base64; the sidecar stores it as bytes.
   string manifest_definition_json = 3;
   SignerRef signer = 4;
 }

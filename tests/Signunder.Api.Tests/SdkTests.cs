@@ -19,7 +19,7 @@ public class SdkTests(ApiFactory api) : IClassFixture<ApiFactory>
 
         var signed = await client.SignAsync(Jpeg, "picture.jpg", "image/jpeg");
 
-        Assert.Equal([.. Jpeg, .. "[signed]"u8], signed.Content);
+        Assert.Equal([.. Jpeg, .. "[marked]"u8, .. "[signed]"u8], signed.Content);
         Assert.Equal("image/jpeg", signed.ContentType);
         Assert.Equal(26, signed.RecordId.Length);
 
@@ -32,7 +32,10 @@ public class SdkTests(ApiFactory api) : IClassFixture<ApiFactory>
         Assert.Equal("valid", record.ValidationState);
         Assert.Equal(["c2pa.created"], record.Actions);
         Assert.True(record.Layers["manifest"]);
-        Assert.False(record.Layers["watermark"]);
+        Assert.True(record.Layers["watermark"]);
+        Assert.Equal(16, record.WmPayload?.Length);
+        Assert.Equal(64, record.Fingerprint?.Length);
+        Assert.Equal(87, record.FingerprintQuality);
         Assert.True(record.ValidationReport.TryGetProperty("manifests", out _));
     }
 

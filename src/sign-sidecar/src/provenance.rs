@@ -4,6 +4,8 @@
 use std::io::Cursor;
 use std::path::Path;
 
+use base64::Engine;
+use c2pa::assertions::{SoftBinding, SoftBindingBlock, labels::SOFT_BINDING};
 use c2pa::{
     BoxedSigner, Builder, Context, Reader, Signer, SigningAlg, ValidationState, create_signer,
 };
@@ -64,9 +66,15 @@ pub fn sign(
     mime_type: &str,
     manifest_definition_json: &str,
 ) -> Result<Signed, Status> {
+    let (definition, soft_bindings) = take_soft_bindings(manifest_definition_json)?;
     let mut builder = Builder::from_context(context()?)
-        .with_definition(manifest_definition_json)
+        .with_definition(definition.as_str())
         .map_err(invalid)?;
+    for soft_binding in &soft_bindings {
+        builder
+            .add_assertion(SOFT_BINDING, soft_binding)
+            .map_err(invalid)?;
+    }
 
     let mut source = Cursor::new(asset);
     let mut dest = Cursor::new(Vec::with_capacity(asset.len() + 32 * 1024));
@@ -96,6 +104,62 @@ pub fn sign(
         state,
         report_json,
     })
+}
+
+/// Takes the `c2pa.soft-binding` assertions out of a manifest definition so they can be
+/// added as typed assertions. A soft binding's block values are bytes; left in the JSON
+/// definition they would be stored as text. In the definition they are base64.
+fn take_soft_bindings(definition: &str) -> Result<(String, Vec<SoftBinding>), Status> {
+    let bad = |what: &str| Status::invalid_argument(format!("{SOFT_BINDING}: {what}"));
+
+    // Anything that is not a JSON object is left for c2pa-rs to reject.
+    let Ok(mut root) = serde_json::from_str::<serde_json::Value>(definition) else {
+        return Ok((definition.to_owned(), Vec::new()));
+    };
+    let Some(assertions) = root.get_mut("assertions").and_then(|a| a.as_array_mut()) else {
+        return Ok((definition.to_owned(), Vec::new()));
+    };
+
+    let mut soft_bindings = Vec::new();
+    let mut kept = Vec::with_capacity(assertions.len());
+    for assertion in assertions.drain(..) {
+        if assertion["label"] != SOFT_BINDING {
+            kept.push(assertion);
+            continue;
+        }
+        let data = &assertion["data"];
+        let alg = data["alg"].as_str().ok_or_else(|| bad("alg is required"))?;
+        let blocks = data["blocks"]
+            .as_array()
+            .filter(|blocks| !blocks.is_empty())
+            .ok_or_else(|| bad("blocks is required"))?;
+        let blocks = blocks
+            .iter()
+            .map(|block| {
+                if block["scope"]
+                    .as_object()
+                    .is_some_and(|scope| !scope.is_empty())
+                {
+                    return Err(bad("block scopes are not supported"));
+                }
+                let value = block["value"]
+                    .as_str()
+                    .and_then(|v| base64::engine::general_purpose::STANDARD.decode(v).ok())
+                    .ok_or_else(|| bad("block value must be base64"))?;
+                Ok(SoftBindingBlock {
+                    scope: Default::default(),
+                    value,
+                })
+            })
+            .collect::<Result<_, _>>()?;
+        // The padding fields are private, so this cannot be a struct literal.
+        let mut soft_binding = SoftBinding::default();
+        soft_binding.alg = Some(alg.to_owned());
+        soft_binding.blocks = blocks;
+        soft_bindings.push(soft_binding);
+    }
+    *assertions = kept;
+    Ok((root.to_string(), soft_bindings))
 }
 
 /// Reads and validates the manifest store in `asset`. The report is crJSON, the format
@@ -230,6 +294,62 @@ mod tests {
             .err()
             .unwrap();
         assert_eq!(status.code(), tonic::Code::InvalidArgument);
+    }
+
+    fn with_soft_binding(data: &str) -> String {
+        let mut definition: serde_json::Value = serde_json::from_str(DEFINITION).unwrap();
+        definition["assertions"].as_array_mut().unwrap().push(
+            serde_json::json!({"label": "c2pa.soft-binding", "data": serde_json::from_str::<serde_json::Value>(data).unwrap()}),
+        );
+        definition.to_string()
+    }
+
+    #[test]
+    fn soft_binding_value_is_stored_as_bytes() {
+        let definition = with_soft_binding(
+            r#"{"alg": "com.adobe.trustmark.Q", "blocks": [{"scope": {}, "value": "AAECAwQFBgc="}]}"#,
+        );
+
+        let signed = sign(dev().as_ref(), PNG, "image/png", &definition).unwrap();
+
+        assert_eq!(signed.state, ValidationState::Valid);
+        let report: serde_json::Value = serde_json::from_str(&signed.report_json).unwrap();
+        let assertions = &report["manifests"][0]["assertions"];
+        let soft_binding = &assertions["c2pa.soft-binding"];
+        assert_eq!(soft_binding["alg"], "com.adobe.trustmark.Q");
+        assert_eq!(
+            soft_binding["blocks"][0]["value"],
+            serde_json::json!([0, 1, 2, 3, 4, 5, 6, 7])
+        );
+        // crJSON prints a byte string and an array of numbers alike, so look at the CBOR:
+        // the key "value", then a byte string of length 8 (0x48). An array would be 0x88.
+        let encoded = b"\x65value\x48\x00\x01\x02\x03\x04\x05\x06\x07";
+        assert!(
+            signed
+                .manifest_store
+                .windows(encoded.len())
+                .any(|window| window == encoded)
+        );
+        assert_eq!(
+            assertions["c2pa.actions.v2"]["actions"][0]["action"],
+            "c2pa.created"
+        );
+    }
+
+    #[test]
+    fn malformed_soft_binding_is_rejected() {
+        for data in [
+            r#"{"blocks": [{"scope": {}, "value": "AAE="}]}"#,
+            r#"{"alg": "x", "blocks": []}"#,
+            r#"{"alg": "x", "blocks": [{"scope": {}, "value": "not base64!"}]}"#,
+            r#"{"alg": "x", "blocks": [{"scope": {}, "value": [0, 1]}]}"#,
+            r#"{"alg": "x", "blocks": [{"scope": {"region": {}}, "value": "AAE="}]}"#,
+        ] {
+            let status = sign(dev().as_ref(), JPEG, "image/jpeg", &with_soft_binding(data))
+                .err()
+                .unwrap();
+            assert_eq!(status.code(), tonic::Code::InvalidArgument, "{data}");
+        }
     }
 
     #[test]

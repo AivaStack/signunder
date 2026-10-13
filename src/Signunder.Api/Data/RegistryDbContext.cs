@@ -43,6 +43,7 @@ public sealed class RegistryDbContext(DbContextOptions<RegistryDbContext> option
             record.HasOne<Tenant>().WithMany().HasForeignKey(r => r.TenantId);
             record.HasOne<TenantKey>().WithMany().HasForeignKey(r => r.TenantKeyId);
             record.HasIndex(r => r.ManifestHash);
+            record.HasIndex(r => r.WmPayload).IsUnique();
             record.HasIndex(r => new { r.TenantId, r.CreatedAt });
         });
     }

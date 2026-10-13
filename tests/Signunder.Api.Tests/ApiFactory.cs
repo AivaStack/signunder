@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Signunder.Api.Data;
 using Signunder.Core.Registry;
 using Signunder.Sign.V1;
+using Signunder.Wm.V1;
 using Testcontainers.PostgreSql;
 
 namespace Signunder.Api.Tests;
@@ -22,6 +23,8 @@ public sealed class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
     private readonly PostgreSqlContainer _postgres = new PostgreSqlBuilder("postgres:18").Build();
 
     public FakeSidecar Sidecar { get; } = new();
+
+    public FakeWatermarker Watermarker { get; } = new();
 
     public Task InitializeAsync() => _postgres.StartAsync();
 
@@ -42,6 +45,7 @@ public sealed class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
         {
             services.RemoveAll<SignService.SignServiceClient>();
             services.AddSingleton<SignService.SignServiceClient>(Sidecar);
+            services.AddSingleton<WatermarkService.WatermarkServiceClient>(Watermarker);
         });
     }
 
@@ -106,9 +110,12 @@ public sealed class FakeSidecar : SignService.SignServiceClient
 
     public SignerRef? LastSigner { get; private set; }
 
+    public SignRequest? LastRequest { get; private set; }
+
     public override AsyncUnaryCall<SignResponse> SignAsync(SignRequest request, CallOptions options)
     {
         LastSigner = request.Signer;
+        LastRequest = request;
         return Call(new SignResponse
         {
             SignedAsset = ByteString.CopyFrom([.. request.Asset.Span, .. Marker.Span]),
@@ -127,6 +134,32 @@ public sealed class FakeSidecar : SignService.SignServiceClient
         return Call(new ValidateResponse { ValidationReportJson = Report, ValidationState = ValidationState.Valid });
     }
 
-    private static AsyncUnaryCall<T> Call<T>(T reply) => new(
+    internal static AsyncUnaryCall<T> Call<T>(T reply) => new(
         Task.FromResult(reply), Task.FromResult(new Metadata()), () => Status.DefaultSuccess, () => [], () => { });
+}
+
+/// <summary>
+/// Stands in for the watermark worker: "marks" by appending a marker and returns a fixed
+/// fingerprint. A one-byte image is refused, as an unreadable one would be.
+/// </summary>
+public sealed class FakeWatermarker : WatermarkService.WatermarkServiceClient
+{
+    public static readonly byte[] Pdq = [.. Enumerable.Range(0, 32).Select(i => (byte)i)];
+
+    public EmbedRequest? LastRequest { get; private set; }
+
+    public override AsyncUnaryCall<EmbedResponse> EmbedAsync(EmbedRequest request, CallOptions options)
+    {
+        if (request.Asset.Length == 1)
+        {
+            throw new RpcException(new Status(StatusCode.InvalidArgument, "could not read the image"));
+        }
+        LastRequest = request;
+        return FakeSidecar.Call(new EmbedResponse
+        {
+            WatermarkedAsset = ByteString.CopyFrom([.. request.Asset.Span, .. "[marked]"u8]),
+            Algorithm = "com.adobe.trustmark.Q",
+            Fingerprint = new Fingerprint { Pdq = ByteString.CopyFrom(Pdq), Quality = 87 },
+        });
+    }
 }

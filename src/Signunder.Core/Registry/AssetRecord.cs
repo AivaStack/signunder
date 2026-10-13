@@ -36,6 +36,15 @@ public sealed class AssetRecord
     /// <summary>The sidecar's crJSON report from validating the output after signing.</summary>
     public required string ValidationReport { get; init; }
 
+    /// <summary>The 61-bit number carried by the output's invisible watermark, if it has one.</summary>
+    public long? WmPayload { get; init; }
+
+    /// <summary>The output's 256-bit PDQ perceptual hash, if it was fingerprinted.</summary>
+    public byte[]? Fingerprint { get; init; }
+
+    /// <summary>PDQ's 0 to 100 measure of how reliable <see cref="Fingerprint"/> is.</summary>
+    public int? FingerprintQuality { get; init; }
+
     public static AssetRecord ForSignedImage(
         TenantKey key,
         string mime,
@@ -43,7 +52,8 @@ public sealed class AssetRecord
         ReadOnlySpan<byte> manifestStore,
         string validationReport,
         ValidationState state,
-        DateTimeOffset now)
+        DateTimeOffset now,
+        Marking? marking = null)
     {
         var summary = VerificationSummary.FromCrJson(validationReport, state);
         return new AssetRecord
@@ -60,8 +70,33 @@ public sealed class AssetRecord
             ManifestLabel = summary.ManifestLabel,
             ValidationState = state,
             Actions = JsonSerializer.Serialize(summary.Actions),
-            Layers = """{"manifest": true, "watermark": false, "fingerprint": false}""",
+            Layers = JsonSerializer.Serialize(new { manifest = true, watermark = marking is not null, fingerprint = marking is not null }),
             ValidationReport = validationReport,
+            WmPayload = marking?.WatermarkPayload,
+            Fingerprint = marking?.Pdq,
+            FingerprintQuality = marking?.PdqQuality,
         };
+    }
+}
+
+/// <summary>What the watermark worker did to an output before it was signed.</summary>
+/// <param name="WatermarkPayload">The number embedded in the pixels; below 2^61.</param>
+/// <param name="Algorithm">The soft-binding algorithm name, for example <c>com.adobe.trustmark.Q</c>.</param>
+/// <param name="Pdq">The 32-byte PDQ hash of the watermarked image.</param>
+/// <param name="PdqQuality">PDQ's 0 to 100 quality measure.</param>
+public sealed record Marking(long WatermarkPayload, string Algorithm, byte[] Pdq, int PdqQuality)
+{
+    public const int PayloadBits = 61;
+
+    /// <summary>A fresh random payload.</summary>
+    public static long NewPayload() =>
+        (long)(BitConverter.ToUInt64(RandomNumberGenerator.GetBytes(8)) >> (64 - PayloadBits));
+
+    /// <summary>The payload as the eight big-endian bytes recorded in the manifest's soft binding.</summary>
+    public static byte[] PayloadBytes(long payload)
+    {
+        var bytes = new byte[8];
+        System.Buffers.Binary.BinaryPrimitives.WriteInt64BigEndian(bytes, payload);
+        return bytes;
     }
 }

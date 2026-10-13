@@ -94,6 +94,14 @@ namespace Signunder.Api.Data.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
 
+                    b.Property<byte[]>("Fingerprint")
+                        .HasColumnType("bytea")
+                        .HasColumnName("fingerprint");
+
+                    b.Property<int?>("FingerprintQuality")
+                        .HasColumnType("integer")
+                        .HasColumnName("fingerprint_quality");
+
                     b.Property<string>("Layers")
                         .IsRequired()
                         .HasColumnType("jsonb")
@@ -140,6 +148,10 @@ namespace Signunder.Api.Data.Migrations
                         .HasColumnType("text")
                         .HasColumnName("validation_state");
 
+                    b.Property<long?>("WmPayload")
+                        .HasColumnType("bigint")
+                        .HasColumnName("wm_payload");
+
                     b.HasKey("Id")
                         .HasName("pk_asset_record");
 
@@ -148,6 +160,10 @@ namespace Signunder.Api.Data.Migrations
 
                     b.HasIndex("TenantKeyId")
                         .HasDatabaseName("ix_asset_record_tenant_key_id");
+
+                    b.HasIndex("WmPayload")
+                        .IsUnique()
+                        .HasDatabaseName("ix_asset_record_wm_payload");
 
                     b.HasIndex("TenantId", "CreatedAt")
                         .HasDatabaseName("ix_asset_record_tenant_id_created_at");

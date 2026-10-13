@@ -49,6 +49,9 @@ public sealed record Verification(
 /// <param name="Actions">The actions the manifest declares.</param>
 /// <param name="Layers">Which marking layers the output carries, by name.</param>
 /// <param name="ValidationReport">The crJSON report from validating the output after signing.</param>
+/// <param name="WmPayload">The number carried by the output's invisible watermark, as 16 hex digits; null if it has none.</param>
+/// <param name="Fingerprint">The output's PDQ perceptual hash, as 64 hex digits; null if it was not fingerprinted.</param>
+/// <param name="FingerprintQuality">PDQ's 0 to 100 measure of how reliable the fingerprint is.</param>
 public sealed record AssetRecord(
     string Id,
     Guid TenantId,
@@ -62,7 +65,10 @@ public sealed record AssetRecord(
     string ValidationState,
     IReadOnlyList<string> Actions,
     IReadOnlyDictionary<string, bool> Layers,
-    JsonElement ValidationReport);
+    JsonElement ValidationReport,
+    string? WmPayload = null,
+    string? Fingerprint = null,
+    int? FingerprintQuality = null);
 
 /// <summary>The SignUnder API refused a request.</summary>
 public sealed class SignunderException(HttpStatusCode statusCode, string message) : Exception(message)

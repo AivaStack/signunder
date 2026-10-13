@@ -72,7 +72,7 @@ public class ApiTests(ApiFactory api) : IClassFixture<ApiFactory>
         Assert.Equal(HttpStatusCode.OK, signed.StatusCode);
         Assert.Equal("image/jpeg", signed.Content.Headers.ContentType?.MediaType);
         var bytes = await signed.Content.ReadAsByteArrayAsync();
-        Assert.Equal([1, 2, 3, .. "[signed]"u8], bytes);
+        Assert.Equal([1, 2, 3, .. "[marked]"u8, .. "[signed]"u8], bytes);
 
         var record = await client.GetFromJsonAsync<JsonObject>($"/v1/records/{RecordId(signed)}");
         Assert.Equal(RecordId(signed), (string?)record!["id"]);
@@ -81,6 +81,42 @@ public class ApiTests(ApiFactory api) : IClassFixture<ApiFactory>
         Assert.Equal("valid", (string?)record["validation_state"]);
         Assert.Equal("c2pa.created", (string?)record["actions"]![0]);
         Assert.NotNull(record["validation_report"]!["manifests"]);
+    }
+
+    [Fact]
+    public async Task Sign_watermarks_first_and_binds_the_payload_into_the_manifest()
+    {
+        var client = api.ClientWithKey(await api.AddTenantAsync("marked", ApiScopes.All, "arn:aws:kms:eu-central-1:1:key/marked"));
+
+        var signed = await client.PostAsync("/v1/sign", Image([1, 2, 3]));
+
+        // The sidecar was given the watermarked bytes, not the upload.
+        var toSidecar = api.Sidecar.LastRequest!;
+        Assert.Equal([1, 2, 3, .. "[marked]"u8], toSidecar.Asset.ToByteArray());
+
+        var payload = api.Watermarker.LastRequest!.Payload;
+        Assert.InRange(payload, 0UL, (1UL << 61) - 1);
+
+        var softBinding = JsonNode.Parse(toSidecar.ManifestDefinitionJson)!["assertions"]!.AsArray()
+            .Single(a => (string?)a!["label"] == "c2pa.soft-binding")!["data"]!;
+        Assert.Equal("com.adobe.trustmark.Q", (string?)softBinding["alg"]);
+        var bound = Convert.FromBase64String((string)softBinding["blocks"]![0]!["value"]!);
+        Assert.Equal(payload, System.Buffers.Binary.BinaryPrimitives.ReadUInt64BigEndian(bound));
+
+        var record = await client.GetFromJsonAsync<JsonObject>($"/v1/records/{RecordId(signed)}");
+        Assert.Equal(payload.ToString("x16"), (string?)record!["wm_payload"]);
+        Assert.Equal(Convert.ToHexStringLower(FakeWatermarker.Pdq), (string?)record["fingerprint"]);
+        Assert.Equal(87, (int?)record["fingerprint_quality"]);
+        Assert.True((bool?)record["layers"]!["watermark"]);
+        Assert.True((bool?)record["layers"]!["fingerprint"]);
+    }
+
+    [Fact]
+    public async Task Image_the_watermark_worker_cannot_read_is_a_bad_request()
+    {
+        var client = api.ClientWithKey(ApiFactory.DemoKey);
+
+        Assert.Equal(HttpStatusCode.BadRequest, (await client.PostAsync("/v1/sign", Image([7]))).StatusCode);
     }
 
     [Fact]

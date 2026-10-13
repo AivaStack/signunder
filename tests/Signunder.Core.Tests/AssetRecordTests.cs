@@ -38,6 +38,32 @@ public class AssetRecordTests
         Assert.Equal(ValidationState.Valid, record.ValidationState);
         Assert.Equal("""["c2pa.created"]""", record.Actions);
         Assert.Equal(Report, record.ValidationReport);
+        Assert.Equal("""{"manifest":true,"watermark":false,"fingerprint":false}""", record.Layers);
+        Assert.Null(record.WmPayload);
+        Assert.Null(record.Fingerprint);
+    }
+
+    [Fact]
+    public void Record_of_a_marked_output_carries_the_payload_and_fingerprint()
+    {
+        var marking = new Marking(Marking.NewPayload(), "com.adobe.trustmark.Q", new byte[32], 90);
+
+        var record = AssetRecord.ForSignedImage(Key, "image/png", [1], [2], Report, ValidationState.Valid, DateTimeOffset.UtcNow, marking);
+
+        Assert.Equal(marking.WatermarkPayload, record.WmPayload);
+        Assert.Equal(marking.Pdq, record.Fingerprint);
+        Assert.Equal(90, record.FingerprintQuality);
+        Assert.Equal("""{"manifest":true,"watermark":true,"fingerprint":true}""", record.Layers);
+    }
+
+    [Fact]
+    public void Payloads_fit_in_61_bits_and_are_written_big_endian()
+    {
+        for (var i = 0; i < 1000; i++)
+        {
+            Assert.InRange(Marking.NewPayload(), 0, (1L << Marking.PayloadBits) - 1);
+        }
+        Assert.Equal([0, 0, 0, 0, 0, 0, 1, 2], Marking.PayloadBytes(258));
     }
 
     [Fact]

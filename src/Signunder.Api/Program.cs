@@ -2,12 +2,14 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Signunder.Api.Auth;
 using Signunder.Api.Data;
 using Signunder.Core.Registry;
 using Signunder.Core.Verification;
 using Signunder.Sign.V1;
+using Signunder.Wm.V1;
 using Grpc.Core;
 using Grpc.Health.V1;
 
@@ -32,6 +34,18 @@ builder.Services
         o.MaxReceiveMessageSize = MaxSidecarMessageBytes;
     });
 builder.Services.AddGrpcClient<Health.HealthClient>(o => o.Address = sidecarAddress);
+
+// The watermark worker is optional: without an address, outputs are signed unmarked.
+if (builder.Configuration["Watermark:Address"] is { Length: > 0 } watermarkAddress)
+{
+    builder.Services
+        .AddGrpcClient<WatermarkService.WatermarkServiceClient>(o => o.Address = new Uri(watermarkAddress))
+        .ConfigureChannel(o =>
+        {
+            o.MaxSendMessageSize = MaxSidecarMessageBytes;
+            o.MaxReceiveMessageSize = MaxSidecarMessageBytes;
+        });
+}
 
 builder.Services.AddDbContext<RegistryDbContext>(o => o
     .UseNpgsql(builder.Configuration.GetConnectionString("Postgres"))
@@ -78,12 +92,13 @@ app.MapGet("/readyz", async (Health.HealthClient sidecar, CancellationToken ct) 
 });
 
 // First slice of POST /v1/sign (SIGNUNDER.md §4.6): one image in, the signed image out,
-// signed with the calling tenant's active key, and a registry record whose id comes back
-// in a header. No rules yet.
+// watermarked and fingerprinted if the worker is configured, signed with the calling
+// tenant's active key, and a registry record whose id comes back in a header. No rules yet.
 app.MapPost("/v1/sign", async (
     IFormFile file,
     RegistryDbContext db,
     SignService.SignServiceClient sidecar,
+    [FromServices] WatermarkService.WatermarkServiceClient? watermarker,
     IConfiguration config,
     HttpContext http,
     CancellationToken ct) =>
@@ -103,33 +118,80 @@ app.MapPost("/v1/sign", async (
     }
 
     await using var upload = file.OpenReadStream();
-    var request = new SignRequest
+    var asset = await Google.Protobuf.ByteString.FromStreamAsync(upload, ct);
+
+    // The watermark changes pixels, so it goes in before the manifest hard-binds them.
+    Marking? marking = null;
+    if (watermarker is not null)
     {
-        Asset = await Google.Protobuf.ByteString.FromStreamAsync(upload, ct),
-        MimeType = file.ContentType,
-        ManifestDefinitionJson = JsonSerializer.Serialize(new
+        var payload = Marking.NewPayload();
+        try
         {
-            claim_generator_info = new[] { new { name = "SignUnder", version = "0.1.0" } },
-            title = file.FileName,
-            assertions = new[]
+            var embedded = await watermarker.EmbedAsync(
+                new EmbedRequest { Asset = asset, MimeType = file.ContentType, Payload = (ulong)payload },
+                deadline: DateTime.UtcNow.AddSeconds(30), cancellationToken: ct);
+            asset = embedded.WatermarkedAsset;
+            marking = new Marking(payload, embedded.Algorithm, embedded.Fingerprint.Pdq.ToByteArray(), embedded.Fingerprint.Quality);
+        }
+        catch (RpcException e) when (e.StatusCode == StatusCode.InvalidArgument)
+        {
+            return Results.Problem(e.Status.Detail, statusCode: 400);
+        }
+        catch (RpcException e)
+        {
+            return Results.Problem($"Watermark worker: {e.StatusCode}: {e.Status.Detail}", statusCode: 502);
+        }
+    }
+
+    var assertions = new JsonArray
+    {
+        new JsonObject
+        {
+            ["label"] = "c2pa.actions",
+            ["data"] = new JsonObject
             {
-                new
+                ["actions"] = new JsonArray
                 {
-                    label = "c2pa.actions",
-                    data = new
+                    new JsonObject
                     {
-                        actions = new[]
-                        {
-                            new
-                            {
-                                action = "c2pa.created",
-                                digitalSourceType = "http://cv.iptc.org/newscodes/digitalsourcetype/trainedAlgorithmicMedia",
-                            },
-                        },
+                        ["action"] = "c2pa.created",
+                        ["digitalSourceType"] = "http://cv.iptc.org/newscodes/digitalsourcetype/trainedAlgorithmicMedia",
                     },
                 },
             },
-        }),
+        },
+    };
+    if (marking is not null)
+    {
+        // Ties the manifest to the watermark, so each can be found from the other (§4.7).
+        assertions.Add(new JsonObject
+        {
+            ["label"] = "c2pa.soft-binding",
+            ["data"] = new JsonObject
+            {
+                ["alg"] = marking.Algorithm,
+                ["blocks"] = new JsonArray
+                {
+                    new JsonObject
+                    {
+                        ["scope"] = new JsonObject(),
+                        ["value"] = Convert.ToBase64String(Marking.PayloadBytes(marking.WatermarkPayload)),
+                    },
+                },
+            },
+        });
+    }
+
+    var request = new SignRequest
+    {
+        Asset = asset,
+        MimeType = file.ContentType,
+        ManifestDefinitionJson = new JsonObject
+        {
+            ["claim_generator_info"] = new JsonArray { new JsonObject { ["name"] = "SignUnder", ["version"] = "0.1.0" } },
+            ["title"] = file.FileName,
+            ["assertions"] = assertions,
+        }.ToJsonString(),
         Signer = new SignerRef
         {
             KeyRef = key.KmsKeyArn,
@@ -145,7 +207,7 @@ app.MapPost("/v1/sign", async (
 
         var record = AssetRecord.ForSignedImage(
             key, file.ContentType, reply.SignedAsset.Span, reply.ManifestStore.Span,
-            reply.ValidationReportJson, ToCore(reply.ValidationState), DateTimeOffset.UtcNow);
+            reply.ValidationReportJson, ToCore(reply.ValidationState), DateTimeOffset.UtcNow, marking);
         db.AssetRecords.Add(record);
         await db.SaveChangesAsync(ct);
 
@@ -230,6 +292,10 @@ app.MapGet("/v1/records/{id}", async (string id, HttpContext http, RegistryDbCon
         ["validation_state"] = JsonNamingPolicy.SnakeCaseLower.ConvertName(record.ValidationState.ToString()),
         ["actions"] = JsonNode.Parse(record.Actions),
         ["layers"] = JsonNode.Parse(record.Layers),
+        // Hex, because the payload does not fit a JavaScript number.
+        ["wm_payload"] = record.WmPayload?.ToString("x16"),
+        ["fingerprint"] = record.Fingerprint is null ? null : Convert.ToHexStringLower(record.Fingerprint),
+        ["fingerprint_quality"] = record.FingerprintQuality,
         ["validation_report"] = JsonNode.Parse(record.ValidationReport),
     });
 }).RequireAuthorization(ApiScopes.RecordsRead);

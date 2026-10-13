@@ -3391,6 +3391,7 @@ version = "0.1.0"
 dependencies = [
  "aws-config",
  "aws-sdk-kms",
+ "base64 0.22.1",
  "c2pa",
  "prost",
  "serde_json",
