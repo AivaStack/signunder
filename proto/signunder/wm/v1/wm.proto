@@ -1,0 +1,53 @@
+syntax = "proto3";
+
+package signunder.wm.v1;
+
+option csharp_namespace = "Signunder.Wm.V1";
+
+// Contract between the .NET control plane and the Python watermark worker
+// (SIGNUNDER.md §4.3). Images travel as unary bytes, so callers must raise the gRPC
+// message size limit above the 4 MB default.
+service WatermarkService {
+  // Embeds an invisible watermark and fingerprints the result. Run this before signing:
+  // it changes the pixels the manifest's hard binding will cover.
+  rpc Embed(EmbedRequest) returns (EmbedResponse);
+  // Looks for a watermark and fingerprints the image as given.
+  rpc Decode(DecodeRequest) returns (DecodeResponse);
+}
+
+message EmbedRequest {
+  bytes asset = 1;
+  // "image/jpeg" or "image/png". The result has the same type.
+  string mime_type = 2;
+  // The watermark payload: an unsigned number below 2^61, which is what TrustMark
+  // carries with its strongest standard error correction (BCH_5).
+  fixed64 payload = 3;
+}
+
+message EmbedResponse {
+  bytes watermarked_asset = 1;
+  Fingerprint fingerprint = 2;
+  // Identifies the mark for the manifest's soft-binding assertion, e.g. "com.adobe.trustmark.Q".
+  string algorithm = 3;
+}
+
+message DecodeRequest {
+  bytes asset = 1;
+  string mime_type = 2;
+}
+
+message DecodeResponse {
+  // False if no watermark was found; payload is then 0.
+  bool present = 1;
+  fixed64 payload = 2;
+  Fingerprint fingerprint = 3;
+}
+
+// A PDQ perceptual hash. Similar images differ in few bits (Hamming distance).
+message Fingerprint {
+  // 32 bytes.
+  bytes pdq = 1;
+  // 0 to 100. PDQ's own measure of how much detail the image had to hash; low values
+  // (flat or tiny images) make the hash unreliable.
+  int32 quality = 2;
+}

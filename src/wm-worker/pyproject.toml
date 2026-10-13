@@ -3,14 +3,42 @@ name = "wm-worker"
 version = "0.1.0"
 description = "SignUnder watermark and fingerprint worker (TrustMark, PDQ)"
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    "grpcio>=1.70",
+    "grpcio-health-checking>=1.70",
+    "numpy>=2",
+    "pdqhash>=0.2.8",
+    "pillow>=11",
+    "protobuf>=5",
+    "torch>=2.6",
+    # Not imported here, but listed so it comes from the same index as torch (below).
+    "torchvision>=0.21",
+    "trustmark==0.9.2",
+]
+
+[project.scripts]
+wm-worker = "wm_worker.server:main"
 
 [dependency-groups]
-dev = ["pytest", "ruff"]
+dev = ["grpcio-tools>=1.70", "pytest", "ruff"]
 
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
+# Linux x86 wheels on PyPI bundle CUDA; the worker runs on CPU.
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[tool.uv.sources]
+torch = [{ index = "pytorch-cpu", marker = "sys_platform == 'linux'" }]
+torchvision = [{ index = "pytorch-cpu", marker = "sys_platform == 'linux'" }]
+
 [tool.ruff]
 line-length = 100
+extend-exclude = ["src/wm_worker/pb"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

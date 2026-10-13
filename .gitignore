@@ -500,3 +500,6 @@ __pycache__/
 # Web front end: its own private repo (AivaStack/signunder-web, ADR 0001).
 # Contains licensed shadcnblocks template code that must never enter this repo.
 /web/
+
+# Generated gRPC code for the watermark worker (src/wm-worker/genproto.sh)
+src/wm-worker/src/wm_worker/pb/
