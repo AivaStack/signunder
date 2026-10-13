@@ -1,6 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <!-- Customers are not all on the repo's own .NET version; net8.0 is the long-term release. -->
+    <TargetFrameworks>net8.0;net10.0</TargetFrameworks>
     <PackageId>Signunder</PackageId>
     <Description>Client for the SignUnder API: sign AI-generated content with C2PA Content Credentials under your own name, verify it, and read the registry record.</Description>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
