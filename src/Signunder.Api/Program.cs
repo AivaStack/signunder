@@ -1,4 +1,7 @@
 using System.Text.Json;
+using System.Text.Json.Nodes;
+using System.Text.Json.Serialization;
+using Signunder.Core.Verification;
 using Signunder.Sign.V1;
 using Grpc.Core;
 using Grpc.Health.V1;
@@ -6,6 +9,12 @@ using Grpc.Health.V1;
 // Assets travel to the sidecar as unary gRPC bytes (sign.proto), so the 4 MB default
 // is raised on both sides. Uploads stay under Kestrel's own 30 MB request limit.
 const int MaxSidecarMessageBytes = 64 * 1024 * 1024;
+
+var snakeCase = new JsonSerializerOptions
+{
+    PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower,
+    Converters = { new JsonStringEnumConverter(JsonNamingPolicy.SnakeCaseLower) },
+};
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -104,6 +113,54 @@ app.MapPost("/v1/sign", async (
     {
         var reply = await sidecar.SignAsync(request, deadline: DateTime.UtcNow.AddSeconds(30), cancellationToken: ct);
         return Results.File(reply.SignedAsset.ToByteArray(), file.ContentType, file.FileName);
+    }
+    catch (RpcException e) when (e.StatusCode == StatusCode.InvalidArgument)
+    {
+        return Results.Problem(e.Status.Detail, statusCode: 400);
+    }
+    catch (RpcException e)
+    {
+        return Results.Problem($"Sign sidecar: {e.StatusCode}: {e.Status.Detail}", statusCode: 502);
+    }
+}).DisableAntiforgery();
+
+// Phase 0 slice of POST /v1/verify (SIGNUNDER.md §4.6): what the asset's active manifest
+// says and whether it still holds. Ingredients are not summarised yet; they are in the report.
+app.MapPost("/v1/verify", async (
+    IFormFile file,
+    SignService.SignServiceClient sidecar,
+    CancellationToken ct) =>
+{
+    if (file.ContentType is not ("image/jpeg" or "image/png"))
+    {
+        return Results.Problem("Only image/jpeg and image/png are supported.", statusCode: 415);
+    }
+
+    await using var upload = file.OpenReadStream();
+    var request = new ValidateRequest
+    {
+        Asset = await Google.Protobuf.ByteString.FromStreamAsync(upload, ct),
+        MimeType = file.ContentType,
+    };
+
+    try
+    {
+        var reply = await sidecar.ValidateAsync(request, deadline: DateTime.UtcNow.AddSeconds(30), cancellationToken: ct);
+        var state = reply.ValidationState switch
+        {
+            Signunder.Sign.V1.ValidationState.Trusted => Signunder.Core.Verification.ValidationState.Trusted,
+            Signunder.Sign.V1.ValidationState.Valid => Signunder.Core.Verification.ValidationState.Valid,
+            _ => Signunder.Core.Verification.ValidationState.Invalid,
+        };
+        var body = JsonSerializer.SerializeToNode(
+            VerificationSummary.FromCrJson(reply.ValidationReportJson, state), snakeCase)!.AsObject();
+        body.Insert(0, "manifest_found", true);
+        body["report"] = JsonNode.Parse(reply.ValidationReportJson);
+        return Results.Json(body);
+    }
+    catch (RpcException e) when (e.StatusCode == StatusCode.NotFound)
+    {
+        return Results.Json(new JsonObject { ["manifest_found"] = false });
     }
     catch (RpcException e) when (e.StatusCode == StatusCode.InvalidArgument)
     {

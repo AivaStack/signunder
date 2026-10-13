@@ -16,6 +16,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="..\..\docs\conformance\samples\*.crjson" Link="samples\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\src\Signunder.Core\Signunder.Core.csproj" />
   </ItemGroup>
 
