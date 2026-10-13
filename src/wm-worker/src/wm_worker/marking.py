@@ -37,6 +37,7 @@ class Marker:
             encoding_type=TrustMark.Encoding.BCH_5,
             device="cpu",
             loadRemover=False,
+            loadBBoxDetector=True,
         )
         if self._trustmark.schemaCapacity() != PAYLOAD_BITS:
             raise RuntimeError("TrustMark's BCH_5 capacity is not what this worker assumes")
@@ -73,8 +74,14 @@ class Marker:
         return self.decode_image(image), fingerprint_of(image)
 
     def decode_image(self, image: Image.Image) -> int | None:
+        """Looks for a payload in the whole image, then in the region TrustMark's detector
+        picks out, which is what recovers a marked image shown inside a larger one (a
+        screenshot). The second pass can report a payload in an unmarked image, so a
+        payload means something only once it is found in the registry."""
         with self._lock:
             bits, present, _ = self._trustmark.decode(image, MODE="binary")
+            if not present:
+                bits, present, _ = self._trustmark.decode(image, MODE="binary", DETECTFIRST=True)
         return int(bits, 2) if present else None
 
 

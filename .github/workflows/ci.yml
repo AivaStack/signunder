@@ -26,3 +26,20 @@ jobs:
       - run: cargo fmt --manifest-path src/sign-sidecar/Cargo.toml --check
       - run: cargo test --locked --manifest-path src/sign-sidecar/Cargo.toml
       - run: make test-kms
+
+  worker:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: src/wm-worker
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - run: uv sync --frozen
+      - run: uv run ./genproto.sh
+      - run: uv run ruff check . ../../tests/robustness
+      - run: uv run ruff format --check . ../../tests/robustness
+      - run: uv run pytest -q
+      - run: uv run pytest -q ../../tests/robustness
