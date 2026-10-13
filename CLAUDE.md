@@ -26,6 +26,7 @@ Hosted service that gets a company signing AI-generated content under its own na
 ```
 make build   # dotnet build + cargo build
 make test    # dotnet test + cargo test
+make test-kms  # sidecar tests that sign through the local-kms emulator (needs Docker)
 make fmt     # dotnet format + cargo fmt
 make up      # build and start the local stack in Docker
 make down

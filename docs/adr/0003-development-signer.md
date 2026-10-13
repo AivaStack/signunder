@@ -22,9 +22,9 @@ Phase 0 needs the sign sidecar to produce and validate real C2PA manifests local
 Option 1.
 
 - `src/sign-sidecar/dev-signer/` holds `es256.key.pem` (P-256) and `es256.chain.pem` (the signing certificate, then a private root made only for it), with the `generate.sh` that made them. The root's key is discarded at generation. Subjects carry `O=SignUnder DEV - NON-CONFORMANT`.
-- The sidecar loads the pair only when `SIGNUNDER_DEV_SIGNER_DIR` is set, and uses it only for requests with `key_ref = "dev:local"` and `algorithm = "es256"`. Any other `key_ref` is refused as unimplemented until the KMS signer exists.
-- The sidecar image does not contain the key. `deploy/docker-compose.yml` mounts the directory read-only and sets the variable. No production configuration may set it.
-- Signing goes through `create_signer::from_keys`, so the development signer and the later KMS signer both reach c2pa-rs as a `Signer`.
+- The sidecar can sign with the key file directly, for requests with `key_ref = "dev:local"` and `algorithm = "es256"`, but only when `SIGNUNDER_DEV_SIGNER_DIR` is set. The offline tests use this. No production configuration may set it.
+- **Amended 13 October 2026 (ADR 0004).** The local stack no longer mounts the key into the sidecar. `generate.sh` also writes `local-kms-seed.yaml`, the same key as a seed for the local-kms emulator; `deploy/docker-compose.yml` gives that to the emulator and the stack signs through the sidecar's KMS path. The API container mounts only the certificate chain. The sidecar image still contains no key.
+- The file signer goes through `create_signer::from_keys`, so it and the KMS signer both reach c2pa-rs as a `Signer`.
 - The development stack signs without an RFC 3161 timestamp unless `SIGNUNDER_TSA_URL` is set, so tests and `make up` need no outside service. §4.7's "timestamp on every manifest" stands for production.
 
 ## Consequences
