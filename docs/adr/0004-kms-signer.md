@@ -17,19 +17,19 @@ No AWS account, credentials or CLI were available when this was built, so nothin
 - **Integration with c2pa-rs.** The signer is c2pa-rs's own `CallbackSigner` with a closure that calls KMS, not a hand-written `Signer` implementation. Signing runs on a blocking thread and the closure blocks on the tokio runtime for the KMS call.
 - **Client.** The official AWS SDK for Rust (`aws-config`, `aws-sdk-kms`), with region, credentials and endpoint taken from the environment. Hand-rolled request signing was not considered worth owning.
 - **Local and CI stand-in.** The `nsmithuk/local-kms` emulator, seeded with the development key (ADR 0003), runs in `deploy/docker-compose.yml`; the sidecar reaches it through `AWS_ENDPOINT_URL`. `make test-kms` runs the emulator-backed tests and CI runs it. `make test` stays offline.
-- **Validation.** As with every signer, the signed asset is validated before it leaves the sidecar, which also catches a certificate that does not match the KMS key.
+- **Certificate check (added 13 October 2026).** Before signing, the sidecar compares the public key in the signing certificate with KMS `GetPublicKey` for the key, cached per key ARN for the life of the process. A certificate for another key is refused as a failed precondition and a missing key as not found, before any `Sign` call.
+- **Validation.** As with every signer, the signed asset is validated before it leaves the sidecar.
 
 ## Consequences
 
 - The sidecar gains the AWS SDK and its dependency tree, and its image takes longer to build. c2pa stays at exactly 0.91.2.
 - Every sign costs one KMS round trip. The effect on the 100 signs a second target (§5, Load) is unmeasured.
 - Only ES256 is implemented. `ps256` with a KMS key returns "unimplemented": there was no RSA key and certificate to test against.
-- A certificate that does not match the key, and any KMS failure, currently surface as an internal error carrying the underlying message. Mapping them to precise statuses is still to do.
+- A `GetPublicKey` failure other than a missing key is reported as unavailable. A failure of the `Sign` call itself still surfaces as an internal error carrying the KMS message.
 - The emulator proves the request shape and the signature handling. It proves nothing about IAM key policy, real error responses or latency.
 
 ## Open
 
 - A run against real AWS KMS in a test account, and the §5 "Key path" suite (key policy denies export and use outside the signer role).
 - PS256.
-- Checking the certificate's public key against KMS `GetPublicKey` before signing, to fail early with a clear message.
-- Whether to cache anything per key (public key, parsed chain) once there are tenants.
+- Whether the per-key public key cache needs bounding or expiry once there are many tenants.
