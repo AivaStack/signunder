@@ -25,6 +25,11 @@ services:
     build:
       context: ..
       dockerfile: src/sign-sidecar/Dockerfile
+    environment:
+      # NON-CONFORMANT development signer; its key is public. Local use only.
+      SIGNUNDER_DEV_SIGNER_DIR: /dev-signer
+    volumes:
+      - ../src/sign-sidecar/dev-signer:/dev-signer:ro
     ports:
       - "50051:50051"
 

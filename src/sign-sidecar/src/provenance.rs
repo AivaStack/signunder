@@ -69,7 +69,7 @@ pub fn sign(
     let manifest_store = builder
         .sign(signer.as_ref(), mime_type, &mut source, &mut dest)
         .map_err(|e| match e {
-            c2pa::Error::UnsupportedType => invalid(e),
+            c2pa::Error::UnsupportedType | c2pa::Error::InvalidAsset(_) => invalid(e),
             e => internal(e),
         })?;
     let asset = dest.into_inner();
@@ -209,6 +209,14 @@ mod tests {
     #[test]
     fn bad_manifest_definition_is_rejected() {
         let status = sign(&dev(), JPEG, "image/jpeg", "not json", None)
+            .err()
+            .unwrap();
+        assert_eq!(status.code(), tonic::Code::InvalidArgument);
+    }
+
+    #[test]
+    fn unparseable_asset_is_rejected() {
+        let status = sign(&dev(), b"not a jpeg", "image/jpeg", DEFINITION, None)
             .err()
             .unwrap();
         assert_eq!(status.code(), tonic::Code::InvalidArgument);
