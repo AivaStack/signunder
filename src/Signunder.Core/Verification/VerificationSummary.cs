@@ -8,6 +8,7 @@ namespace Signunder.Core.Verification;
 /// </summary>
 public sealed record VerificationSummary(
     ValidationState ValidationState,
+    string? ManifestLabel,
     string? SignedBy,
     IReadOnlyDictionary<string, string> CertSubject,
     string TrustStatus,
@@ -76,6 +77,7 @@ public sealed record VerificationSummary(
 
         return new VerificationSummary(
             state,
+            ManifestLabel: manifest.TryGetProperty("label", out var label) ? label.GetString() : null,
             SignedBy: subject.GetValueOrDefault("O") ?? subject.GetValueOrDefault("CN"),
             CertSubject: subject,
             TrustStatus: state == ValidationState.Trusted ? "trusted" : "untrusted",

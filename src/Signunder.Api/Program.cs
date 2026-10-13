@@ -1,6 +1,9 @@
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
+using Microsoft.EntityFrameworkCore;
+using Signunder.Api.Data;
+using Signunder.Core.Registry;
 using Signunder.Core.Verification;
 using Signunder.Sign.V1;
 using Grpc.Core;
@@ -28,7 +31,17 @@ builder.Services
     });
 builder.Services.AddGrpcClient<Health.HealthClient>(o => o.Address = sidecarAddress);
 
+builder.Services.AddDbContext<RegistryDbContext>(o => o
+    .UseNpgsql(builder.Configuration.GetConnectionString("Postgres"))
+    .UseSnakeCaseNamingConvention());
+
 var app = builder.Build();
+
+if (app.Configuration.GetValue<bool>("Database:MigrateAndSeedOnStartup"))
+{
+    await using var scope = app.Services.CreateAsyncScope();
+    await DevelopmentSeed.RunAsync(scope.ServiceProvider.GetRequiredService<RegistryDbContext>(), app.Configuration);
+}
 
 app.MapGet("/healthz", () => Results.Ok(new { status = "ok" }));
 
@@ -50,27 +63,30 @@ app.MapGet("/readyz", async (Health.HealthClient sidecar, CancellationToken ct) 
     }
 });
 
-// Phase 0 slice of POST /v1/sign (SIGNUNDER.md §4.6): one image in, the signed image out.
-// No tenant auth, registry or rules yet; the signer comes from configuration.
+// First slice of POST /v1/sign (SIGNUNDER.md §4.6): one image in, the signed image out,
+// and a registry record whose id comes back in a header. No tenant auth or rules yet:
+// every request signs as the demo tenant with its active key.
 app.MapPost("/v1/sign", async (
     IFormFile file,
-    IConfiguration config,
+    RegistryDbContext db,
     SignService.SignServiceClient sidecar,
+    IConfiguration config,
+    HttpContext http,
     CancellationToken ct) =>
 {
-    var keyRef = config["Signer:KeyRef"];
-    if (string.IsNullOrEmpty(keyRef))
+    var key = await db.TenantKeys
+        .Join(db.Tenants.Where(t => t.Slug == DevelopmentSeed.DemoTenantSlug), k => k.TenantId, t => t.Id, (k, _) => k)
+        .Where(k => k.Status == TenantKeyStatus.Active)
+        .OrderByDescending(k => k.CreatedAt)
+        .FirstOrDefaultAsync(ct);
+    if (key is null)
     {
-        return Results.Problem("No signer is configured.", statusCode: 503);
+        return Results.Problem("The tenant has no active signing key.", statusCode: 503);
     }
     if (file.ContentType is not ("image/jpeg" or "image/png"))
     {
         return Results.Problem("Only image/jpeg and image/png are supported.", statusCode: 415);
     }
-
-    // A KMS key needs its certificate chain sent along; the development signer has its own.
-    var certChainPath = config["Signer:CertChainPath"];
-    var certChainPem = string.IsNullOrEmpty(certChainPath) ? "" : await File.ReadAllTextAsync(certChainPath, ct);
 
     await using var upload = file.OpenReadStream();
     var request = new SignRequest
@@ -102,9 +118,9 @@ app.MapPost("/v1/sign", async (
         }),
         Signer = new SignerRef
         {
-            KeyRef = keyRef,
-            Algorithm = config["Signer:Algorithm"] ?? "es256",
-            CertChainPem = certChainPem,
+            KeyRef = key.KmsKeyArn,
+            Algorithm = key.Algorithm,
+            CertChainPem = key.CertChainPem,
             TsaUrl = config["Signer:TsaUrl"] ?? "",
         },
     };
@@ -112,6 +128,15 @@ app.MapPost("/v1/sign", async (
     try
     {
         var reply = await sidecar.SignAsync(request, deadline: DateTime.UtcNow.AddSeconds(30), cancellationToken: ct);
+
+        var record = AssetRecord.ForSignedImage(
+            key, file.ContentType, reply.SignedAsset.Span, reply.ManifestStore.Span,
+            reply.ValidationReportJson, ToCore(reply.ValidationState), DateTimeOffset.UtcNow);
+        db.AssetRecords.Add(record);
+        await db.SaveChangesAsync(ct);
+
+        http.Response.Headers["SignUnder-Record-Id"] = record.Id;
+        http.Response.Headers["SignUnder-Manifest-Hash"] = record.ManifestHash;
         return Results.File(reply.SignedAsset.ToByteArray(), file.ContentType, file.FileName);
     }
     catch (RpcException e) when (e.StatusCode == StatusCode.InvalidArgument)
@@ -146,14 +171,8 @@ app.MapPost("/v1/verify", async (
     try
     {
         var reply = await sidecar.ValidateAsync(request, deadline: DateTime.UtcNow.AddSeconds(30), cancellationToken: ct);
-        var state = reply.ValidationState switch
-        {
-            Signunder.Sign.V1.ValidationState.Trusted => Signunder.Core.Verification.ValidationState.Trusted,
-            Signunder.Sign.V1.ValidationState.Valid => Signunder.Core.Verification.ValidationState.Valid,
-            _ => Signunder.Core.Verification.ValidationState.Invalid,
-        };
         var body = JsonSerializer.SerializeToNode(
-            VerificationSummary.FromCrJson(reply.ValidationReportJson, state), snakeCase)!.AsObject();
+            VerificationSummary.FromCrJson(reply.ValidationReportJson, ToCore(reply.ValidationState)), snakeCase)!.AsObject();
         body.Insert(0, "manifest_found", true);
         body["report"] = JsonNode.Parse(reply.ValidationReportJson);
         return Results.Json(body);
@@ -172,4 +191,38 @@ app.MapPost("/v1/verify", async (
     }
 }).DisableAntiforgery();
 
+// No tenant auth yet, so any caller can read any record. Local development only.
+app.MapGet("/v1/records/{id}", async (string id, RegistryDbContext db, CancellationToken ct) =>
+{
+    var record = await db.AssetRecords.AsNoTracking().SingleOrDefaultAsync(r => r.Id == id, ct);
+    if (record is null)
+    {
+        return Results.Problem($"No record {id}.", statusCode: 404);
+    }
+
+    return Results.Json(new JsonObject
+    {
+        ["id"] = record.Id,
+        ["tenant_id"] = record.TenantId,
+        ["created_at"] = record.CreatedAt,
+        ["modality"] = record.Modality,
+        ["mime"] = record.Mime,
+        ["size"] = record.Size,
+        ["bytes_sha256"] = record.BytesSha256,
+        ["manifest_hash"] = record.ManifestHash,
+        ["manifest_label"] = record.ManifestLabel,
+        ["validation_state"] = JsonNamingPolicy.SnakeCaseLower.ConvertName(record.ValidationState.ToString()),
+        ["actions"] = JsonNode.Parse(record.Actions),
+        ["layers"] = JsonNode.Parse(record.Layers),
+        ["validation_report"] = JsonNode.Parse(record.ValidationReport),
+    });
+});
+
 app.Run();
+
+static Signunder.Core.Verification.ValidationState ToCore(Signunder.Sign.V1.ValidationState state) => state switch
+{
+    Signunder.Sign.V1.ValidationState.Trusted => Signunder.Core.Verification.ValidationState.Trusted,
+    Signunder.Sign.V1.ValidationState.Valid => Signunder.Core.Verification.ValidationState.Valid,
+    _ => Signunder.Core.Verification.ValidationState.Invalid,
+};
