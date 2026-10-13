@@ -23,6 +23,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Signunder.Api\Signunder.Api.csproj" />
+    <ProjectReference Include="..\..\src\Signunder.Sdk\Signunder.Sdk.csproj" />
   </ItemGroup>
 
 </Project>
