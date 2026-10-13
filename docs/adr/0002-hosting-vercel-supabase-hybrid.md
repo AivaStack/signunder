@@ -44,6 +44,6 @@ Option 1.
 ## Open
 
 - Whether Supabase Queues carries the job load at 100 signs a second (§5, Load), or Redis returns.
-- One migration tool or two: EF Core for the application schema, Supabase migrations for policies and auth.
-- Local development: the Supabase CLI's local stack, or the existing compose file.
+- One migration tool or two: EF Core for the application schema, Supabase migrations for policies and auth. *Settled for the application schema by ADR 0005 (EF Core); policies and auth remain open.*
+- Local development: the Supabase CLI's local stack, or the existing compose file. *For now the compose file (ADR 0005).*
 - Vercel and Supabase plan prices and the plan that includes point-in-time recovery; §3.3 carries unverified figures.
