@@ -1,0 +1,156 @@
+{
+  "@context": {
+    "@vocab": "https://c2pa.org/crjson",
+    "extras": "https://c2pa.org/crjson/extras"
+  },
+  "manifests": [
+    {
+      "label": "urn:c2pa:b06ef8b3-1de1-4cd2-9741-f0cd97cfb5fd",
+      "isUpdateManifest": false,
+      "isCompressedManifest": false,
+      "assertions": {
+        "c2pa.actions.v2": {
+          "actions": [
+            {
+              "action": "c2pa.created",
+              "digitalSourceType": "http://cv.iptc.org/newscodes/digitalsourcetype/trainedAlgorithmicMedia"
+            }
+          ]
+        },
+        "c2pa.hash.data": {
+          "exclusions": [
+            {
+              "start": 33,
+              "length": 13329
+            }
+          ],
+          "name": "jumbf manifest",
+          "alg": "sha256",
+          "hash": "b64'KnoHlnxJW/dx8YHtSfJcf6kCldwLZw47+dUxrRsC0DQ='",
+          "pad": "b64'AAAAAAAAAAA='"
+        }
+      },
+      "claim.v2": {
+        "instanceID": "xmp.iid:ae42ce94-e4cf-4edb-9298-e4a3a6c78a8b",
+        "signature": "self#jumbf=/c2pa/urn:c2pa:b06ef8b3-1de1-4cd2-9741-f0cd97cfb5fd/c2pa.signature",
+        "claim_generator_info": {
+          "name": "SignUnder",
+          "version": "0.1.0",
+          "org.contentauth.c2pa_rs": "0.91.2"
+        },
+        "alg": "sha256",
+        "dc:title": "sample.png",
+        "redacted_assertions": [],
+        "created_assertions": [
+          {
+            "url": "self#jumbf=c2pa.assertions/c2pa.hash.data",
+            "hash": "b64'r1NqaVYgQyt4WT9dSaD2ws8k/L3uZB7oDSrx71bLpks='"
+          }
+        ],
+        "gathered_assertions": [
+          {
+            "url": "self#jumbf=c2pa.assertions/c2pa.actions.v2",
+            "hash": "b64'STfln2a654DUTj7hKy/8E+k6YScVlM6Z52fDUMyKAlE='"
+          }
+        ]
+      },
+      "signature": {
+        "algorithm": "es256",
+        "certificateInfo": {
+          "serialNumber": "73075a76a06b14c0beebd5f09eab8199eff0fcaf",
+          "issuer": {
+            "O": "SignUnder DEV - NON-CONFORMANT",
+            "CN": "SignUnder Development Root (not trusted)"
+          },
+          "subject": {
+            "O": "SignUnder DEV - NON-CONFORMANT",
+            "CN": "SignUnder Development Signer (not trusted)"
+          },
+          "validity": {
+            "notBefore": "2026-10-13T10:57:58+00:00",
+            "notAfter": "2036-10-10T10:57:58+00:00"
+          }
+        },
+        "timeStampInfo": {
+          "timestamp": "2026-10-13T11:05:40+00:00",
+          "certificateInfo": {
+            "serialNumber": "84fdc334f7e454edbc30f8ff9921835",
+            "issuer": {
+              "C": "US",
+              "O": "DigiCert, Inc.",
+              "CN": "DigiCert Trusted G4 TimeStamping RSA4096 SHA256 2025 CA1"
+            },
+            "subject": {
+              "C": "US",
+              "O": "DigiCert, Inc.",
+              "CN": "DigiCert SHA256 RSA4096 Timestamp Responder 2026 1"
+            },
+            "validity": {
+              "notBefore": "2026-08-05T00:00:00+00:00",
+              "notAfter": "2037-11-04T23:59:59+00:00"
+            }
+          }
+        }
+      },
+      "validationResults": {
+        "success": [
+          {
+            "code": "timeStamp.validated",
+            "url": "self#jumbf=/c2pa/urn:c2pa:b06ef8b3-1de1-4cd2-9741-f0cd97cfb5fd/c2pa.signature",
+            "explanation": "timestamp message digest matched: DigiCert SHA256 RSA4096 Timestamp Responder 2026 1"
+          },
+          {
+            "code": "claimSignature.insideValidity",
+            "url": "self#jumbf=/c2pa/urn:c2pa:b06ef8b3-1de1-4cd2-9741-f0cd97cfb5fd/c2pa.signature",
+            "explanation": "claim signature valid"
+          },
+          {
+            "code": "claimSignature.validated",
+            "url": "self#jumbf=/c2pa/urn:c2pa:b06ef8b3-1de1-4cd2-9741-f0cd97cfb5fd/c2pa.signature",
+            "explanation": "claim signature valid"
+          },
+          {
+            "code": "assertion.hashedURI.match",
+            "url": "self#jumbf=/c2pa/urn:c2pa:b06ef8b3-1de1-4cd2-9741-f0cd97cfb5fd/c2pa.assertions/c2pa.hash.data",
+            "explanation": "hashed uri matched: self#jumbf=c2pa.assertions/c2pa.hash.data"
+          },
+          {
+            "code": "assertion.hashedURI.match",
+            "url": "self#jumbf=/c2pa/urn:c2pa:b06ef8b3-1de1-4cd2-9741-f0cd97cfb5fd/c2pa.assertions/c2pa.actions.v2",
+            "explanation": "hashed uri matched: self#jumbf=c2pa.assertions/c2pa.actions.v2"
+          },
+          {
+            "code": "assertion.dataHash.match",
+            "url": "self#jumbf=/c2pa/urn:c2pa:b06ef8b3-1de1-4cd2-9741-f0cd97cfb5fd/c2pa.assertions/c2pa.hash.data",
+            "explanation": "data hash valid"
+          }
+        ],
+        "informational": [
+          {
+            "code": "signingCredential.ocsp.skipped",
+            "url": "self#jumbf=/c2pa/urn:c2pa:b06ef8b3-1de1-4cd2-9741-f0cd97cfb5fd/c2pa.signature",
+            "explanation": "OCSP fetching skipped"
+          },
+          {
+            "code": "timeStamp.untrusted",
+            "url": "self#jumbf=/c2pa/urn:c2pa:b06ef8b3-1de1-4cd2-9741-f0cd97cfb5fd/c2pa.signature",
+            "explanation": "timestamp cert untrusted: DigiCert SHA256 RSA4096 Timestamp Responder 2026 1"
+          }
+        ],
+        "failure": [
+          {
+            "code": "signingCredential.untrusted",
+            "url": "self#jumbf=/c2pa/urn:c2pa:b06ef8b3-1de1-4cd2-9741-f0cd97cfb5fd/c2pa.signature",
+            "explanation": "signing certificate untrusted"
+          }
+        ],
+        "specVersion": "2.3.0",
+        "validationTime": "2026-10-13T11:05:40.285748549+00:00"
+      }
+    }
+  ],
+  "jsonGenerator": {
+    "name": "c2pa-rs",
+    "version": "0.91.2"
+  }
+}

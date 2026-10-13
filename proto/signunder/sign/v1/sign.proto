@@ -32,6 +32,7 @@ message SignRequest {
 message SignResponse {
   bytes signed_asset = 1;
   bytes manifest_store = 2;
+  // crJSON, as produced by c2pa-rs after validating the signed asset.
   string validation_report_json = 3;
 }
 
@@ -41,5 +42,6 @@ message ValidateRequest {
 }
 
 message ValidateResponse {
+  // crJSON.
   string validation_report_json = 1;
 }

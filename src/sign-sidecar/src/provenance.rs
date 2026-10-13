@@ -89,7 +89,9 @@ pub fn sign(
     })
 }
 
-/// Reads and validates the manifest store in `asset`, returning c2pa-rs's report.
+/// Reads and validates the manifest store in `asset`. The report is crJSON, the format
+/// the C2PA conformance program takes as evidence. It carries each manifest's validation
+/// results but no overall state, so that is returned beside it.
 pub fn validate(asset: &[u8], mime_type: &str) -> Result<(ValidationState, String), Status> {
     let reader = Reader::from_context(context()?)
         .with_stream(mime_type, Cursor::new(asset))
@@ -97,7 +99,8 @@ pub fn validate(asset: &[u8], mime_type: &str) -> Result<(ValidationState, Strin
             c2pa::Error::JumbfNotFound => Status::not_found("asset has no C2PA manifest"),
             e => invalid(e),
         })?;
-    Ok((reader.validation_state(), reader.json()))
+    let report_json = reader.crjson_checked().map_err(internal)?;
+    Ok((reader.validation_state(), report_json))
 }
 
 #[cfg(test)]
@@ -124,7 +127,7 @@ mod tests {
     }
 
     fn codes<'a>(report: &'a serde_json::Value, outcome: &str) -> Vec<&'a str> {
-        report["validation_results"]["activeManifest"][outcome]
+        report["manifests"][0]["validationResults"][outcome]
             .as_array()
             .unwrap()
             .iter()
@@ -139,30 +142,33 @@ mod tests {
 
         // Read the manifest back from the signed bytes alone.
         let (state, report_json) = validate(&signed.asset, mime_type).unwrap();
-        assert_eq!(report_json, signed.report_json);
         let report: serde_json::Value = serde_json::from_str(&report_json).unwrap();
 
         // Well formed and cryptographically intact, but not Trusted: the development
         // certificate does not chain to the C2PA trust list.
         assert_eq!(state, ValidationState::Valid);
-        assert_eq!(report["validation_state"], "Valid");
+        assert_eq!(report["manifests"].as_array().unwrap().len(), 1);
         let success = codes(&report, "success");
         assert!(success.contains(&"claimSignature.validated"));
         assert!(success.contains(&"claimSignature.insideValidity"));
         assert!(success.contains(&"assertion.dataHash.match"));
         assert_eq!(codes(&report, "failure"), ["signingCredential.untrusted"]);
 
-        let manifest = &report["manifests"][report["active_manifest"].as_str().unwrap()];
-        assert_eq!(manifest["signature_info"]["alg"], "Es256");
+        let manifest = &report["manifests"][0];
+        assert_eq!(manifest["signature"]["algorithm"], "es256");
         assert_eq!(
-            manifest["signature_info"]["issuer"],
+            manifest["signature"]["certificateInfo"]["subject"]["O"],
             "SignUnder DEV - NON-CONFORMANT"
         );
-        assert_eq!(manifest["assertions"][0]["label"], "c2pa.actions.v2");
         assert_eq!(
-            manifest["assertions"][0]["data"]["actions"][0]["action"],
+            manifest["assertions"]["c2pa.actions.v2"]["actions"][0]["action"],
             "c2pa.created"
         );
+        assert!(manifest["assertions"]["c2pa.hash.data"].is_object());
+
+        // The report returned with the signed asset describes the same manifest.
+        let at_signing: serde_json::Value = serde_json::from_str(&signed.report_json).unwrap();
+        assert_eq!(at_signing["manifests"][0]["label"], manifest["label"]);
     }
 
     fn detects_tampering(original: &[u8], mime_type: &str) {

@@ -9,6 +9,8 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       Sidecar__Address: http://sign-sidecar:50051
+      # Optional RFC 3161 timestamp authority; unset means no timestamp.
+      Signer__TsaUrl: ${SIGNUNDER_TSA_URL:-}
       ConnectionStrings__Postgres: Host=postgres;Database=signunder;Username=signunder;Password=signunder
       ConnectionStrings__Redis: redis:6379
     ports:
