@@ -12,7 +12,7 @@ pub mod pb {
     tonic::include_proto!("signunder.sign.v1");
 }
 
-use kms::KEY_ARN_PREFIX;
+use kms::{KEY_ARN_PREFIX, Kms};
 use pb::sign_service_server::{SignService, SignServiceServer};
 use pb::{SignRequest, SignResponse, SignerRef, ValidateRequest, ValidateResponse};
 use provenance::{DEV_KEY_REF, DevSigner};
@@ -22,7 +22,7 @@ const MAX_MESSAGE_BYTES: usize = 64 * 1024 * 1024;
 
 struct Sidecar {
     dev_signer: Option<Arc<DevSigner>>,
-    kms: aws_sdk_kms::Client,
+    kms: Arc<Kms>,
 }
 
 impl Sidecar {
@@ -78,8 +78,7 @@ impl SignService for Sidecar {
         let signed = blocking(move || {
             let signer: Box<dyn c2pa::Signer> = match dev {
                 Some(dev) => dev.signer(tsa_url)?,
-                None => Box::new(kms::signer(
-                    kms,
+                None => Box::new(kms.signer(
                     runtime,
                     signer.key_ref,
                     &signer.algorithm,
@@ -100,6 +99,7 @@ impl SignService for Sidecar {
             signed_asset: signed.asset,
             manifest_store: signed.manifest_store,
             validation_report_json: signed.report_json,
+            validation_state: state(signed.state).into(),
         }))
     }
 
@@ -108,11 +108,20 @@ impl SignService for Sidecar {
         request: Request<ValidateRequest>,
     ) -> Result<Response<ValidateResponse>, Status> {
         let request = request.into_inner();
-        let (_, validation_report_json) =
+        let (validation_state, validation_report_json) =
             blocking(move || provenance::validate(&request.asset, &request.mime_type)).await?;
         Ok(Response::new(ValidateResponse {
             validation_report_json,
+            validation_state: state(validation_state).into(),
         }))
+    }
+}
+
+fn state(state: c2pa::ValidationState) -> pb::ValidationState {
+    match state {
+        c2pa::ValidationState::Invalid => pb::ValidationState::Invalid,
+        c2pa::ValidationState::Valid => pb::ValidationState::Valid,
+        c2pa::ValidationState::Trusted => pb::ValidationState::Trusted,
     }
 }
 
@@ -159,7 +168,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .add_service(
             SignServiceServer::new(Sidecar {
                 dev_signer,
-                kms: kms::client().await,
+                kms: Arc::new(Kms::from_env().await),
             })
             .max_decoding_message_size(MAX_MESSAGE_BYTES)
             .max_encoding_message_size(MAX_MESSAGE_BYTES),

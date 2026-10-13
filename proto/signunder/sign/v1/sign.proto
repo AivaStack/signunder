@@ -12,6 +12,18 @@ service SignService {
   rpc Validate(ValidateRequest) returns (ValidateResponse);
 }
 
+// c2pa-rs's overall verdict on a manifest store. crJSON carries per-manifest results
+// but no overall state, so it travels beside the report.
+enum ValidationState {
+  VALIDATION_STATE_UNSPECIFIED = 0;
+  // Not well formed, or a cryptographic check failed (for example the hard binding).
+  VALIDATION_STATE_INVALID = 1;
+  // Well formed and cryptographically intact; the signer is not on the trust list.
+  VALIDATION_STATE_VALID = 2;
+  // Valid, and the signing certificate chains to the trust list.
+  VALIDATION_STATE_TRUSTED = 3;
+}
+
 message SignerRef {
   // KMS key ARN, or "dev:local" for the non-conformant development signer.
   string key_ref = 1;
@@ -35,6 +47,7 @@ message SignResponse {
   bytes manifest_store = 2;
   // crJSON, as produced by c2pa-rs after validating the signed asset.
   string validation_report_json = 3;
+  ValidationState validation_state = 4;
 }
 
 message ValidateRequest {
@@ -45,4 +58,5 @@ message ValidateRequest {
 message ValidateResponse {
   // crJSON.
   string validation_report_json = 1;
+  ValidationState validation_state = 2;
 }

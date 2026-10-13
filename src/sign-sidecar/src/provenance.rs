@@ -39,6 +39,7 @@ impl DevSigner {
 pub struct Signed {
     pub asset: Vec<u8>,
     pub manifest_store: Vec<u8>,
+    pub state: ValidationState,
     pub report_json: String,
 }
 
@@ -72,7 +73,11 @@ pub fn sign(
     let manifest_store = builder
         .sign(signer, mime_type, &mut source, &mut dest)
         .map_err(|e| match e {
-            c2pa::Error::UnsupportedType | c2pa::Error::InvalidAsset(_) => invalid(e),
+            // InvalidManifest: c2pa-rs's own check of what it just signed, which a bad
+            // manifest definition fails.
+            c2pa::Error::UnsupportedType
+            | c2pa::Error::InvalidAsset(_)
+            | c2pa::Error::InvalidManifest(_) => invalid(e),
             e => internal(e),
         })?;
     let asset = dest.into_inner();
@@ -88,6 +93,7 @@ pub fn sign(
     Ok(Signed {
         asset,
         manifest_store,
+        state,
         report_json,
     })
 }
@@ -221,6 +227,16 @@ mod tests {
     #[test]
     fn bad_manifest_definition_is_rejected() {
         let status = sign(dev().as_ref(), JPEG, "image/jpeg", "not json")
+            .err()
+            .unwrap();
+        assert_eq!(status.code(), tonic::Code::InvalidArgument);
+    }
+
+    #[test]
+    fn created_action_without_source_type_is_rejected() {
+        let definition = r#"{"assertions": [{"label": "c2pa.actions", "data": {"actions": [
+            {"action": "c2pa.created"}]}}]}"#;
+        let status = sign(dev().as_ref(), JPEG, "image/jpeg", definition)
             .err()
             .unwrap();
         assert_eq!(status.code(), tonic::Code::InvalidArgument);
