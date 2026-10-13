@@ -20,6 +20,12 @@ services:
       - ../src/sign-sidecar/dev-signer/es256.chain.pem:/dev-signer/es256.chain.pem:ro
     ports:
       - "8080:8080"
+    # Start-up applies migrations, so "running" is not yet "listening".
+    healthcheck:
+      test: ["CMD", "bash", "-c", "exec 3<>/dev/tcp/localhost/8080"]
+      interval: 2s
+      timeout: 2s
+      retries: 30
     depends_on:
       sign-sidecar:
         condition: service_started

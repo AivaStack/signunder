@@ -1,0 +1,78 @@
+using System.Security.Claims;
+using System.Text.Encodings.Web;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using Signunder.Api.Data;
+using Signunder.Core.Registry;
+
+namespace Signunder.Api.Auth;
+
+/// <summary>
+/// Authenticates <c>Authorization: Bearer su_…</c> against the api_key table and puts the
+/// tenant and the key's scopes on the principal.
+/// </summary>
+public sealed class ApiKeyAuthenticationHandler(
+    IOptionsMonitor<AuthenticationSchemeOptions> options,
+    ILoggerFactory logger,
+    UrlEncoder encoder,
+    RegistryDbContext db)
+    : AuthenticationHandler<AuthenticationSchemeOptions>(options, logger, encoder)
+{
+    public const string SchemeName = "ApiKey";
+    public const string TenantClaim = "tenant_id";
+    public const string ScopeClaim = "scope";
+
+    private static readonly TimeSpan LastUsedResolution = TimeSpan.FromMinutes(1);
+
+    protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
+    {
+        var header = Request.Headers.Authorization.ToString();
+        if (header.Length == 0)
+        {
+            return AuthenticateResult.NoResult();
+        }
+        const string bearer = "Bearer ";
+        if (!header.StartsWith(bearer, StringComparison.OrdinalIgnoreCase))
+        {
+            return AuthenticateResult.Fail("Expected a Bearer API key.");
+        }
+        var presented = header[bearer.Length..].Trim();
+        if (!ApiKey.HasKeyShape(presented))
+        {
+            return AuthenticateResult.Fail("Not a SignUnder API key.");
+        }
+
+        var hash = ApiKey.HashOf(presented);
+        var key = await db.ApiKeys.AsNoTracking().SingleOrDefaultAsync(k => k.Hash == hash, Context.RequestAborted);
+        if (key is null || key.RevokedAt is not null)
+        {
+            return AuthenticateResult.Fail("Unknown or revoked API key.");
+        }
+
+        var now = DateTimeOffset.UtcNow;
+        if (key.LastUsedAt is null || now - key.LastUsedAt > LastUsedResolution)
+        {
+            await db.ApiKeys.Where(k => k.Id == key.Id)
+                .ExecuteUpdateAsync(k => k.SetProperty(x => x.LastUsedAt, now), Context.RequestAborted);
+        }
+
+        var claims = key.Scopes.Select(scope => new Claim(ScopeClaim, scope))
+            .Append(new Claim(TenantClaim, key.TenantId.ToString()))
+            .Append(new Claim("api_key_id", key.Id.ToString()));
+        var principal = new ClaimsPrincipal(new ClaimsIdentity(claims, SchemeName));
+        return AuthenticateResult.Success(new AuthenticationTicket(principal, SchemeName));
+    }
+
+    protected override Task HandleChallengeAsync(AuthenticationProperties properties)
+    {
+        Response.Headers.WWWAuthenticate = "Bearer";
+        return base.HandleChallengeAsync(properties);
+    }
+}
+
+public static class TenantPrincipal
+{
+    public static Guid TenantId(this ClaimsPrincipal user) =>
+        Guid.Parse(user.FindFirstValue(ApiKeyAuthenticationHandler.TenantClaim)!);
+}

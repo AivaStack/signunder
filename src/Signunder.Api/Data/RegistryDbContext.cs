@@ -8,6 +8,7 @@ public sealed class RegistryDbContext(DbContextOptions<RegistryDbContext> option
     public DbSet<Tenant> Tenants => Set<Tenant>();
     public DbSet<TenantKey> TenantKeys => Set<TenantKey>();
     public DbSet<AssetRecord> AssetRecords => Set<AssetRecord>();
+    public DbSet<ApiKey> ApiKeys => Set<ApiKey>();
 
     protected override void OnModelCreating(ModelBuilder model)
     {
@@ -22,6 +23,13 @@ public sealed class RegistryDbContext(DbContextOptions<RegistryDbContext> option
             key.ToTable("tenant_key");
             key.Property(k => k.Status).HasConversion<string>();
             key.HasOne<Tenant>().WithMany().HasForeignKey(k => k.TenantId);
+        });
+
+        model.Entity<ApiKey>(key =>
+        {
+            key.ToTable("api_key");
+            key.HasOne<Tenant>().WithMany().HasForeignKey(k => k.TenantId);
+            key.HasIndex(k => k.Hash).IsUnique();
         });
 
         model.Entity<AssetRecord>(record =>

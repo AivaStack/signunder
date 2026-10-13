@@ -1,7 +1,9 @@
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.EntityFrameworkCore;
+using Signunder.Api.Auth;
 using Signunder.Api.Data;
 using Signunder.Core.Registry;
 using Signunder.Core.Verification;
@@ -35,7 +37,19 @@ builder.Services.AddDbContext<RegistryDbContext>(o => o
     .UseNpgsql(builder.Configuration.GetConnectionString("Postgres"))
     .UseSnakeCaseNamingConvention());
 
+builder.Services
+    .AddAuthentication(ApiKeyAuthenticationHandler.SchemeName)
+    .AddScheme<AuthenticationSchemeOptions, ApiKeyAuthenticationHandler>(ApiKeyAuthenticationHandler.SchemeName, null);
+var authorization = builder.Services.AddAuthorizationBuilder();
+foreach (var scope in ApiScopes.All)
+{
+    authorization.AddPolicy(scope, policy => policy.RequireClaim(ApiKeyAuthenticationHandler.ScopeClaim, scope));
+}
+
 var app = builder.Build();
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 if (app.Configuration.GetValue<bool>("Database:MigrateAndSeedOnStartup"))
 {
@@ -64,8 +78,8 @@ app.MapGet("/readyz", async (Health.HealthClient sidecar, CancellationToken ct) 
 });
 
 // First slice of POST /v1/sign (SIGNUNDER.md §4.6): one image in, the signed image out,
-// and a registry record whose id comes back in a header. No tenant auth or rules yet:
-// every request signs as the demo tenant with its active key.
+// signed with the calling tenant's active key, and a registry record whose id comes back
+// in a header. No rules yet.
 app.MapPost("/v1/sign", async (
     IFormFile file,
     RegistryDbContext db,
@@ -74,9 +88,9 @@ app.MapPost("/v1/sign", async (
     HttpContext http,
     CancellationToken ct) =>
 {
+    var tenantId = http.User.TenantId();
     var key = await db.TenantKeys
-        .Join(db.Tenants.Where(t => t.Slug == DevelopmentSeed.DemoTenantSlug), k => k.TenantId, t => t.Id, (k, _) => k)
-        .Where(k => k.Status == TenantKeyStatus.Active)
+        .Where(k => k.TenantId == tenantId && k.Status == TenantKeyStatus.Active)
         .OrderByDescending(k => k.CreatedAt)
         .FirstOrDefaultAsync(ct);
     if (key is null)
@@ -147,7 +161,7 @@ app.MapPost("/v1/sign", async (
     {
         return Results.Problem($"Sign sidecar: {e.StatusCode}: {e.Status.Detail}", statusCode: 502);
     }
-}).DisableAntiforgery();
+}).DisableAntiforgery().RequireAuthorization(ApiScopes.Sign);
 
 // Phase 0 slice of POST /v1/verify (SIGNUNDER.md §4.6): what the asset's active manifest
 // says and whether it still holds. Ingredients are not summarised yet; they are in the report.
@@ -189,12 +203,14 @@ app.MapPost("/v1/verify", async (
     {
         return Results.Problem($"Sign sidecar: {e.StatusCode}: {e.Status.Detail}", statusCode: 502);
     }
-}).DisableAntiforgery();
+}).DisableAntiforgery().RequireAuthorization(ApiScopes.Verify);
 
-// No tenant auth yet, so any caller can read any record. Local development only.
-app.MapGet("/v1/records/{id}", async (string id, RegistryDbContext db, CancellationToken ct) =>
+// Another tenant's record is reported as missing, not as forbidden.
+app.MapGet("/v1/records/{id}", async (string id, HttpContext http, RegistryDbContext db, CancellationToken ct) =>
 {
-    var record = await db.AssetRecords.AsNoTracking().SingleOrDefaultAsync(r => r.Id == id, ct);
+    var tenantId = http.User.TenantId();
+    var record = await db.AssetRecords.AsNoTracking()
+        .SingleOrDefaultAsync(r => r.Id == id && r.TenantId == tenantId, ct);
     if (record is null)
     {
         return Results.Problem($"No record {id}.", statusCode: 404);
@@ -216,7 +232,7 @@ app.MapGet("/v1/records/{id}", async (string id, RegistryDbContext db, Cancellat
         ["layers"] = JsonNode.Parse(record.Layers),
         ["validation_report"] = JsonNode.Parse(record.ValidationReport),
     });
-});
+}).RequireAuthorization(ApiScopes.RecordsRead);
 
 app.Run();
 
@@ -226,3 +242,6 @@ static Signunder.Core.Verification.ValidationState ToCore(Signunder.Sign.V1.Vali
     Signunder.Sign.V1.ValidationState.Valid => Signunder.Core.Verification.ValidationState.Valid,
     _ => Signunder.Core.Verification.ValidationState.Invalid,
 };
+
+/// <summary>Exposed so the API tests can host the application.</summary>
+public partial class Program;

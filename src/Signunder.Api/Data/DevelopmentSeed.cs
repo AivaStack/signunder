@@ -5,8 +5,8 @@ namespace Signunder.Api.Data;
 
 /// <summary>
 /// Local development only: applies migrations and makes sure the demo tenant exists with
-/// the signer from configuration as its active key. Until tenant auth exists, every
-/// request acts as this tenant.
+/// the signer from configuration as its active key and, if configured, a fixed and
+/// therefore public API key.
 /// </summary>
 public static class DevelopmentSeed
 {
@@ -46,6 +46,16 @@ public static class DevelopmentSeed
                     Status = TenantKeyStatus.Active,
                     CreatedAt = now,
                 });
+            }
+        }
+
+        var apiKey = config["Development:ApiKey"];
+        if (!string.IsNullOrEmpty(apiKey))
+        {
+            var hash = ApiKey.HashOf(apiKey);
+            if (!await db.ApiKeys.AnyAsync(k => k.Hash == hash, ct))
+            {
+                db.ApiKeys.Add(ApiKey.FromPlaintext(apiKey, tenant.Id, ApiScopes.All, now));
             }
         }
 

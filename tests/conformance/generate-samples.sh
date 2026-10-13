@@ -10,6 +10,8 @@ cd "$(dirname "$0")/../.."
 
 api=${SIGNUNDER_API:-http://localhost:8080}
 sidecar=${SIGNUNDER_SIDECAR:-host.docker.internal:50051}
+# The public development key the API seeds for the demo tenant (appsettings.Development.json).
+api_key=${SIGNUNDER_API_KEY:-su_test_local_development_only_public_key_0000}
 fixtures=src/sign-sidecar/tests/fixtures
 out=docs/conformance/samples
 mkdir -p "$out"
@@ -27,7 +29,8 @@ print(json.dumps(json.loads(json.load(sys.stdin)["validationReportJson"]), inden
 
 for sample in "sample.jpg image/jpeg" "sample.png image/png"; do
   read -r name mime <<<"$sample"
-  curl --fail-with-body -sS -o "$out/$name" -F "file=@$fixtures/$name;type=$mime" "$api/v1/sign"
+  curl --fail-with-body -sS -o "$out/$name" -H "Authorization: Bearer $api_key" \
+    -F "file=@$fixtures/$name;type=$mime" "$api/v1/sign"
   validate "$out/$name" "$mime" > "$out/$name.crjson"
   echo "wrote $out/$name and $out/$name.crjson"
 done

@@ -22,6 +22,57 @@ namespace Signunder.Api.Data.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("Signunder.Core.Registry.ApiKey", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("Hash")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("hash");
+
+                    b.Property<DateTimeOffset?>("LastUsedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_used_at");
+
+                    b.Property<string>("Prefix")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("prefix");
+
+                    b.Property<DateTimeOffset?>("RevokedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("revoked_at");
+
+                    b.PrimitiveCollection<string[]>("Scopes")
+                        .IsRequired()
+                        .HasColumnType("text[]")
+                        .HasColumnName("scopes");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_api_key");
+
+                    b.HasIndex("Hash")
+                        .IsUnique()
+                        .HasDatabaseName("ix_api_key_hash");
+
+                    b.HasIndex("TenantId")
+                        .HasDatabaseName("ix_api_key_tenant_id");
+
+                    b.ToTable("api_key", (string)null);
+                });
+
             modelBuilder.Entity("Signunder.Core.Registry.AssetRecord", b =>
                 {
                     b.Property<string>("Id")
@@ -187,6 +238,16 @@ namespace Signunder.Api.Data.Migrations
                         .HasDatabaseName("ix_tenant_key_tenant_id");
 
                     b.ToTable("tenant_key", (string)null);
+                });
+
+            modelBuilder.Entity("Signunder.Core.Registry.ApiKey", b =>
+                {
+                    b.HasOne("Signunder.Core.Registry.Tenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_api_key_tenant_tenant_id");
                 });
 
             modelBuilder.Entity("Signunder.Core.Registry.AssetRecord", b =>
