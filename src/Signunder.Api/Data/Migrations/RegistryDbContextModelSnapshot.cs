@@ -22,6 +22,35 @@ namespace Signunder.Api.Data.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("Signunder.Api.Data.ProxyResult", b =>
+                {
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<string>("Provider")
+                        .HasColumnType("text")
+                        .HasColumnName("provider");
+
+                    b.Property<string>("UpstreamId")
+                        .HasColumnType("text")
+                        .HasColumnName("upstream_id");
+
+                    b.Property<string>("Body")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("body");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.HasKey("TenantId", "Provider", "UpstreamId")
+                        .HasName("pk_proxy_result");
+
+                    b.ToTable("proxy_result", (string)null);
+                });
+
             modelBuilder.Entity("Signunder.Core.Registry.ApiKey", b =>
                 {
                     b.Property<Guid>("Id")
@@ -125,6 +154,18 @@ namespace Signunder.Api.Data.Migrations
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("modality");
+
+                    b.Property<string>("ModelName")
+                        .HasColumnType("text")
+                        .HasColumnName("model_name");
+
+                    b.Property<string>("Provider")
+                        .HasColumnType("text")
+                        .HasColumnName("provider");
+
+                    b.Property<string>("RetainedMediaKey")
+                        .HasColumnType("text")
+                        .HasColumnName("retained_media_key");
 
                     b.Property<long>("Size")
                         .HasColumnType("bigint")
@@ -254,6 +295,16 @@ namespace Signunder.Api.Data.Migrations
                         .HasDatabaseName("ix_tenant_key_tenant_id");
 
                     b.ToTable("tenant_key", (string)null);
+                });
+
+            modelBuilder.Entity("Signunder.Api.Data.ProxyResult", b =>
+                {
+                    b.HasOne("Signunder.Core.Registry.Tenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_proxy_result_tenant_tenant_id");
                 });
 
             modelBuilder.Entity("Signunder.Core.Registry.ApiKey", b =>

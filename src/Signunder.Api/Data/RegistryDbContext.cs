@@ -9,6 +9,7 @@ public sealed class RegistryDbContext(DbContextOptions<RegistryDbContext> option
     public DbSet<TenantKey> TenantKeys => Set<TenantKey>();
     public DbSet<AssetRecord> AssetRecords => Set<AssetRecord>();
     public DbSet<ApiKey> ApiKeys => Set<ApiKey>();
+    public DbSet<ProxyResult> ProxyResults => Set<ProxyResult>();
 
     protected override void OnModelCreating(ModelBuilder model)
     {
@@ -30,6 +31,14 @@ public sealed class RegistryDbContext(DbContextOptions<RegistryDbContext> option
             key.ToTable("api_key");
             key.HasOne<Tenant>().WithMany().HasForeignKey(k => k.TenantId);
             key.HasIndex(k => k.Hash).IsUnique();
+        });
+
+        model.Entity<ProxyResult>(result =>
+        {
+            result.ToTable("proxy_result");
+            result.HasKey(r => new { r.TenantId, r.Provider, r.UpstreamId });
+            result.Property(r => r.Body).HasColumnType("jsonb");
+            result.HasOne<Tenant>().WithMany().HasForeignKey(r => r.TenantId);
         });
 
         model.Entity<AssetRecord>(record =>

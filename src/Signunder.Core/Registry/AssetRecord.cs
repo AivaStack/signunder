@@ -45,6 +45,18 @@ public sealed class AssetRecord
     /// <summary>PDQ's 0 to 100 measure of how reliable <see cref="Fingerprint"/> is.</summary>
     public int? FingerprintQuality { get; init; }
 
+    /// <summary>Where the output came from in proxy mode, for example <c>fal</c>; null for a direct upload.</summary>
+    public string? Provider { get; init; }
+
+    /// <summary>The upstream model, as the provider names it.</summary>
+    public string? ModelName { get; init; }
+
+    /// <summary>
+    /// Where SignUnder keeps a copy of the signed output, if it serves the file itself
+    /// (proxy mode). The copy expires; the record does not.
+    /// </summary>
+    public string? RetainedMediaKey { get; set; }
+
     public static AssetRecord ForSignedImage(
         TenantKey key,
         string mime,
@@ -53,7 +65,9 @@ public sealed class AssetRecord
         string validationReport,
         ValidationState state,
         DateTimeOffset now,
-        Marking? marking = null)
+        Marking? marking = null,
+        string? provider = null,
+        string? modelName = null)
     {
         var summary = VerificationSummary.FromCrJson(validationReport, state);
         return new AssetRecord
@@ -75,6 +89,8 @@ public sealed class AssetRecord
             WmPayload = marking?.WatermarkPayload,
             Fingerprint = marking?.Pdq,
             FingerprintQuality = marking?.PdqQuality,
+            Provider = provider,
+            ModelName = modelName,
         };
     }
 }

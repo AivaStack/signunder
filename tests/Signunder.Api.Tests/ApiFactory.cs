@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Signunder.Api.Data;
+using Signunder.Api.Signing;
 using Signunder.Core.Registry;
 using Signunder.Sign.V1;
 using Signunder.Wm.V1;
@@ -25,6 +26,10 @@ public sealed class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
     public FakeSidecar Sidecar { get; } = new();
 
     public FakeWatermarker Watermarker { get; } = new();
+
+    public FakeUpstream Upstream { get; } = new();
+
+    public InMemoryMediaStore Media { get; } = new();
 
     public Task InitializeAsync() => _postgres.StartAsync();
 
@@ -46,6 +51,10 @@ public sealed class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
             services.RemoveAll<SignService.SignServiceClient>();
             services.AddSingleton<SignService.SignServiceClient>(Sidecar);
             services.AddSingleton<WatermarkService.WatermarkServiceClient>(Watermarker);
+            services.RemoveAll<IMediaStore>();
+            services.AddSingleton<IMediaStore>(Media);
+            services.AddHttpClient(Signunder.Api.Proxy.ProxyEndpoints.Upstream)
+                .ConfigurePrimaryHttpMessageHandler(() => Upstream);
         });
     }
 

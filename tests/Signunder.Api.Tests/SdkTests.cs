@@ -94,7 +94,7 @@ public class SdkTests(ApiFactory api) : IClassFixture<ApiFactory>
         var unsupported = await Assert.ThrowsAsync<SignunderException>(
             () => Client().SignAsync(Jpeg, "notes.txt", "text/plain"));
         Assert.Equal(HttpStatusCode.UnsupportedMediaType, unsupported.StatusCode);
-        Assert.Equal("Only image/jpeg and image/png are supported.", unsupported.Message);
+        Assert.Equal("Only image/jpeg, image/png and image/webp are supported.", unsupported.Message);
     }
 
     [Fact]

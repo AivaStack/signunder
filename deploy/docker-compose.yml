@@ -10,6 +10,11 @@ services:
       ASPNETCORE_ENVIRONMENT: Development
       Sidecar__Address: http://sign-sidecar:50051
       Watermark__Address: http://wm-worker:50052
+      # Signed copies served by proxy mode. A local S3 stand-in; it keeps nothing on restart.
+      Media__ServiceUrl: http://s3:9090
+      Media__AccessKey: local
+      Media__SecretKey: local
+      Media__Bucket: signed-media
       # The development key, held by the local-kms emulator. NON-CONFORMANT (ADR 0003).
       Signer__KeyRef: arn:aws:kms:eu-central-1:111122223333:key/00000000-0000-4000-8000-00005160de01
       Signer__CertChainPath: /dev-signer/es256.chain.pem
@@ -32,6 +37,8 @@ services:
         condition: service_started
       wm-worker:
         condition: service_healthy
+      s3:
+        condition: service_started
       postgres:
         condition: service_healthy
       redis:
@@ -63,6 +70,14 @@ services:
       interval: 2s
       timeout: 3s
       retries: 60
+
+  # Stands in for Supabase Storage's S3 interface (ADR 0008).
+  s3:
+    image: adobe/s3mock:5.2.3
+    environment:
+      COM_ADOBE_TESTING_S3MOCK_STORE_INITIAL_BUCKETS: signed-media
+    ports:
+      - "9090:9090"
 
   # Stands in for AWS KMS and holds the public, NON-CONFORMANT development key.
   local-kms:

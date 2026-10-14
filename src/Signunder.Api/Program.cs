@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Signunder.Api.Auth;
 using Signunder.Api.Data;
+using Signunder.Api.Proxy;
+using Signunder.Api.Signing;
 using Signunder.Core.Registry;
 using Signunder.Core.Verification;
 using Signunder.Sign.V1;
@@ -51,6 +53,27 @@ builder.Services.AddDbContext<RegistryDbContext>(o => o
     .UseNpgsql(builder.Configuration.GetConnectionString("Postgres"))
     .UseSnakeCaseNamingConvention());
 
+builder.Services.AddScoped<ImageSigner>();
+if (builder.Configuration["Media:ServiceUrl"] is { Length: > 0 } mediaUrl)
+{
+    builder.Services.AddSingleton<Amazon.S3.IAmazonS3>(_ => new Amazon.S3.AmazonS3Client(
+        new Amazon.Runtime.BasicAWSCredentials(builder.Configuration["Media:AccessKey"], builder.Configuration["Media:SecretKey"]),
+        new Amazon.S3.AmazonS3Config
+        {
+            ServiceURL = mediaUrl,
+            ForcePathStyle = true,
+            // Checksums only where S3 requires them; local S3 stand-ins reject the extras.
+            RequestChecksumCalculation = Amazon.Runtime.RequestChecksumCalculation.WHEN_REQUIRED,
+            ResponseChecksumValidation = Amazon.Runtime.ResponseChecksumValidation.WHEN_REQUIRED,
+        }));
+    builder.Services.AddSingleton<IMediaStore, S3MediaStore>();
+}
+else
+{
+    builder.Services.AddSingleton<IMediaStore, NoMediaStore>();
+}
+builder.Services.AddProxy(builder.Configuration);
+
 builder.Services
     .AddAuthentication(ApiKeyAuthenticationHandler.SchemeName)
     .AddScheme<AuthenticationSchemeOptions, ApiKeyAuthenticationHandler>(ApiKeyAuthenticationHandler.SchemeName, null);
@@ -94,135 +117,21 @@ app.MapGet("/readyz", async (Health.HealthClient sidecar, CancellationToken ct) 
 // First slice of POST /v1/sign (SIGNUNDER.md §4.6): one image in, the signed image out,
 // watermarked and fingerprinted if the worker is configured, signed with the calling
 // tenant's active key, and a registry record whose id comes back in a header. No rules yet.
-app.MapPost("/v1/sign", async (
-    IFormFile file,
-    RegistryDbContext db,
-    SignService.SignServiceClient sidecar,
-    [FromServices] WatermarkService.WatermarkServiceClient? watermarker,
-    IConfiguration config,
-    HttpContext http,
-    CancellationToken ct) =>
+app.MapPost("/v1/sign", async (IFormFile file, ImageSigner signer, HttpContext http, CancellationToken ct) =>
 {
-    var tenantId = http.User.TenantId();
-    var key = await db.TenantKeys
-        .Where(k => k.TenantId == tenantId && k.Status == TenantKeyStatus.Active)
-        .OrderByDescending(k => k.CreatedAt)
-        .FirstOrDefaultAsync(ct);
-    if (key is null)
-    {
-        return Results.Problem("The tenant has no active signing key.", statusCode: 503);
-    }
-    if (file.ContentType is not ("image/jpeg" or "image/png"))
-    {
-        return Results.Problem("Only image/jpeg and image/png are supported.", statusCode: 415);
-    }
-
     await using var upload = file.OpenReadStream();
     var asset = await Google.Protobuf.ByteString.FromStreamAsync(upload, ct);
 
-    // The watermark changes pixels, so it goes in before the manifest hard-binds them.
-    Marking? marking = null;
-    if (watermarker is not null)
+    var outcome = await signer.SignAsync(
+        http.User.TenantId(), asset, file.ContentType ?? "", file.FileName, new SignOrigin(null, null), keepCopy: false, ct);
+    if (!outcome.Succeeded)
     {
-        var payload = Marking.NewPayload();
-        try
-        {
-            var embedded = await watermarker.EmbedAsync(
-                new EmbedRequest { Asset = asset, MimeType = file.ContentType, Payload = (ulong)payload },
-                deadline: DateTime.UtcNow.AddSeconds(30), cancellationToken: ct);
-            asset = embedded.WatermarkedAsset;
-            marking = new Marking(payload, embedded.Algorithm, embedded.Fingerprint.Pdq.ToByteArray(), embedded.Fingerprint.Quality);
-        }
-        catch (RpcException e) when (e.StatusCode == StatusCode.InvalidArgument)
-        {
-            return Results.Problem(e.Status.Detail, statusCode: 400);
-        }
-        catch (RpcException e)
-        {
-            return Results.Problem($"Watermark worker: {e.StatusCode}: {e.Status.Detail}", statusCode: 502);
-        }
+        return Results.Problem(outcome.Problem, statusCode: outcome.Status);
     }
 
-    var assertions = new JsonArray
-    {
-        new JsonObject
-        {
-            ["label"] = "c2pa.actions",
-            ["data"] = new JsonObject
-            {
-                ["actions"] = new JsonArray
-                {
-                    new JsonObject
-                    {
-                        ["action"] = "c2pa.created",
-                        ["digitalSourceType"] = "http://cv.iptc.org/newscodes/digitalsourcetype/trainedAlgorithmicMedia",
-                    },
-                },
-            },
-        },
-    };
-    if (marking is not null)
-    {
-        // Ties the manifest to the watermark, so each can be found from the other (§4.7).
-        assertions.Add(new JsonObject
-        {
-            ["label"] = "c2pa.soft-binding",
-            ["data"] = new JsonObject
-            {
-                ["alg"] = marking.Algorithm,
-                ["blocks"] = new JsonArray
-                {
-                    new JsonObject
-                    {
-                        ["scope"] = new JsonObject(),
-                        ["value"] = Convert.ToBase64String(Marking.PayloadBytes(marking.WatermarkPayload)),
-                    },
-                },
-            },
-        });
-    }
-
-    var request = new SignRequest
-    {
-        Asset = asset,
-        MimeType = file.ContentType,
-        ManifestDefinitionJson = new JsonObject
-        {
-            ["claim_generator_info"] = new JsonArray { new JsonObject { ["name"] = "SignUnder", ["version"] = "0.1.0" } },
-            ["title"] = file.FileName,
-            ["assertions"] = assertions,
-        }.ToJsonString(),
-        Signer = new SignerRef
-        {
-            KeyRef = key.KmsKeyArn,
-            Algorithm = key.Algorithm,
-            CertChainPem = key.CertChainPem,
-            TsaUrl = config["Signer:TsaUrl"] ?? "",
-        },
-    };
-
-    try
-    {
-        var reply = await sidecar.SignAsync(request, deadline: DateTime.UtcNow.AddSeconds(30), cancellationToken: ct);
-
-        var record = AssetRecord.ForSignedImage(
-            key, file.ContentType, reply.SignedAsset.Span, reply.ManifestStore.Span,
-            reply.ValidationReportJson, ToCore(reply.ValidationState), DateTimeOffset.UtcNow, marking);
-        db.AssetRecords.Add(record);
-        await db.SaveChangesAsync(ct);
-
-        http.Response.Headers["SignUnder-Record-Id"] = record.Id;
-        http.Response.Headers["SignUnder-Manifest-Hash"] = record.ManifestHash;
-        return Results.File(reply.SignedAsset.ToByteArray(), file.ContentType, file.FileName);
-    }
-    catch (RpcException e) when (e.StatusCode == StatusCode.InvalidArgument)
-    {
-        return Results.Problem(e.Status.Detail, statusCode: 400);
-    }
-    catch (RpcException e)
-    {
-        return Results.Problem($"Sign sidecar: {e.StatusCode}: {e.Status.Detail}", statusCode: 502);
-    }
+    http.Response.Headers["SignUnder-Record-Id"] = outcome.Record!.Id;
+    http.Response.Headers["SignUnder-Manifest-Hash"] = outcome.Record.ManifestHash;
+    return Results.File(outcome.Signed!, file.ContentType, file.FileName);
 }).DisableAntiforgery().RequireAuthorization(ApiScopes.Sign);
 
 // Phase 0 slice of POST /v1/verify (SIGNUNDER.md §4.6): what the asset's active manifest
@@ -232,9 +141,9 @@ app.MapPost("/v1/verify", async (
     SignService.SignServiceClient sidecar,
     CancellationToken ct) =>
 {
-    if (file.ContentType is not ("image/jpeg" or "image/png"))
+    if (!ImageSigner.SupportedTypes.Contains(file.ContentType ?? ""))
     {
-        return Results.Problem("Only image/jpeg and image/png are supported.", statusCode: 415);
+        return Results.Problem("Only image/jpeg, image/png and image/webp are supported.", statusCode: 415);
     }
 
     await using var upload = file.OpenReadStream();
@@ -248,7 +157,7 @@ app.MapPost("/v1/verify", async (
     {
         var reply = await sidecar.ValidateAsync(request, deadline: DateTime.UtcNow.AddSeconds(30), cancellationToken: ct);
         var body = JsonSerializer.SerializeToNode(
-            VerificationSummary.FromCrJson(reply.ValidationReportJson, ToCore(reply.ValidationState)), snakeCase)!.AsObject();
+            VerificationSummary.FromCrJson(reply.ValidationReportJson, ImageSigner.ToCore(reply.ValidationState)), snakeCase)!.AsObject();
         body.Insert(0, "manifest_found", true);
         body["report"] = JsonNode.Parse(reply.ValidationReportJson);
         return Results.Json(body);
@@ -296,18 +205,29 @@ app.MapGet("/v1/records/{id}", async (string id, HttpContext http, RegistryDbCon
         ["wm_payload"] = record.WmPayload?.ToString("x16"),
         ["fingerprint"] = record.Fingerprint is null ? null : Convert.ToHexStringLower(record.Fingerprint),
         ["fingerprint_quality"] = record.FingerprintQuality,
+        ["provider"] = record.Provider,
+        ["model_name"] = record.ModelName,
+        ["media_url"] = record.RetainedMediaKey is null ? null : $"{http.Request.Scheme}://{http.Request.Host}/media/{record.Id}",
         ["validation_report"] = JsonNode.Parse(record.ValidationReport),
     });
 }).RequireAuthorization(ApiScopes.RecordsRead);
 
-app.Run();
-
-static Signunder.Core.Verification.ValidationState ToCore(Signunder.Sign.V1.ValidationState state) => state switch
+// Signed copies served by SignUnder itself (proxy mode). The record id in the URL is the
+// only key: anyone holding the URL can fetch the file until the copy expires, as with
+// the providers' own result URLs.
+app.MapGet("/media/{id}", async (string id, RegistryDbContext db, IMediaStore media, CancellationToken ct) =>
 {
-    Signunder.Sign.V1.ValidationState.Trusted => Signunder.Core.Verification.ValidationState.Trusted,
-    Signunder.Sign.V1.ValidationState.Valid => Signunder.Core.Verification.ValidationState.Valid,
-    _ => Signunder.Core.Verification.ValidationState.Invalid,
-};
+    var key = await db.AssetRecords.AsNoTracking()
+        .Where(r => r.Id == id && r.RetainedMediaKey != null)
+        .Select(r => r.RetainedMediaKey)
+        .SingleOrDefaultAsync(ct);
+    var copy = key is null ? null : await media.GetAsync(key, ct);
+    return copy is { } found ? Results.File(found.Content, found.ContentType) : Results.NotFound();
+});
+
+app.MapProxy();
+
+app.Run();
 
 /// <summary>Exposed so the API tests can host the application.</summary>
 public partial class Program;

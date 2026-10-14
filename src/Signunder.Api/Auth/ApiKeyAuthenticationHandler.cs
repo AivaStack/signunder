@@ -22,22 +22,33 @@ public sealed class ApiKeyAuthenticationHandler(
     public const string SchemeName = "ApiKey";
     public const string TenantClaim = "tenant_id";
     public const string ScopeClaim = "scope";
+    public const string KeyHeader = "X-SignUnder-Key";
 
     private static readonly TimeSpan LastUsedResolution = TimeSpan.FromMinutes(1);
 
     protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
     {
-        var header = Request.Headers.Authorization.ToString();
-        if (header.Length == 0)
+        // In proxy mode Authorization carries the provider's key, so ours comes in
+        // X-SignUnder-Key. Otherwise it is the Bearer token.
+        string presented;
+        if (Request.Headers.TryGetValue(KeyHeader, out var separate))
         {
-            return AuthenticateResult.NoResult();
+            presented = separate.ToString().Trim();
         }
-        const string bearer = "Bearer ";
-        if (!header.StartsWith(bearer, StringComparison.OrdinalIgnoreCase))
+        else
         {
-            return AuthenticateResult.Fail("Expected a Bearer API key.");
+            var header = Request.Headers.Authorization.ToString();
+            if (header.Length == 0)
+            {
+                return AuthenticateResult.NoResult();
+            }
+            const string bearer = "Bearer ";
+            if (!header.StartsWith(bearer, StringComparison.OrdinalIgnoreCase))
+            {
+                return AuthenticateResult.Fail("Expected a Bearer API key.");
+            }
+            presented = header[bearer.Length..].Trim();
         }
-        var presented = header[bearer.Length..].Trim();
         if (!ApiKey.HasKeyShape(presented))
         {
             return AuthenticateResult.Fail("Not a SignUnder API key.");

@@ -41,7 +41,7 @@ public sealed class SignunderClient
     }
 
     /// <summary>
-    /// Signs an image (<c>image/jpeg</c> or <c>image/png</c>) with the tenant's active key
+    /// Signs an image (<c>image/jpeg</c>, <c>image/png</c> or <c>image/webp</c>) with the tenant's active key
     /// and returns it with its registry record id.
     /// </summary>
     /// <exception cref="SignunderException">The API refused the request.</exception>
