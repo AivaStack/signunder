@@ -21,6 +21,7 @@ SIGNUNDER.md §4.3 describes a proxy that sits in front of fal and Replicate and
 - **Signing happens when a finished result is fetched.** For fal, a GET of `{model}/requests/{id}` whose body has `images[]` or `image`; for Replicate, a prediction with `status = succeeded`. Each image is downloaded from the provider's media hosts only: an allowlist, HTTPS, no redirects, 32 MB at most. It then goes through the same pipeline as `/v1/sign` (watermark, fingerprint, sign, validate, record with `provider` and `model_name`). The pipeline moved into `ImageSigner` so both share it.
 - **The response points at SignUnder's copy.** The image URL becomes `/media/{record id}`; fal results gain `signunder_record_id`. `/media/{id}` needs no key, like the providers' own result URLs.
 - **Fail closed.** An image that cannot be signed (host not allowed, plain HTTP, unsupported type, too large, a signing error) fails the call with 502. Non-image outputs pass through.
+- **The model is remembered at submit.** fal's result URLs drop the model's last path segment (a request to `fal-ai/flux/schnell` is fetched at `fal-ai/flux/requests/{id}`, seen on a live call 14 Oct 2026), so the submitted model is kept in `proxy_request` and used for the record's `model_name`.
 - **Each result is signed once.** The rewritten body is kept in `proxy_result` (tenant, provider, upstream id) and returned on later fetches.
 - **Signed copies are kept in S3-compatible storage**: Supabase Storage in production, `adobe/s3mock` in the local stack. MinIO, which §4.11 named, no longer publishes images on Docker Hub. Copies are meant to expire after 30 days (§4.10).
 - **WebP is supported** end to end, because Replicate's FLUX models return it by default.
@@ -31,11 +32,11 @@ SIGNUNDER.md §4.3 describes a proxy that sits in front of fal and Replicate and
 - Customers change a base URL and add one header.
 - Signing adds its time to the result fetch (about 0.9 s for one image in the local run).
 - If one of several images fails, the earlier ones stay signed and recorded although the call fails. Two simultaneous first fetches can both sign; one result is kept and the other's records remain.
-- Tested against stand-ins shaped from the providers' documentation, not against live traffic.
+- fal: tested against live fal-ai/flux/schnell on 14 Oct 2026 (one generation direct, one through the proxy); the tests' fal stand-in returns the recorded bodies. Replicate: tested only against a stand-in shaped from its documentation.
 
 ## Open
 
-- A run against real fal and Replicate accounts.
+- A run against a real Replicate account.
 - The 30-day expiry: nothing enforces it yet. It needs a lifecycle rule or a sweep on Supabase Storage (UNVERIFIED whether Supabase supports S3 lifecycle rules).
 - fal's `proxyUrl` mode (`x-fal-target-url`), fal's synchronous `fal.run`, webhooks, and Replicate deployments and streaming.
 - Moving signing behind the job queue so the provider call returns quickly.
