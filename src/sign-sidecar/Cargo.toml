@@ -4,8 +4,8 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-aws-config = { version = "1.12.0", default-features = false, features = ["behavior-version-latest", "rustls", "rt-tokio", "credentials-process"] }
-aws-sdk-kms = { version = "1.123.0", default-features = false, features = ["rustls", "rt-tokio"] }
+aws-config = { version = "1.12.0", default-features = false, features = ["behavior-version-latest", "default-https-client", "rt-tokio", "credentials-process"] }
+aws-sdk-kms = { version = "1.123.0", default-features = false, features = ["default-https-client", "rt-tokio"] }
 base64 = "0.22.1"
 # Pinned exactly: manifest construction must not drift under us (SIGNUNDER.md §4.10).
 c2pa = "=0.91.2"
