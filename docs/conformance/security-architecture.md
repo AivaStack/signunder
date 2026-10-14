@@ -23,7 +23,7 @@
 | 3 | IAM: the sidecar's AWS principal limited to `kms:Sign` and `kms:GetPublicKey` on SignUnder's key; human access time-bound | O.2, O.6 | [Planned] |
 | 4 | Mutual TLS 1.3 between the API and the sidecar, and between the API and the watermark worker | O.2, O.5 | [Built] locally (ADR 0010); production certificates [Planned] |
 | 5 | A CSR tool that has AWS KMS sign the certificate request, so the key never leaves KMS | O.1, O.2 | [Built] (`kms-csr`); run against the production key [Planned] |
-| 6 | An OWASP Top 10 review or scan of the public API | O.6 | [Gap] |
+| 6 | An OWASP Top 10 review or scan of the public API | O.6 | [Built] against the local stack (`owasp-review.md`); repeat against staging [Planned] |
 | 7 | Written vulnerability-remediation procedure (30/90/180 days for hosting, 90 days for CRITICAL/HIGH in the claim generator) | O.3, O.4, O.6 | Process written below; [Gap] to adopt formally |
 | 8 | Architecture diagram as PNG (the Mermaid source below renders it) | §1.6 | [Gap] |
 | 9 | Sample files and `.crjson` signed by the production key | Sample evidence | [Planned]; local samples pass the program's rubric (`make conformance`) |
@@ -338,13 +338,14 @@ Not applicable (Assurance Level 1).
    - Database: reachable only with credentials held as Fly.io secrets.
 4. **Vulnerability Scanning & OWASP Top 10 Coverage.**
    - Dependencies and images: as in §2.3.1 [Built].
-   - API surface: [Gap] an OWASP Top 10 review of the public endpoints and an automated
-     dynamic scan (for example OWASP ZAP's baseline scan against the staging deployment).
-     Existing controls relevant to the Top 10: API-key authentication with scopes and
-     revocation; tenant isolation tested (another tenant's record reads as not found); no
-     server-side requests to arbitrary URLs (provider media hosts are allowlisted, HTTPS
-     only, redirects refused, downloads capped at 32 MB); parameterised queries throughout
-     (EF Core); uploads limited to JPEG, PNG and WebP and parsed by the worker and c2pa-rs.
+   - API surface: an OWASP Top 10:2025 review of every public endpoint, with an OWASP ZAP
+     2.17.0 API scan driven by the API's OpenAPI description, is in
+     `docs/conformance/owasp-review.md` (14 October 2026) [Built against the local stack;
+     repeat against staging Planned]. It found and fixed six issues: internal error
+     details reaching callers, missing security headers, cacheable authenticated
+     responses, no rate limiting, unlogged API-key refusals, and undefined handling of
+     unhandled exceptions. After the fixes ZAP reports 119 checks passed, no warnings and
+     no failures (`docs/conformance/evidence/zap-api-scan-2026-10-14.html`).
 5. **Timely Remediation Policy.** Hosting-environment vulnerabilities are fixed within 30
    days (high), 90 days (moderate) and 180 days (low) of detection, by CVSS severity.
    Detection is the daily scans plus provider security notices (Fly.io, Supabase, AWS).

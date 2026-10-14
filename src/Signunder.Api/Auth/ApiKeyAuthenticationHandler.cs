@@ -45,20 +45,20 @@ public sealed class ApiKeyAuthenticationHandler(
             const string bearer = "Bearer ";
             if (!header.StartsWith(bearer, StringComparison.OrdinalIgnoreCase))
             {
-                return AuthenticateResult.Fail("Expected a Bearer API key.");
+                return Failed("Expected a Bearer API key.");
             }
             presented = header[bearer.Length..].Trim();
         }
         if (!ApiKey.HasKeyShape(presented))
         {
-            return AuthenticateResult.Fail("Not a SignUnder API key.");
+            return Failed("Not a SignUnder API key.");
         }
 
         var hash = ApiKey.HashOf(presented);
         var key = await db.ApiKeys.AsNoTracking().SingleOrDefaultAsync(k => k.Hash == hash, Context.RequestAborted);
         if (key is null || key.RevokedAt is not null)
         {
-            return AuthenticateResult.Fail("Unknown or revoked API key.");
+            return Failed("Unknown or revoked API key.");
         }
 
         var now = DateTimeOffset.UtcNow;
@@ -73,6 +73,14 @@ public sealed class ApiKeyAuthenticationHandler(
             .Append(new Claim("api_key_id", key.Id.ToString()));
         var principal = new ClaimsPrincipal(new ClaimsIdentity(claims, SchemeName));
         return AuthenticateResult.Success(new AuthenticationTicket(principal, SchemeName));
+    }
+
+    /// <summary>Logs the refusal (never the key) so repeated failures can be seen and alerted on.</summary>
+    private AuthenticateResult Failed(string reason)
+    {
+        Logger.LogWarning("API key refused: {Reason} Path {Path} from {Address}",
+            reason, Request.Path, Context.Connection.RemoteIpAddress);
+        return AuthenticateResult.Fail(reason);
     }
 
     protected override Task HandleChallengeAsync(AuthenticationProperties properties)

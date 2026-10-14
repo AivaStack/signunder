@@ -2,8 +2,10 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication;
+using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Signunder.Api;
 using Signunder.Api.Auth;
 using Signunder.Api.Data;
 using Signunder.Api.Proxy;
@@ -59,6 +61,23 @@ builder.Services.AddDbContext<RegistryDbContext>(o => o
     .UseNpgsql(builder.Configuration.GetConnectionString("Postgres"))
     .UseSnakeCaseNamingConvention());
 
+builder.Services.AddOpenApi();
+builder.Services.AddProblemDetails();
+
+// Per API key (§4.6). Unauthenticated callers share a limit per address.
+var perMinute = builder.Configuration.GetValue("RateLimit:PerKeyPerMinute", 300);
+builder.Services.AddRateLimiter(o =>
+{
+    o.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    o.AddPolicy(RateLimits.PerKey, http => RateLimitPartition.GetFixedWindowLimiter(
+        http.User.FindFirst("api_key_id")?.Value ?? $"ip:{http.Connection.RemoteIpAddress}",
+        _ => new FixedWindowRateLimiterOptions { PermitLimit = perMinute, Window = TimeSpan.FromMinutes(1) }));
+    o.OnRejected = (context, _) =>
+    {
+        context.HttpContext.Response.Headers.RetryAfter = "60";
+        return ValueTask.CompletedTask;
+    };
+});
 builder.Services.AddScoped<ImageSigner>();
 if (builder.Configuration["Media:ServiceUrl"] is { Length: > 0 } mediaUrl)
 {
@@ -91,8 +110,21 @@ foreach (var scope in ApiScopes.All)
 
 var app = builder.Build();
 
+if (!app.Environment.IsDevelopment())
+{
+    // Unhandled errors become a bare problem response: no stack trace, no exception text.
+    app.UseExceptionHandler();
+}
+app.UseSecurityHeaders();
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseRateLimiter();
+
+if (app.Environment.IsDevelopment())
+{
+    // The API's description, for local tooling such as the OWASP ZAP scan.
+    app.MapOpenApi();
+}
 
 if (app.Configuration.GetValue<bool>("Database:MigrateAndSeedOnStartup"))
 {
@@ -138,13 +170,14 @@ app.MapPost("/v1/sign", async (IFormFile file, ImageSigner signer, HttpContext h
     http.Response.Headers["SignUnder-Record-Id"] = outcome.Record!.Id;
     http.Response.Headers["SignUnder-Manifest-Hash"] = outcome.Record.ManifestHash;
     return Results.File(outcome.Signed!, file.ContentType, file.FileName);
-}).DisableAntiforgery().RequireAuthorization(ApiScopes.Sign);
+}).DisableAntiforgery().RequireAuthorization(ApiScopes.Sign).RequireRateLimiting(RateLimits.PerKey);
 
 // Phase 0 slice of POST /v1/verify (SIGNUNDER.md §4.6): what the asset's active manifest
 // says and whether it still holds. Ingredients are not summarised yet; they are in the report.
 app.MapPost("/v1/verify", async (
     IFormFile file,
     SignService.SignServiceClient sidecar,
+    ILoggerFactory logs,
     CancellationToken ct) =>
 {
     if (!ImageSigner.SupportedTypes.Contains(file.ContentType ?? ""))
@@ -178,9 +211,12 @@ app.MapPost("/v1/verify", async (
     }
     catch (RpcException e)
     {
-        return Results.Problem($"Sign sidecar: {e.StatusCode}: {e.Status.Detail}", statusCode: 502);
+        var reference = ErrorReference.New();
+        logs.CreateLogger("Signunder.Api.Verify").LogError(
+            "Sign sidecar failed ({Code}): {Detail}. Reference {Reference}", e.StatusCode, e.Status.Detail, reference);
+        return Results.Problem($"Verification failed. Quote reference {reference} to SignUnder support.", statusCode: 502);
     }
-}).DisableAntiforgery().RequireAuthorization(ApiScopes.Verify);
+}).DisableAntiforgery().RequireAuthorization(ApiScopes.Verify).RequireRateLimiting(RateLimits.PerKey);
 
 // Another tenant's record is reported as missing, not as forbidden.
 app.MapGet("/v1/records/{id}", async (string id, HttpContext http, RegistryDbContext db, CancellationToken ct) =>
@@ -216,7 +252,7 @@ app.MapGet("/v1/records/{id}", async (string id, HttpContext http, RegistryDbCon
         ["media_url"] = record.RetainedMediaKey is null ? null : $"{http.Request.Scheme}://{http.Request.Host}/media/{record.Id}",
         ["validation_report"] = JsonNode.Parse(record.ValidationReport),
     });
-}).RequireAuthorization(ApiScopes.RecordsRead);
+}).RequireAuthorization(ApiScopes.RecordsRead).RequireRateLimiting(RateLimits.PerKey);
 
 // Signed copies served by SignUnder itself (proxy mode). The record id in the URL is the
 // only key: anyone holding the URL can fetch the file until the copy expires, as with
@@ -229,7 +265,7 @@ app.MapGet("/media/{id}", async (string id, RegistryDbContext db, IMediaStore me
         .SingleOrDefaultAsync(ct);
     var copy = key is null ? null : await media.GetAsync(key, ct);
     return copy is { } found ? Results.File(found.Content, found.ContentType) : Results.NotFound();
-});
+}).RequireRateLimiting(RateLimits.PerKey);
 
 app.MapProxy();
 

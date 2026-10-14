@@ -32,7 +32,8 @@ public sealed class ImageSigner(
     SignService.SignServiceClient sidecar,
     IConfiguration config,
     IMediaStore media,
-    IServiceProvider services)
+    IServiceProvider services,
+    ILogger<ImageSigner> logger)
 {
     public static readonly IReadOnlySet<string> SupportedTypes =
         new HashSet<string> { "image/jpeg", "image/png", "image/webp" };
@@ -80,7 +81,7 @@ public sealed class ImageSigner(
             }
             catch (RpcException e)
             {
-                return SignOutcome.Failed(502, $"Watermark worker: {e.StatusCode}: {e.Status.Detail}");
+                return Hidden("Watermark worker", e);
             }
         }
 
@@ -109,7 +110,7 @@ public sealed class ImageSigner(
         }
         catch (RpcException e)
         {
-            return SignOutcome.Failed(502, $"Sign sidecar: {e.StatusCode}: {e.Status.Detail}");
+            return Hidden("Sign sidecar", e);
         }
 
         var signed = reply.SignedAsset.ToByteArray();
@@ -133,6 +134,17 @@ public sealed class ImageSigner(
     /// v0.2, 31 Jul 2026).
     /// </summary>
     public const string SpecVersion = "2.4";
+
+    /// <summary>
+    /// A failure inside SignUnder: the details (which can name keys, hosts or library
+    /// internals) go to the log, and the caller gets a reference to quote.
+    /// </summary>
+    private SignOutcome Hidden(string service, RpcException e)
+    {
+        var reference = ErrorReference.New();
+        logger.LogError("{Service} failed ({Code}): {Detail}. Reference {Reference}", service, e.StatusCode, e.Status.Detail, reference);
+        return SignOutcome.Failed(502, $"Signing failed. Quote reference {reference} to SignUnder support.");
+    }
 
     private static string ManifestDefinition(string title, Marking? marking)
     {

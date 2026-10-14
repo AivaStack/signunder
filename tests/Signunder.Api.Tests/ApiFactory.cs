@@ -17,7 +17,7 @@ namespace Signunder.Api.Tests;
 /// <summary>
 /// Hosts the API against a real Postgres in a container and a stand-in for the sidecar.
 /// </summary>
-public sealed class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
+public class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
 {
     public const string DemoKey = "su_test_api_tests_demo_tenant_key_000000000000";
 
@@ -39,8 +39,12 @@ public sealed class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
         await _postgres.DisposeAsync();
     }
 
+    /// <summary>Requests per minute per API key; tests that are not about the limit stay well under it.</summary>
+    protected virtual int RateLimitPerMinute => 10_000;
+
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
+        builder.UseSetting("RateLimit:PerKeyPerMinute", RateLimitPerMinute.ToString(System.Globalization.CultureInfo.InvariantCulture));
         builder.UseEnvironment("Testing");
         builder.UseSetting("ConnectionStrings:Postgres", _postgres.GetConnectionString());
         builder.UseSetting("Database:MigrateAndSeedOnStartup", "true");
@@ -121,10 +125,19 @@ public sealed class FakeSidecar : SignService.SignServiceClient
 
     public SignRequest? LastRequest { get; private set; }
 
+    /// <summary>An asset starting with these bytes makes the sidecar fail with an internal error.</summary>
+    public static readonly byte[] FailingAsset = "fail"u8.ToArray();
+
+    public const string InternalDetail = "KMS Sign with arn:aws:kms:eu-central-1:1:key/secret-key-id failed";
+
     public override AsyncUnaryCall<SignResponse> SignAsync(SignRequest request, CallOptions options)
     {
         LastSigner = request.Signer;
         LastRequest = request;
+        if (request.Asset.Span.StartsWith(FailingAsset))
+        {
+            throw new RpcException(new Status(StatusCode.Internal, InternalDetail));
+        }
         return Call(new SignResponse
         {
             SignedAsset = ByteString.CopyFrom([.. request.Asset.Span, .. Marker.Span]),

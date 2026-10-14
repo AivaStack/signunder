@@ -39,21 +39,26 @@ public static partial class ProxyEndpoints
     {
         app.MapMethods("/proxy/fal/queue/{**path}", ["GET", "POST", "PUT", "DELETE"],
             (string path, HttpContext http, ProxySigner proxy, CancellationToken ct) => proxy.FalAsync(path, http, ct))
-            .RequireAuthorization(ApiScopes.Sign);
+            .RequireAuthorization(ApiScopes.Sign)
+            .RequireRateLimiting(RateLimits.PerKey);
 
         app.MapPost("/proxy/replicate/v1/predictions",
             (HttpContext http, ProxySigner proxy, CancellationToken ct) => proxy.ReplicateAsync("v1/predictions", http, ct))
-            .RequireAuthorization(ApiScopes.Sign);
+            .RequireAuthorization(ApiScopes.Sign)
+            .RequireRateLimiting(RateLimits.PerKey);
         app.MapPost("/proxy/replicate/v1/models/{owner}/{name}/predictions",
             (string owner, string name, HttpContext http, ProxySigner proxy, CancellationToken ct) =>
                 proxy.ReplicateAsync($"v1/models/{owner}/{name}/predictions", http, ct))
-            .RequireAuthorization(ApiScopes.Sign);
+            .RequireAuthorization(ApiScopes.Sign)
+            .RequireRateLimiting(RateLimits.PerKey);
         app.MapGet("/proxy/replicate/v1/predictions/{id}",
             (string id, HttpContext http, ProxySigner proxy, CancellationToken ct) => proxy.ReplicateAsync($"v1/predictions/{id}", http, ct))
-            .RequireAuthorization(ApiScopes.Sign);
+            .RequireAuthorization(ApiScopes.Sign)
+            .RequireRateLimiting(RateLimits.PerKey);
         app.MapPost("/proxy/replicate/v1/predictions/{id}/cancel",
             (string id, HttpContext http, ProxySigner proxy, CancellationToken ct) => proxy.ReplicateAsync($"v1/predictions/{id}/cancel", http, ct))
-            .RequireAuthorization(ApiScopes.Sign);
+            .RequireAuthorization(ApiScopes.Sign)
+            .RequireRateLimiting(RateLimits.PerKey);
     }
 
     /// <summary>fal's result path: <c>{model}/requests/{id}</c>, without a trailing action.</summary>

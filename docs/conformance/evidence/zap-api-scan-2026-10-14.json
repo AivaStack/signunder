@@ -1,0 +1,1011 @@
+{
+	"@programName": "ZAP",
+	"@version": "2.17.0",
+	"@generated": "Wed, 14 Oct 2026 15:41:44",
+	"created": "2026-10-14T15:41:44.540129338Z",
+	"insights":[
+		{
+			"level": "Low",
+			"reason": "Exceeded High",
+			"site": "http://host.docker.internal:8080",
+			"key": "insight.code.4xx",
+			"description": "Percentage of responses with status code 4xx",
+			"statistic": "99"
+		},
+		{
+			"level": "Info",
+			"reason": "Informational",
+			"site": "http://host.docker.internal:8080",
+			"key": "insight.code.2xx",
+			"description": "Percentage of responses with status code 2xx",
+			"statistic": "1"
+		},
+		{
+			"level": "Info",
+			"reason": "Informational",
+			"site": "http://host.docker.internal:8080",
+			"key": "insight.endpoint.ctype.application/json",
+			"description": "Percentage of endpoints with content type application/json",
+			"statistic": "3"
+		},
+		{
+			"level": "Info",
+			"reason": "Informational",
+			"site": "http://host.docker.internal:8080",
+			"key": "insight.endpoint.ctype.application/problem+json",
+			"description": "Percentage of endpoints with content type application/problem+json",
+			"statistic": "12"
+		},
+		{
+			"level": "Info",
+			"reason": "Informational",
+			"site": "http://host.docker.internal:8080",
+			"key": "insight.endpoint.method.DELETE",
+			"description": "Percentage of endpoints with method DELETE",
+			"statistic": "11"
+		},
+		{
+			"level": "Info",
+			"reason": "Informational",
+			"site": "http://host.docker.internal:8080",
+			"key": "insight.endpoint.method.GET",
+			"description": "Percentage of endpoints with method GET",
+			"statistic": "68"
+		},
+		{
+			"level": "Info",
+			"reason": "Informational",
+			"site": "http://host.docker.internal:8080",
+			"key": "insight.endpoint.method.POST",
+			"description": "Percentage of endpoints with method POST",
+			"statistic": "17"
+		},
+		{
+			"level": "Info",
+			"reason": "Informational",
+			"site": "http://host.docker.internal:8080",
+			"key": "insight.endpoint.method.PUT",
+			"description": "Percentage of endpoints with method PUT",
+			"statistic": "2"
+		},
+		{
+			"level": "Info",
+			"reason": "Informational",
+			"site": "http://host.docker.internal:8080",
+			"key": "insight.endpoint.total",
+			"description": "Count of total endpoints",
+			"statistic": "79"
+		},
+		{
+			"level": "Info",
+			"reason": "Informational",
+			"site": "http://host.docker.internal:8080",
+			"key": "insight.response.slow",
+			"description": "Percentage of slow responses",
+			"statistic": "1"
+		}
+	],
+	"site":[ 
+		{
+			"@name": "http://host.docker.internal:8080",
+			"@host": "host.docker.internal",
+			"@port": "8080",
+			"@ssl": "false",
+			"alerts": [ 
+				{
+					"pluginid": "100000",
+					"alertRef": "100000-1",
+					"alert": "A Client Error response code was returned by the server",
+					"name": "A Client Error response code was returned by the server",
+					"riskcode": "0",
+					"confidence": "3",
+					"riskdesc": "Informational (High)",
+					"desc": "<p>A response code of 404 was returned by the server.</p><p>This may indicate that the application is failing to handle unexpected input correctly.</p><p>Raised by the 'Alert on HTTP Response Code Error' script</p>",
+					"instances":[ 
+						{
+							"id": "612",
+							"uri": "http://host.docker.internal:8080/computeMetadata/v1/",
+							"nodeName": "http:\/\/host.docker.internal:8080\/computeMetadata\/v1\/",
+							"method": "DELETE",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "603",
+							"uri": "http://host.docker.internal:8080/latest/meta-data/",
+							"nodeName": "http:\/\/host.docker.internal:8080\/latest\/meta-data\/",
+							"method": "DELETE",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "640",
+							"uri": "http://host.docker.internal:8080/metadata/instance",
+							"nodeName": "http:\/\/host.docker.internal:8080\/metadata\/instance",
+							"method": "DELETE",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "645",
+							"uri": "http://host.docker.internal:8080/metadata/v1",
+							"nodeName": "http:\/\/host.docker.internal:8080\/metadata\/v1",
+							"method": "DELETE",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "617",
+							"uri": "http://host.docker.internal:8080/opc/v1/instance/",
+							"nodeName": "http:\/\/host.docker.internal:8080\/opc\/v1\/instance\/",
+							"method": "DELETE",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "624",
+							"uri": "http://host.docker.internal:8080/opc/v2/instance/",
+							"nodeName": "http:\/\/host.docker.internal:8080\/opc\/v2\/instance\/",
+							"method": "DELETE",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "648",
+							"uri": "http://host.docker.internal:8080/openstack/latest/meta_data.json",
+							"nodeName": "http:\/\/host.docker.internal:8080\/openstack\/latest\/meta_data.json",
+							"method": "DELETE",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "17",
+							"uri": "http://host.docker.internal:8080/proxy/fal/queue/path",
+							"nodeName": "http:\/\/host.docker.internal:8080\/proxy\/fal\/queue\/path",
+							"method": "DELETE",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "804",
+							"uri": "http://host.docker.internal:8080/proxy/fal/queue/path/",
+							"nodeName": "http:\/\/host.docker.internal:8080\/proxy\/fal\/queue\/path\/",
+							"method": "DELETE",
+							"param": "",
+							"attack": "",
+							"evidence": "429",
+							"otherinfo": ""
+						},
+						{
+							"id": "37",
+							"uri": "http://host.docker.internal:8080",
+							"nodeName": "http:\/\/host.docker.internal:8080",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "810",
+							"uri": "http://host.docker.internal:8080/",
+							"nodeName": "http:\/\/host.docker.internal:8080\/",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "22",
+							"uri": "http://host.docker.internal:8080/6588124436965701097",
+							"nodeName": "http:\/\/host.docker.internal:8080\/6588124436965701097",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "39",
+							"uri": "http://host.docker.internal:8080/media",
+							"nodeName": "http:\/\/host.docker.internal:8080\/media",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "813",
+							"uri": "http://host.docker.internal:8080/media/",
+							"nodeName": "http:\/\/host.docker.internal:8080\/media\/",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "23",
+							"uri": "http://host.docker.internal:8080/media/3404460538191124613",
+							"nodeName": "http:\/\/host.docker.internal:8080\/media\/3404460538191124613",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "3",
+							"uri": "http://host.docker.internal:8080/media/id",
+							"nodeName": "http:\/\/host.docker.internal:8080\/media\/id",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "812",
+							"uri": "http://host.docker.internal:8080/media/id/",
+							"nodeName": "http:\/\/host.docker.internal:8080\/media\/id\/",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "429",
+							"otherinfo": ""
+						},
+						{
+							"id": "42",
+							"uri": "http://host.docker.internal:8080/openapi",
+							"nodeName": "http:\/\/host.docker.internal:8080\/openapi",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "815",
+							"uri": "http://host.docker.internal:8080/openapi/",
+							"nodeName": "http:\/\/host.docker.internal:8080\/openapi\/",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "24",
+							"uri": "http://host.docker.internal:8080/openapi/8124384091180294783",
+							"nodeName": "http:\/\/host.docker.internal:8080\/openapi\/8124384091180294783",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "45",
+							"uri": "http://host.docker.internal:8080/proxy",
+							"nodeName": "http:\/\/host.docker.internal:8080\/proxy",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "816",
+							"uri": "http://host.docker.internal:8080/proxy/",
+							"nodeName": "http:\/\/host.docker.internal:8080\/proxy\/",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "25",
+							"uri": "http://host.docker.internal:8080/proxy/3886388485043642555",
+							"nodeName": "http:\/\/host.docker.internal:8080\/proxy\/3886388485043642555",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "48",
+							"uri": "http://host.docker.internal:8080/proxy/fal",
+							"nodeName": "http:\/\/host.docker.internal:8080\/proxy\/fal",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "819",
+							"uri": "http://host.docker.internal:8080/proxy/fal/",
+							"nodeName": "http:\/\/host.docker.internal:8080\/proxy\/fal\/",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "26",
+							"uri": "http://host.docker.internal:8080/proxy/fal/2542108794065307292",
+							"nodeName": "http:\/\/host.docker.internal:8080\/proxy\/fal\/2542108794065307292",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "56",
+							"uri": "http://host.docker.internal:8080/proxy/fal/queue",
+							"nodeName": "http:\/\/host.docker.internal:8080\/proxy\/fal\/queue",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "400",
+							"otherinfo": ""
+						},
+						{
+							"id": "382",
+							"uri": "http://host.docker.internal:8080/proxy/fal/queue",
+							"nodeName": "http:\/\/host.docker.internal:8080\/proxy\/fal\/queue",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "429",
+							"otherinfo": ""
+						},
+						{
+							"id": "822",
+							"uri": "http://host.docker.internal:8080/proxy/fal/queue/",
+							"nodeName": "http:\/\/host.docker.internal:8080\/proxy\/fal\/queue\/",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "429",
+							"otherinfo": ""
+						},
+						{
+							"id": "27",
+							"uri": "http://host.docker.internal:8080/proxy/fal/queue/2646063963861969609",
+							"nodeName": "http:\/\/host.docker.internal:8080\/proxy\/fal\/queue\/2646063963861969609",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "969",
+							"uri": "http://host.docker.internal:8080/proxy/fal/queue/actuator/health",
+							"nodeName": "http:\/\/host.docker.internal:8080\/proxy\/fal\/queue\/actuator\/health",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "429",
+							"otherinfo": ""
+						},
+						{
+							"id": "4",
+							"uri": "http://host.docker.internal:8080/proxy/fal/queue/path",
+							"nodeName": "http:\/\/host.docker.internal:8080\/proxy\/fal\/queue\/path",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "821",
+							"uri": "http://host.docker.internal:8080/proxy/fal/queue/path/",
+							"nodeName": "http:\/\/host.docker.internal:8080\/proxy\/fal\/queue\/path\/",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "429",
+							"otherinfo": ""
+						},
+						{
+							"id": "59",
+							"uri": "http://host.docker.internal:8080/proxy/replicate",
+							"nodeName": "http:\/\/host.docker.internal:8080\/proxy\/replicate",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "824",
+							"uri": "http://host.docker.internal:8080/proxy/replicate/",
+							"nodeName": "http:\/\/host.docker.internal:8080\/proxy\/replicate\/",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "28",
+							"uri": "http://host.docker.internal:8080/proxy/replicate/461554959431804528",
+							"nodeName": "http:\/\/host.docker.internal:8080\/proxy\/replicate\/461554959431804528",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "60",
+							"uri": "http://host.docker.internal:8080/proxy/replicate/v1",
+							"nodeName": "http:\/\/host.docker.internal:8080\/proxy\/replicate\/v1",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "826",
+							"uri": "http://host.docker.internal:8080/proxy/replicate/v1/",
+							"nodeName": "http:\/\/host.docker.internal:8080\/proxy\/replicate\/v1\/",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "29",
+							"uri": "http://host.docker.internal:8080/proxy/replicate/v1/8950353154208397676",
+							"nodeName": "http:\/\/host.docker.internal:8080\/proxy\/replicate\/v1\/8950353154208397676",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "63",
+							"uri": "http://host.docker.internal:8080/proxy/replicate/v1/models",
+							"nodeName": "http:\/\/host.docker.internal:8080\/proxy\/replicate\/v1\/models",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "828",
+							"uri": "http://host.docker.internal:8080/proxy/replicate/v1/models/",
+							"nodeName": "http:\/\/host.docker.internal:8080\/proxy\/replicate\/v1\/models\/",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "30",
+							"uri": "http://host.docker.internal:8080/proxy/replicate/v1/models/5307938061497282900",
+							"nodeName": "http:\/\/host.docker.internal:8080\/proxy\/replicate\/v1\/models\/5307938061497282900",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "66",
+							"uri": "http://host.docker.internal:8080/proxy/replicate/v1/models/owner",
+							"nodeName": "http:\/\/host.docker.internal:8080\/proxy\/replicate\/v1\/models\/owner",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "830",
+							"uri": "http://host.docker.internal:8080/proxy/replicate/v1/models/owner/",
+							"nodeName": "http:\/\/host.docker.internal:8080\/proxy\/replicate\/v1\/models\/owner\/",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "31",
+							"uri": "http://host.docker.internal:8080/proxy/replicate/v1/models/owner/5019399510638952867",
+							"nodeName": "http:\/\/host.docker.internal:8080\/proxy\/replicate\/v1\/models\/owner\/5019399510638952867",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "70",
+							"uri": "http://host.docker.internal:8080/proxy/replicate/v1/models/owner/ZAP",
+							"nodeName": "http:\/\/host.docker.internal:8080\/proxy\/replicate\/v1\/models\/owner\/ZAP",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "832",
+							"uri": "http://host.docker.internal:8080/proxy/replicate/v1/models/owner/ZAP/",
+							"nodeName": "http:\/\/host.docker.internal:8080\/proxy\/replicate\/v1\/models\/owner\/ZAP\/",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "32",
+							"uri": "http://host.docker.internal:8080/proxy/replicate/v1/models/owner/ZAP/2584328194795612965",
+							"nodeName": "http:\/\/host.docker.internal:8080\/proxy\/replicate\/v1\/models\/owner\/ZAP\/2584328194795612965",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "72",
+							"uri": "http://host.docker.internal:8080/proxy/replicate/v1/predictions",
+							"nodeName": "http:\/\/host.docker.internal:8080\/proxy\/replicate\/v1\/predictions",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "405",
+							"otherinfo": ""
+						},
+						{
+							"id": "834",
+							"uri": "http://host.docker.internal:8080/proxy/replicate/v1/predictions/",
+							"nodeName": "http:\/\/host.docker.internal:8080\/proxy\/replicate\/v1\/predictions\/",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "405",
+							"otherinfo": ""
+						},
+						{
+							"id": "33",
+							"uri": "http://host.docker.internal:8080/proxy/replicate/v1/predictions/4143615179606725513",
+							"nodeName": "http:\/\/host.docker.internal:8080\/proxy\/replicate\/v1\/predictions\/4143615179606725513",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "401",
+							"otherinfo": ""
+						},
+						{
+							"id": "20",
+							"uri": "http://host.docker.internal:8080/proxy/replicate/v1/predictions/id",
+							"nodeName": "http:\/\/host.docker.internal:8080\/proxy\/replicate\/v1\/predictions\/id",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "401",
+							"otherinfo": ""
+						},
+						{
+							"id": "835",
+							"uri": "http://host.docker.internal:8080/proxy/replicate/v1/predictions/id/",
+							"nodeName": "http:\/\/host.docker.internal:8080\/proxy\/replicate\/v1\/predictions\/id\/",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "429",
+							"otherinfo": ""
+						},
+						{
+							"id": "34",
+							"uri": "http://host.docker.internal:8080/proxy/replicate/v1/predictions/id/4018120841248855613",
+							"nodeName": "http:\/\/host.docker.internal:8080\/proxy\/replicate\/v1\/predictions\/id\/4018120841248855613",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "75",
+							"uri": "http://host.docker.internal:8080/v1",
+							"nodeName": "http:\/\/host.docker.internal:8080\/v1",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "836",
+							"uri": "http://host.docker.internal:8080/v1/",
+							"nodeName": "http:\/\/host.docker.internal:8080\/v1\/",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "35",
+							"uri": "http://host.docker.internal:8080/v1/914779918527244505",
+							"nodeName": "http:\/\/host.docker.internal:8080\/v1\/914779918527244505",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "78",
+							"uri": "http://host.docker.internal:8080/v1/records",
+							"nodeName": "http:\/\/host.docker.internal:8080\/v1\/records",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "838",
+							"uri": "http://host.docker.internal:8080/v1/records/",
+							"nodeName": "http:\/\/host.docker.internal:8080\/v1\/records\/",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "36",
+							"uri": "http://host.docker.internal:8080/v1/records/3156534628421011364",
+							"nodeName": "http:\/\/host.docker.internal:8080\/v1\/records\/3156534628421011364",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "2",
+							"uri": "http://host.docker.internal:8080/v1/records/id",
+							"nodeName": "http:\/\/host.docker.internal:8080\/v1\/records\/id",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "839",
+							"uri": "http://host.docker.internal:8080/v1/records/id/",
+							"nodeName": "http:\/\/host.docker.internal:8080\/v1\/records\/id\/",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "429",
+							"otherinfo": ""
+						},
+						{
+							"id": "5",
+							"uri": "http://host.docker.internal:8080/proxy/fal/queue/path",
+							"nodeName": "http:\/\/host.docker.internal:8080\/proxy\/fal\/queue\/path",
+							"method": "POST",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "805",
+							"uri": "http://host.docker.internal:8080/proxy/fal/queue/path/",
+							"nodeName": "http:\/\/host.docker.internal:8080\/proxy\/fal\/queue\/path\/",
+							"method": "POST",
+							"param": "",
+							"attack": "",
+							"evidence": "429",
+							"otherinfo": ""
+						},
+						{
+							"id": "19",
+							"uri": "http://host.docker.internal:8080/proxy/replicate/v1/models/owner/ZAP/predictions",
+							"nodeName": "http:\/\/host.docker.internal:8080\/proxy\/replicate\/v1\/models\/owner\/ZAP\/predictions",
+							"method": "POST",
+							"param": "",
+							"attack": "",
+							"evidence": "401",
+							"otherinfo": ""
+						},
+						{
+							"id": "800",
+							"uri": "http://host.docker.internal:8080/proxy/replicate/v1/models/owner/ZAP/predictions/",
+							"nodeName": "http:\/\/host.docker.internal:8080\/proxy\/replicate\/v1\/models\/owner\/ZAP\/predictions\/",
+							"method": "POST",
+							"param": "",
+							"attack": "",
+							"evidence": "429",
+							"otherinfo": ""
+						},
+						{
+							"id": "18",
+							"uri": "http://host.docker.internal:8080/proxy/replicate/v1/predictions",
+							"nodeName": "http:\/\/host.docker.internal:8080\/proxy\/replicate\/v1\/predictions",
+							"method": "POST",
+							"param": "",
+							"attack": "",
+							"evidence": "401",
+							"otherinfo": ""
+						},
+						{
+							"id": "803",
+							"uri": "http://host.docker.internal:8080/proxy/replicate/v1/predictions/",
+							"nodeName": "http:\/\/host.docker.internal:8080\/proxy\/replicate\/v1\/predictions\/",
+							"method": "POST",
+							"param": "",
+							"attack": "",
+							"evidence": "429",
+							"otherinfo": ""
+						},
+						{
+							"id": "21",
+							"uri": "http://host.docker.internal:8080/proxy/replicate/v1/predictions/id/cancel",
+							"nodeName": "http:\/\/host.docker.internal:8080\/proxy\/replicate\/v1\/predictions\/id\/cancel",
+							"method": "POST",
+							"param": "",
+							"attack": "",
+							"evidence": "401",
+							"otherinfo": ""
+						},
+						{
+							"id": "801",
+							"uri": "http://host.docker.internal:8080/proxy/replicate/v1/predictions/id/cancel/",
+							"nodeName": "http:\/\/host.docker.internal:8080\/proxy\/replicate\/v1\/predictions\/id\/cancel\/",
+							"method": "POST",
+							"param": "",
+							"attack": "",
+							"evidence": "429",
+							"otherinfo": ""
+						},
+						{
+							"id": "92",
+							"uri": "http://host.docker.internal:8080/v1/sign",
+							"nodeName": "http:\/\/host.docker.internal:8080\/v1\/sign ()(multipart:file)",
+							"method": "POST",
+							"param": "",
+							"attack": "",
+							"evidence": "400",
+							"otherinfo": ""
+						},
+						{
+							"id": "0",
+							"uri": "http://host.docker.internal:8080/v1/sign",
+							"nodeName": "http:\/\/host.docker.internal:8080\/v1\/sign ()(multipart:file)",
+							"method": "POST",
+							"param": "",
+							"attack": "",
+							"evidence": "415",
+							"otherinfo": ""
+						},
+						{
+							"id": "384",
+							"uri": "http://host.docker.internal:8080/v1/sign",
+							"nodeName": "http:\/\/host.docker.internal:8080\/v1\/sign ()(multipart:file)",
+							"method": "POST",
+							"param": "",
+							"attack": "",
+							"evidence": "429",
+							"otherinfo": ""
+						},
+						{
+							"id": "1005",
+							"uri": "http://host.docker.internal:8080/v1/sign",
+							"nodeName": "http:\/\/host.docker.internal:8080\/v1\/sign ()(multipart:rtobject)",
+							"method": "POST",
+							"param": "",
+							"attack": "",
+							"evidence": "429",
+							"otherinfo": ""
+						},
+						{
+							"id": "802",
+							"uri": "http://host.docker.internal:8080/v1/sign/",
+							"nodeName": "http:\/\/host.docker.internal:8080\/v1\/sign\/ ()(multipart:file)",
+							"method": "POST",
+							"param": "",
+							"attack": "",
+							"evidence": "429",
+							"otherinfo": ""
+						},
+						{
+							"id": "91",
+							"uri": "http://host.docker.internal:8080/v1/verify",
+							"nodeName": "http:\/\/host.docker.internal:8080\/v1\/verify ()(multipart:file)",
+							"method": "POST",
+							"param": "",
+							"attack": "",
+							"evidence": "400",
+							"otherinfo": ""
+						},
+						{
+							"id": "1",
+							"uri": "http://host.docker.internal:8080/v1/verify",
+							"nodeName": "http:\/\/host.docker.internal:8080\/v1\/verify ()(multipart:file)",
+							"method": "POST",
+							"param": "",
+							"attack": "",
+							"evidence": "415",
+							"otherinfo": ""
+						},
+						{
+							"id": "383",
+							"uri": "http://host.docker.internal:8080/v1/verify",
+							"nodeName": "http:\/\/host.docker.internal:8080\/v1\/verify ()(multipart:file)",
+							"method": "POST",
+							"param": "",
+							"attack": "",
+							"evidence": "429",
+							"otherinfo": ""
+						},
+						{
+							"id": "1004",
+							"uri": "http://host.docker.internal:8080/v1/verify",
+							"nodeName": "http:\/\/host.docker.internal:8080\/v1\/verify ()(multipart:rtobject)",
+							"method": "POST",
+							"param": "",
+							"attack": "",
+							"evidence": "429",
+							"otherinfo": ""
+						},
+						{
+							"id": "806",
+							"uri": "http://host.docker.internal:8080/v1/verify/",
+							"nodeName": "http:\/\/host.docker.internal:8080\/v1\/verify\/ ()(multipart:file)",
+							"method": "POST",
+							"param": "",
+							"attack": "",
+							"evidence": "429",
+							"otherinfo": ""
+						},
+						{
+							"id": "6",
+							"uri": "http://host.docker.internal:8080/proxy/fal/queue/path",
+							"nodeName": "http:\/\/host.docker.internal:8080\/proxy\/fal\/queue\/path",
+							"method": "PUT",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "808",
+							"uri": "http://host.docker.internal:8080/proxy/fal/queue/path/",
+							"nodeName": "http:\/\/host.docker.internal:8080\/proxy\/fal\/queue\/path\/",
+							"method": "PUT",
+							"param": "",
+							"attack": "",
+							"evidence": "429",
+							"otherinfo": ""
+						}
+					],
+					"count": "82",
+					"systemic": false,
+					"solution": "",
+					"otherinfo": "",
+					"reference": "",
+					"cweid": "388",
+					"wascid": "20",
+					"sourceid": "634"
+				},
+				{
+					"pluginid": "10049",
+					"alertRef": "10049-1",
+					"alert": "Non-Storable Content",
+					"name": "Non-Storable Content",
+					"riskcode": "0",
+					"confidence": "2",
+					"riskdesc": "Informational (Medium)",
+					"desc": "<p>The response contents are not storable by caching components such as proxy servers. If the response does not contain sensitive, personal or user-specific information, it may benefit from being stored and cached, to improve performance.</p>",
+					"instances":[ 
+						{
+							"id": "10",
+							"uri": "http://host.docker.internal:8080/media/id",
+							"nodeName": "http:\/\/host.docker.internal:8080\/media\/id",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "no-store",
+							"otherinfo": ""
+						},
+						{
+							"id": "7",
+							"uri": "http://host.docker.internal:8080/proxy/fal/queue/path",
+							"nodeName": "http:\/\/host.docker.internal:8080\/proxy\/fal\/queue\/path",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "no-store",
+							"otherinfo": ""
+						},
+						{
+							"id": "13",
+							"uri": "http://host.docker.internal:8080/readyz",
+							"nodeName": "http:\/\/host.docker.internal:8080\/readyz",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "no-store",
+							"otherinfo": ""
+						},
+						{
+							"id": "8",
+							"uri": "http://host.docker.internal:8080/proxy/fal/queue/path",
+							"nodeName": "http:\/\/host.docker.internal:8080\/proxy\/fal\/queue\/path",
+							"method": "POST",
+							"param": "",
+							"attack": "",
+							"evidence": "no-store",
+							"otherinfo": ""
+						},
+						{
+							"id": "9",
+							"uri": "http://host.docker.internal:8080/proxy/fal/queue/path",
+							"nodeName": "http:\/\/host.docker.internal:8080\/proxy\/fal\/queue\/path",
+							"method": "PUT",
+							"param": "",
+							"attack": "",
+							"evidence": "PUT ",
+							"otherinfo": ""
+						}
+					],
+					"count": "5",
+					"systemic": true,
+					"solution": "<p>The content may be marked as storable by ensuring that the following conditions are satisfied:</p><p>The request method must be understood by the cache and defined as being cacheable (\"GET\", \"HEAD\", and \"POST\" are currently defined as cacheable)</p><p>The response status code must be understood by the cache (one of the 1XX, 2XX, 3XX, 4XX, or 5XX response classes are generally understood)</p><p>The \"no-store\" cache directive must not appear in the request or response header fields</p><p>For caching by \"shared\" caches such as \"proxy\" caches, the \"private\" response directive must not appear in the response</p><p>For caching by \"shared\" caches such as \"proxy\" caches, the \"Authorization\" header field must not appear in the request, unless the response explicitly allows it (using one of the \"must-revalidate\", \"public\", or \"s-maxage\" Cache-Control response directives)</p><p>In addition to the conditions above, at least one of the following conditions must also be satisfied by the response:</p><p>It must contain an \"Expires\" header field</p><p>It must contain a \"max-age\" response directive</p><p>For \"shared\" caches such as \"proxy\" caches, it must contain a \"s-maxage\" response directive</p><p>It must contain a \"Cache Control Extension\" that allows it to be cached</p><p>It must have a status code that is defined as cacheable by default (200, 203, 204, 206, 300, 301, 404, 405, 410, 414, 501).</p>",
+					"otherinfo": "",
+					"reference": "<p>https://datatracker.ietf.org/doc/html/rfc7234</p><p>https://datatracker.ietf.org/doc/html/rfc7231</p><p>https://www.w3.org/Protocols/rfc2616/rfc2616-sec13.html</p>",
+					"cweid": "524",
+					"wascid": "13",
+					"sourceid": "11"
+				}
+			]
+		}
+	],
+	"sequences":[
+	]
+
+}
