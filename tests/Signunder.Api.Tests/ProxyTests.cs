@@ -146,12 +146,9 @@ public class ProxyTests(ApiFactory api) : IClassFixture<ApiFactory>
         api.Upstream.On("POST", "https://api.replicate.com/v1/models/black-forest-labs/flux-schnell/predictions", request =>
         {
             Assert.Equal("wait", request.Headers.GetValues("Prefer").Single());
-            return FakeUpstream.Json("""
-                {"id": "pred-1", "model": "black-forest-labs/flux-schnell", "status": "succeeded",
-                 "output": ["https://replicate.delivery/xezq/a/out-0.webp", "https://replicate.delivery/xezq/a/out-1.webp"],
-                 "urls": {"get": "https://api.replicate.com/v1/predictions/pred-1",
-                          "cancel": "https://api.replicate.com/v1/predictions/pred-1/cancel"}}
-                """, HttpStatusCode.Created);
+            return FakeUpstream.Json(ReplicatePrediction("pred-1", "succeeded",
+                """["https://replicate.delivery/xezq/a/out-0.webp", "https://replicate.delivery/xezq/a/out-1.webp"]"""),
+                HttpStatusCode.Created);
         });
         api.Upstream.OnFile("https://replicate.delivery/xezq/a/out-0.webp", [1, 2], "image/webp");
         api.Upstream.OnFile("https://replicate.delivery/xezq/a/out-1.webp", [3, 4], "image/webp");
@@ -167,6 +164,8 @@ public class ProxyTests(ApiFactory api) : IClassFixture<ApiFactory>
         Assert.Equal(2, output.Count);
         Assert.All(output, url => Assert.StartsWith("http://localhost/media/", url));
         Assert.Equal("http://localhost/proxy/replicate/v1/predictions/pred-1", (string?)prediction["urls"]!["get"]);
+        Assert.Equal("https://replicate.com/p/pred-1", (string?)prediction["urls"]!["web"]);
+        Assert.Equal("succeeded", (string?)prediction["status"]);
 
         // Replicate's file downloads need the customer's token.
         var download = api.Upstream.Requests.Last(r => r.RequestUri!.Host == "replicate.delivery");
@@ -182,8 +181,8 @@ public class ProxyTests(ApiFactory api) : IClassFixture<ApiFactory>
     {
         var calls = 0;
         api.Upstream.On("GET", "https://api.replicate.com/v1/predictions/pred-2", _ => FakeUpstream.Json(++calls == 1
-            ? """{"id": "pred-2", "status": "processing", "output": null}"""
-            : """{"id": "pred-2", "status": "succeeded", "version": "abc123", "output": "https://replicate.delivery/b/out.png"}"""));
+            ? ReplicatePrediction("pred-2", "processing", "null")
+            : ReplicatePrediction("pred-2", "succeeded", "\"https://replicate.delivery/b/out.png\"")));
         api.Upstream.OnFile("https://replicate.delivery/b/out.png", Png, "image/png");
         var client = Customer(ReplicateToken);
 
@@ -195,6 +194,39 @@ public class ProxyTests(ApiFactory api) : IClassFixture<ApiFactory>
         Assert.StartsWith("http://localhost/media/", (string?)done!["output"]);
         Assert.Equal((string?)done["output"], (string?)again!["output"]);
         Assert.Single(api.Upstream.Requests, r => r.RequestUri!.ToString() == "https://replicate.delivery/b/out.png");
+    }
+
+    /// <summary>
+    /// Replicate's prediction body as recorded from black-forest-labs/flux-schnell on
+    /// 14 Oct 2026, with the id and output swapped. The version is "hidden" for this
+    /// official model, and urls carries stream and web links that stay Replicate's own.
+    /// </summary>
+    private static string ReplicatePrediction(string id, string status, string output) => $$$"""
+        {"id": "{{{id}}}", "model": "black-forest-labs/flux-schnell", "version": "hidden",
+         "input": {"megapixels": "0.25", "num_outputs": 1, "prompt": "a lighthouse on a cliff at dusk, photograph"},
+         "logs": "running quantized prediction\nUsing seed: 4166677529\n", "output": {{{output}}},
+         "data_removed": false, "error": null, "source": "api", "status": "{{{status}}}",
+         "created_at": "2026-10-14T14:44:47.708Z", "started_at": "2026-10-14T14:44:48.025487958Z",
+         "completed_at": "2026-10-14T14:44:48.197034843Z",
+         "urls": {"cancel": "https://api.replicate.com/v1/predictions/{{{id}}}/cancel",
+                  "get": "https://api.replicate.com/v1/predictions/{{{id}}}",
+                  "stream": "https://stream.replicate.com/v1/files/abc",
+                  "web": "https://replicate.com/p/{{{id}}}"},
+         "metrics": {"image_count": 1, "predict_time": 0.17}}
+        """;
+
+    [Fact]
+    public async Task Replicate_rate_limit_passes_through()
+    {
+        // Recorded 14 Oct 2026 from an account holding under $5 of credit.
+        api.Upstream.OnJson("POST", "https://api.replicate.com/v1/models/black-forest-labs/flux-dev/predictions", """
+            {"detail": "Request was throttled. Your rate limit for creating predictions is reduced to 6 requests per minute with a burst of 1 requests while you have less than $5.0 in credit. Your rate limit resets in ~9s.", "status": 429, "retry_after": 9}
+            """, HttpStatusCode.TooManyRequests);
+
+        var response = await Customer(ReplicateToken).PostAsync("/proxy/replicate/v1/models/black-forest-labs/flux-dev/predictions", Body("{}"));
+
+        Assert.Equal(HttpStatusCode.TooManyRequests, response.StatusCode);
+        Assert.Equal(9, (int?)(await response.Content.ReadFromJsonAsync<JsonObject>())!["retry_after"]);
     }
 
     [Fact]
