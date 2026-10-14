@@ -3,7 +3,7 @@ SIDECAR := src/sign-sidecar/Cargo.toml
 
 WORKER := src/wm-worker
 
-.PHONY: up down logs build test test-kms robustness fmt sample
+.PHONY: up down logs build test test-kms robustness fmt sample conformance
 
 up: ## Build and start the local stack
 	$(COMPOSE) up --build -d --wait
@@ -40,3 +40,6 @@ fmt:
 
 sample: ## Sign the fixtures through the running stack into docs/conformance/samples
 	tests/conformance/generate-samples.sh
+
+conformance: ## Run the C2PA program's asset rubric over docs/conformance/samples
+	tests/conformance/check-samples.sh

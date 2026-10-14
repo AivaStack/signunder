@@ -30,7 +30,7 @@ public class SdkTests(ApiFactory api) : IClassFixture<ApiFactory>
         Assert.Equal(signed.Content.Length, record.Size);
         Assert.Equal("image", record.Modality);
         Assert.Equal("valid", record.ValidationState);
-        Assert.Equal(["c2pa.created"], record.Actions);
+        Assert.Equal(["c2pa.created", "c2pa.watermarked.bound"], record.Actions);
         Assert.True(record.Layers["manifest"]);
         Assert.True(record.Layers["watermark"]);
         Assert.Equal(16, record.WmPayload?.Length);
@@ -60,7 +60,7 @@ public class SdkTests(ApiFactory api) : IClassFixture<ApiFactory>
         Assert.Equal("valid", verified.ValidationState);
         Assert.Equal("SignUnder DEV - NON-CONFORMANT", verified.SignedBy);
         Assert.Equal("untrusted", verified.TrustStatus);
-        Assert.Equal(["c2pa.created"], verified.Actions);
+        Assert.Equal(["c2pa.created", "c2pa.watermarked.bound"], verified.Actions);
         Assert.False(verified.Altered);
         Assert.Equal(["signingCredential.untrusted"], verified.Failures);
         Assert.StartsWith("urn:c2pa:", verified.ManifestLabel);

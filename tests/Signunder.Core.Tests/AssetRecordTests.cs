@@ -36,7 +36,7 @@ public class AssetRecordTests
         Assert.Equal(Convert.ToHexStringLower(SHA256.HashData(manifestStore)), record.ManifestHash);
         Assert.StartsWith("urn:c2pa:", record.ManifestLabel);
         Assert.Equal(ValidationState.Valid, record.ValidationState);
-        Assert.Equal("""["c2pa.created"]""", record.Actions);
+        Assert.Equal("""["c2pa.created","c2pa.watermarked.bound"]""", record.Actions);
         Assert.Equal(Report, record.ValidationReport);
         Assert.Equal("""{"manifest":true,"watermark":false,"fingerprint":false}""", record.Layers);
         Assert.Null(record.WmPayload);

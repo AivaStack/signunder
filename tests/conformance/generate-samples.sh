@@ -27,7 +27,7 @@ print(json.dumps({"asset": base64.b64encode(open(sys.argv[1], "rb").read()).deco
 print(json.dumps(json.loads(json.load(sys.stdin)["validationReportJson"]), indent=2))'
 }
 
-for sample in "sample.jpg image/jpeg" "sample.png image/png"; do
+for sample in "sample.jpg image/jpeg" "sample.png image/png" "sample.webp image/webp"; do
   read -r name mime <<<"$sample"
   curl --fail-with-body -sS -o "$out/$name" -H "Authorization: Bearer $api_key" \
     -F "file=@$fixtures/$name;type=$mime" "$api/v1/sign"

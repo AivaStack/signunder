@@ -12,6 +12,7 @@ public class VerificationSummaryTests
     [Theory]
     [InlineData("sample.jpg.crjson")]
     [InlineData("sample.png.crjson")]
+    [InlineData("sample.webp.crjson")]
     public void Signed_sample_is_summarised(string report)
     {
         var summary = VerificationSummary.FromCrJson(Sample(report), ValidationState.Valid);
@@ -20,7 +21,7 @@ public class VerificationSummaryTests
         Assert.Equal("SignUnder Development Signer (not trusted)", summary.CertSubject["CN"]);
         Assert.Equal("untrusted", summary.TrustStatus);
         Assert.Equal(2026, summary.IssuedAt?.Year);
-        Assert.Equal(["c2pa.created"], summary.Actions);
+        Assert.Equal(["c2pa.created", "c2pa.watermarked.bound"], summary.Actions);
         Assert.False(summary.Altered);
         Assert.Equal(["signingCredential.untrusted"], summary.Failures);
     }

@@ -126,23 +126,42 @@ public sealed class ImageSigner(
         return new SignOutcome(signed, record, 200, null);
     }
 
+    /// <summary>
+    /// The C2PA Content Credentials Specification version the manifests declare. The
+    /// conformance program requires it in claim_generator_info, equal to the version on
+    /// the product's Conforming Products List record (Additional Conformance Requirements
+    /// v0.2, 31 Jul 2026).
+    /// </summary>
+    public const string SpecVersion = "2.4";
+
     private static string ManifestDefinition(string title, Marking? marking)
     {
+        var actions = new JsonArray
+        {
+            new JsonObject
+            {
+                ["action"] = "c2pa.created",
+                ["digitalSourceType"] = "http://cv.iptc.org/newscodes/digitalsourcetype/trainedAlgorithmicMedia",
+            },
+        };
+        if (marking is not null)
+        {
+            actions.Add(new JsonObject { ["action"] = "c2pa.watermarked.bound" });
+        }
+
         var assertions = new JsonArray
         {
             new JsonObject
             {
                 ["label"] = "c2pa.actions",
+                // Made by SignUnder, so attributed to the signer, and first: the program's
+                // rubric wants the inception action in the first created actions assertion.
+                ["created"] = true,
                 ["data"] = new JsonObject
                 {
-                    ["actions"] = new JsonArray
-                    {
-                        new JsonObject
-                        {
-                            ["action"] = "c2pa.created",
-                            ["digitalSourceType"] = "http://cv.iptc.org/newscodes/digitalsourcetype/trainedAlgorithmicMedia",
-                        },
-                    },
+                    ["actions"] = actions,
+                    // These are every action SignUnder performed; the program requires the field.
+                    ["allActionsIncluded"] = true,
                 },
             },
         };
@@ -152,6 +171,7 @@ public sealed class ImageSigner(
             assertions.Add(new JsonObject
             {
                 ["label"] = "c2pa.soft-binding",
+                ["created"] = true,
                 ["data"] = new JsonObject
                 {
                     ["alg"] = marking.Algorithm,
@@ -168,7 +188,10 @@ public sealed class ImageSigner(
         }
         return new JsonObject
         {
-            ["claim_generator_info"] = new JsonArray { new JsonObject { ["name"] = "SignUnder", ["version"] = "0.1.0" } },
+            ["claim_generator_info"] = new JsonArray
+            {
+                new JsonObject { ["name"] = "SignUnder", ["version"] = "0.1.0", ["specVersion"] = SpecVersion },
+            },
             ["title"] = title,
             ["assertions"] = assertions,
         }.ToJsonString();

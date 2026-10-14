@@ -70,10 +70,14 @@ pub fn sign(
     let mut builder = Builder::from_context(context()?)
         .with_definition(definition.as_str())
         .map_err(invalid)?;
-    for soft_binding in &soft_bindings {
+    for (soft_binding, created) in &soft_bindings {
         builder
             .add_assertion(SOFT_BINDING, soft_binding)
             .map_err(invalid)?;
+        // add_assertion files it as gathered; keep the definition's "created" flag.
+        if let Some(added) = builder.definition.assertions.last_mut() {
+            added.created = *created;
+        }
     }
 
     let mut source = Cursor::new(asset);
@@ -109,7 +113,7 @@ pub fn sign(
 /// Takes the `c2pa.soft-binding` assertions out of a manifest definition so they can be
 /// added as typed assertions. A soft binding's block values are bytes; left in the JSON
 /// definition they would be stored as text. In the definition they are base64.
-fn take_soft_bindings(definition: &str) -> Result<(String, Vec<SoftBinding>), Status> {
+fn take_soft_bindings(definition: &str) -> Result<(String, Vec<(SoftBinding, bool)>), Status> {
     let bad = |what: &str| Status::invalid_argument(format!("{SOFT_BINDING}: {what}"));
 
     // Anything that is not a JSON object is left for c2pa-rs to reject.
@@ -156,7 +160,7 @@ fn take_soft_bindings(definition: &str) -> Result<(String, Vec<SoftBinding>), St
         let mut soft_binding = SoftBinding::default();
         soft_binding.alg = Some(alg.to_owned());
         soft_binding.blocks = blocks;
-        soft_bindings.push(soft_binding);
+        soft_bindings.push((soft_binding, assertion["created"] == true));
     }
     *assertions = kept;
     Ok((root.to_string(), soft_bindings))
@@ -350,6 +354,27 @@ mod tests {
         assert_eq!(
             assertions["c2pa.actions.v2"]["actions"][0]["action"],
             "c2pa.created"
+        );
+    }
+
+    #[test]
+    fn created_flag_on_a_soft_binding_is_kept() {
+        let mut definition: serde_json::Value = serde_json::from_str(&with_soft_binding(
+            r#"{"alg": "com.adobe.trustmark.Q", "blocks": [{"scope": {}, "value": "AAECAwQFBgc="}]}"#,
+        ))
+        .unwrap();
+        definition["assertions"][1]["created"] = serde_json::Value::Bool(true);
+
+        let signed = sign(dev().as_ref(), PNG, "image/png", &definition.to_string()).unwrap();
+
+        let report: serde_json::Value = serde_json::from_str(&signed.report_json).unwrap();
+        let created = report["manifests"][0]["claim.v2"]["created_assertions"]
+            .as_array()
+            .unwrap();
+        assert!(
+            created
+                .iter()
+                .any(|a| a["url"] == "self#jumbf=c2pa.assertions/c2pa.soft-binding")
         );
     }
 
