@@ -32,11 +32,12 @@ SIGNUNDER.md §4.3 describes a proxy that sits in front of fal and Replicate and
 - Customers change a base URL and add one header.
 - Signing adds its time to the result fetch (about 0.9 s for one image in the local run).
 - If one of several images fails, the earlier ones stay signed and recorded although the call fails. Two simultaneous first fetches can both sign; one result is kept and the other's records remain.
-- fal: tested against live fal-ai/flux/schnell on 14 Oct 2026 (one generation direct, one through the proxy); the tests' fal stand-in returns the recorded bodies. Replicate: tested only against a stand-in shaped from its documentation.
+- Tested live on 14 Oct 2026: fal-ai/flux/schnell (one generation direct, one through the proxy) and Replicate's black-forest-labs/flux-schnell (one with `Prefer: wait`, one polled, both through the proxy). The tests' stand-ins return the recorded bodies.
+- Replicate limits accounts holding under $5 of credit to one prediction at a time and six a minute; its 429 passes back to the caller unchanged. Replicate's file URLs were served without the token, although its documentation says they need it; the proxy sends it anyway.
+- Signed outputs are larger than the provider's: a 10 KB Replicate WebP came back at about 30 KB, because the watermark worker re-encodes at quality 95 (ADR 0007).
 
 ## Open
 
-- A run against a real Replicate account.
 - The 30-day expiry: nothing enforces it yet. It needs a lifecycle rule or a sweep on Supabase Storage (UNVERIFIED whether Supabase supports S3 lifecycle rules).
 - fal's `proxyUrl` mode (`x-fal-target-url`), fal's synchronous `fal.run`, webhooks, and Replicate deployments and streaming.
 - Moving signing behind the job queue so the provider call returns quickly.
