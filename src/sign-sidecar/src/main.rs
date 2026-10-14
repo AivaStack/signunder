@@ -3,8 +3,10 @@ use std::path::PathBuf;
 use std::sync::Arc;
 
 use tokio::signal::unix::{SignalKind, signal};
+use tonic::service::interceptor::InterceptedService;
 use tonic::{Request, Response, Status, transport::Server};
 
+mod internal_tls;
 mod kms;
 mod provenance;
 
@@ -135,6 +137,7 @@ async fn shutdown() {
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    internal_tls::install_crypto_provider();
     let addr: SocketAddr = std::env::var("SIDECAR_ADDR")
         .unwrap_or_else(|_| "0.0.0.0:50051".into())
         .parse()?;
@@ -163,16 +166,30 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         c2pa::VERSION
     );
 
-    Server::builder()
-        .add_service(health)
-        .add_service(
+    let tls = internal_tls::from_env()?;
+    let require_client = internal_tls::RequireClient::new(tls.is_some());
+    let mut server = Server::builder();
+    if let Some(tls) = tls {
+        println!(
+            "mutual TLS on: only {} may call",
+            internal_tls::API_CLIENT_NAME
+        );
+        server = server.tls_config(tls)?;
+    } else {
+        println!("WARNING: mutual TLS off (SIDECAR_TLS_* unset); for local development only");
+    }
+
+    server
+        .add_service(InterceptedService::new(health, require_client.clone()))
+        .add_service(InterceptedService::new(
             SignServiceServer::new(Sidecar {
                 dev_signer,
                 kms: Arc::new(Kms::from_env().await),
             })
             .max_decoding_message_size(MAX_MESSAGE_BYTES)
             .max_encoding_message_size(MAX_MESSAGE_BYTES),
-        )
+            require_client,
+        ))
         .serve_with_shutdown(addr, shutdown())
         .await?;
     Ok(())

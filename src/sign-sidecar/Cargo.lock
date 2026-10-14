@@ -778,7 +778,7 @@ dependencies = [
  "non-empty-string",
  "nonempty-collections",
  "openssl",
- "pem",
+ "pem 4.0.0",
  "pkcs8",
  "png_pong",
  "quick-xml",
@@ -2294,6 +2294,16 @@ dependencies = [
 
 [[package]]
 name = "pem"
+version = "3.0.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1d30c53c26bc5b31a98cd02d20f25a7c8567146caf63ed593a9d87b2775291be"
+dependencies = [
+ "base64 0.22.1",
+ "serde_core",
+]
+
+[[package]]
+name = "pem"
 version = "4.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d354a98a3d1251555de99e8fdd8afda05573c31b82f59063a7b0a29b5527f120"
@@ -3272,10 +3282,13 @@ dependencies = [
  "aws-sdk-kms",
  "base64 0.22.1",
  "c2pa",
+ "pem 3.0.6",
  "prost",
+ "rustls",
  "serde_json",
  "sha2 0.10.9",
  "tokio",
+ "tokio-stream",
  "tonic",
  "tonic-health",
  "tonic-prost",
@@ -3725,6 +3738,7 @@ dependencies = [
  "socket2",
  "sync_wrapper",
  "tokio",
+ "tokio-rustls",
  "tokio-stream",
  "tower",
  "tower-layer",

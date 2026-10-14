@@ -10,13 +10,18 @@ base64 = "0.22.1"
 # Pinned exactly: manifest construction must not drift under us (SIGNUNDER.md §4.10).
 c2pa = "=0.91.2"
 prost = "0.14.4"
+rustls = { version = "0.23.45", default-features = false, features = ["ring"] }
 serde_json = "1.0.151"
 sha2 = "0.10.9"
 tokio = { version = "1.53.2", features = ["macros", "rt-multi-thread", "signal"] }
-tonic = "0.14.6"
+tonic = { version = "0.14.6", features = ["tls-ring"] }
 tonic-health = "0.14.6"
 tonic-prost = "0.14.6"
 x509-parser = "0.18.1"
 
 [build-dependencies]
 tonic-prost-build = "0.14.6"
+
+[dev-dependencies]
+pem = "3.0.6"
+tokio-stream = { version = "0.1.19", features = ["net"] }

@@ -20,8 +20,11 @@ mkdir -p "$out"
 validate() {
   python3 -c 'import base64, json, sys
 print(json.dumps({"asset": base64.b64encode(open(sys.argv[1], "rb").read()).decode(), "mime_type": sys.argv[2]}))' "$1" "$2" \
-    | docker run --rm -i -v "$PWD/proto:/proto:ro" fullstorydev/grpcurl:v1.9.3 \
-        -plaintext -max-msg-sz 67108864 -import-path /proto -proto signunder/sign/v1/sign.proto \
+    | docker run --rm -i -v "$PWD/proto:/proto:ro" -v "$PWD/deploy/internal-tls/dev:/tls:ro" \
+        fullstorydev/grpcurl:v1.9.3 \
+        -cacert /tls/ca.pem -cert /tls/signunder-api.pem -key /tls/signunder-api.key \
+        -servername sign-sidecar \
+        -max-msg-sz 67108864 -import-path /proto -proto signunder/sign/v1/sign.proto \
         -d @ "$sidecar" signunder.sign.v1.SignService/Validate \
     | python3 -c 'import json, sys
 print(json.dumps(json.loads(json.load(sys.stdin)["validationReportJson"]), indent=2))'

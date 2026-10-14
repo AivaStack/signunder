@@ -21,7 +21,7 @@
 | 1 | Applicant's legal name, address and contact; certificate subject fields | §1.1, §1.4 | [Eoin] |
 | 2 | Production deploy: API, sidecar and watermark worker on Fly.io (`fra`), registry on Supabase (EU), signing key in AWS KMS (eu-central-1) | O.2, O.5, O.6 | [Planned] |
 | 3 | IAM: the sidecar's AWS principal limited to `kms:Sign` and `kms:GetPublicKey` on SignUnder's key; human access time-bound | O.2, O.6 | [Planned] |
-| 4 | Mutual TLS 1.3 between the API and the sidecar, and between the API and the watermark worker | O.2, O.5 | [Gap] |
+| 4 | Mutual TLS 1.3 between the API and the sidecar, and between the API and the watermark worker | O.2, O.5 | [Built] locally (ADR 0010); production certificates [Planned] |
 | 5 | A CSR tool that has AWS KMS sign the certificate request, so the key never leaves KMS | O.1, O.2 | [Gap] |
 | 6 | An OWASP Top 10 review or scan of the public API | O.6 | [Gap] |
 | 7 | Written vulnerability-remediation procedure (30/90/180 days for hosting, 90 days for CRITICAL/HIGH in the claim generator) | O.3, O.4, O.6 | Process written below; [Gap] to adopt formally |
@@ -127,8 +127,8 @@ flowchart LR
   App -- HTTPS + API key --> API
   API -- proxy mode, HTTPS --> Fal
   API -- proxy mode, HTTPS --> Rep
-  API -- gRPC, mTLS planned --> WM
-  API -- gRPC, mTLS planned --> SC
+  API -- gRPC over mutual TLS 1.3 --> WM
+  API -- gRPC over mutual TLS 1.3 --> SC
   SC -- HTTPS, kms:Sign / GetPublicKey --> KMS
   SC -- HTTP(S) --> TSA
   API -- TLS --> DB
@@ -221,9 +221,15 @@ Not applicable (Assurance Level 1).
      random bits, stored only as SHA-256, scoped (`sign`, `verify`, `records:read`) and
      revocable. The API key only limits access to the backend; it plays no part in signing
      [Built; ADR 0006].
-   - *API to sidecar and API to watermark worker:* [Gap] mutual TLS with certificates from
-     a private CA, each side checking the other's identity; until then these channels rely
-     only on Fly.io's private network.
+   - *API to sidecar and API to watermark worker:* mutual TLS with certificates from a
+     private CA used for nothing else (ADR 0010) [Built; production certificates Planned].
+     Each server presents a certificate for its own name (`sign-sidecar`, `wm-worker`) and
+     requires a client certificate from the CA; it then accepts only a certificate naming
+     `signunder-api` and refuses any other with `PERMISSION_DENIED`, so the role of each
+     side is authenticated by the other. The API accepts only a server certificate that
+     chains to the CA and matches the host it connected to. Tested: plain-text calls,
+     calls without a client certificate, and calls with a valid certificate for another
+     name are all refused.
    - *Sidecar to AWS KMS:* AWS Signature Version 4 over TLS [Built].
 
 #### 2.2.2 and 2.2.3 Assurance Level 2 Additional Evidence
@@ -294,7 +300,7 @@ Not applicable (Assurance Level 1).
    | Channel | Protection | Status |
    |---|---|---|
    | Customer application → API | HTTPS terminated at Fly.io's edge; TLS 1.3 to be required (UNVERIFIED that Fly.io can enforce a minimum of 1.3) | [Planned] |
-   | API → watermark worker, API → sidecar | gRPC over mutual TLS 1.3 (private CA), inside Fly.io's private network (WireGuard-based, *from memory*, UNVERIFIED) | [Gap]: today plain gRPC on the private network |
+   | API → watermark worker, API → sidecar | gRPC over mutual TLS (private CA), inside Fly.io's private network (WireGuard-based, *from memory*, UNVERIFIED). The API offers only TLS 1.3, so every connection it makes is TLS 1.3 (checked: both services negotiate TLSv1.3). The servers would also accept TLS 1.2 from a client holding the API's certificate: neither tonic's nor Python gRPC's server settings expose a minimum version | [Built] locally; production certificates [Planned] |
    | Sidecar → AWS KMS | HTTPS (TLS 1.2 or 1.3; AWS KMS supports TLS 1.3, *from memory*, UNVERIFIED) with SigV4 | [Built] |
    | API → fal.ai / Replicate, downloads from their media hosts | HTTPS only; hosts on an allowlist; no redirects | [Built] |
    | API → Supabase Postgres and Storage | TLS | [Planned] |

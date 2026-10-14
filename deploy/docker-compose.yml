@@ -8,8 +8,12 @@ services:
       dockerfile: src/Signunder.Api/Dockerfile
     environment:
       ASPNETCORE_ENVIRONMENT: Development
-      Sidecar__Address: http://sign-sidecar:50051
-      Watermark__Address: http://wm-worker:50052
+      # Mutual TLS to the sidecar and worker with the public development certificates (ADR 0010).
+      Sidecar__Address: https://sign-sidecar:50051
+      Internal__Tls__CaPath: /internal-tls/ca.pem
+      Internal__Tls__CertPath: /internal-tls/signunder-api.pem
+      Internal__Tls__KeyPath: /internal-tls/signunder-api.key
+      Watermark__Address: https://wm-worker:50052
       # Signed copies served by proxy mode. A local S3 stand-in; it keeps nothing on restart.
       Media__ServiceUrl: http://s3:9090
       Media__AccessKey: local
@@ -24,6 +28,7 @@ services:
       ConnectionStrings__Redis: redis:6379
     volumes:
       - ../src/sign-sidecar/dev-signer/es256.chain.pem:/dev-signer/es256.chain.pem:ro
+      - ../deploy/internal-tls/dev:/internal-tls:ro
     ports:
       - "8080:8080"
     # Start-up applies migrations, so "running" is not yet "listening".
@@ -50,9 +55,14 @@ services:
       dockerfile: src/sign-sidecar/Dockerfile
     environment:
       AWS_ENDPOINT_URL: http://local-kms:8080
+      SIDECAR_TLS_CERT: /internal-tls/sign-sidecar.pem
+      SIDECAR_TLS_KEY: /internal-tls/sign-sidecar.key
+      SIDECAR_TLS_CLIENT_CA: /internal-tls/ca.pem
       AWS_REGION: eu-central-1
       AWS_ACCESS_KEY_ID: local
       AWS_SECRET_ACCESS_KEY: local
+    volumes:
+      - ../deploy/internal-tls/dev:/internal-tls:ro
     ports:
       - "50051:50051"
     depends_on:
@@ -62,6 +72,12 @@ services:
     build:
       context: ..
       dockerfile: src/wm-worker/Dockerfile
+    environment:
+      WM_TLS_CERT: /internal-tls/wm-worker.pem
+      WM_TLS_KEY: /internal-tls/wm-worker.key
+      WM_TLS_CLIENT_CA: /internal-tls/ca.pem
+    volumes:
+      - ../deploy/internal-tls/dev:/internal-tls:ro
     ports:
       - "50052:50052"
     # The model takes a few seconds to load before the port opens.

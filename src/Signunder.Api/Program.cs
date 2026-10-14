@@ -30,18 +30,24 @@ var builder = WebApplication.CreateBuilder(args);
 var sidecarAddress = new Uri(builder.Configuration["Sidecar:Address"] ?? "http://localhost:50051");
 builder.Services
     .AddGrpcClient<SignService.SignServiceClient>(o => o.Address = sidecarAddress)
+    .ConfigurePrimaryHttpMessageHandler(() => InternalTls.Handler(builder.Configuration, sidecarAddress))
     .ConfigureChannel(o =>
     {
         o.MaxSendMessageSize = MaxSidecarMessageBytes;
         o.MaxReceiveMessageSize = MaxSidecarMessageBytes;
     });
-builder.Services.AddGrpcClient<Health.HealthClient>(o => o.Address = sidecarAddress);
+builder.Services
+    .AddGrpcClient<Health.HealthClient>(o => o.Address = sidecarAddress)
+    .ConfigurePrimaryHttpMessageHandler(() => InternalTls.Handler(builder.Configuration, sidecarAddress));
 
 // The watermark worker is optional: without an address, outputs are signed unmarked.
-if (builder.Configuration["Watermark:Address"] is { Length: > 0 } watermarkAddress)
+Uri? watermarkUri = builder.Configuration["Watermark:Address"] is { Length: > 0 } watermarkAddress ? new Uri(watermarkAddress) : null;
+InternalTls.EnsureConfigured(builder.Configuration, sidecarAddress, watermarkUri);
+if (watermarkUri is not null)
 {
     builder.Services
-        .AddGrpcClient<WatermarkService.WatermarkServiceClient>(o => o.Address = new Uri(watermarkAddress))
+        .AddGrpcClient<WatermarkService.WatermarkServiceClient>(o => o.Address = watermarkUri)
+        .ConfigurePrimaryHttpMessageHandler(() => InternalTls.Handler(builder.Configuration, watermarkUri))
         .ConfigureChannel(o =>
         {
             o.MaxSendMessageSize = MaxSidecarMessageBytes;
