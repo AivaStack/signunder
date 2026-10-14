@@ -1,0 +1,15 @@
+# Accepted vulnerability findings, read by Trivy (tools/security/scan.sh, CI).
+#
+# Policy (C2PA Generator Product Security Requirements v0.2, O.3 and O.4, Level 1):
+# a CRITICAL or HIGH finding with a fix must be fixed or mitigated within 90 days of
+# detection. An entry here is the record of a mitigation or a deferral, and every
+# entry MUST carry `expired_at` no more than 90 days after the day it is added;
+# tools/security/check-ignores.py fails CI otherwise. When it expires, the finding
+# fails the build again.
+#
+# Shape of an entry:
+#   - id: CVE-2026-00000
+#     paths: ["src/sign-sidecar/Cargo.lock"]
+#     statement: why it is safe to defer, and what will fix it
+#     expired_at: 2027-01-12
+vulnerabilities: []

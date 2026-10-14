@@ -1,0 +1,43 @@
+# Builds the three service images and scans them (C2PA Generator Product Security
+# Requirements v0.2, O.3, O.4 and O.6 Level 1). Fails on a HIGH or CRITICAL finding
+# that has a fix; reports the rest. Daily, on demand, and when an image's inputs change.
+name: images
+
+on:
+  schedule:
+    - cron: "47 5 * * *"
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "src/*/Dockerfile"
+      - "src/sign-sidecar/Cargo.lock"
+      - "src/wm-worker/uv.lock"
+      - "src/**/packages.lock.json"
+      - ".trivyignore.yaml"
+      - ".github/workflows/images.yml"
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: signunder-api
+            dockerfile: src/Signunder.Api/Dockerfile
+          - name: signunder-sign-sidecar
+            dockerfile: src/sign-sidecar/Dockerfile
+          - name: signunder-wm-worker
+            dockerfile: src/wm-worker/Dockerfile
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build
+        run: docker build -f ${{ matrix.dockerfile }} -t ${{ matrix.name }}:ci .
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/trivy
+          key: trivy-db-${{ github.run_id }}-${{ matrix.name }}
+          restore-keys: trivy-db-
+      - name: Scan
+        run: tools/security/scan.sh image ${{ matrix.name }}:ci

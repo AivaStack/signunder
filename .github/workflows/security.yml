@@ -1,0 +1,36 @@
+# Dependency vulnerability scan and SBOM (C2PA Generator Product Security Requirements
+# v0.2, O.3 and O.4 Level 1). Runs daily as well, so a newly published advisory is
+# detected without waiting for a push. See tools/security/scan.sh.
+name: security
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: "17 5 * * *"
+  workflow_dispatch:
+
+jobs:
+  dependencies:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - name: Ignore file allows no deferral beyond 90 days
+        run: uv run --no-project -q --with pyyaml python tools/security/check-ignores.py
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/trivy
+          key: trivy-db-${{ github.run_id }}
+          restore-keys: trivy-db-
+      - name: Scan lockfiles (fails on HIGH or CRITICAL)
+        run: tools/security/scan.sh deps
+      - name: SBOM (CycloneDX)
+        if: always()
+        run: tools/security/scan.sh sbom sbom.cdx.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sbom
+          path: sbom.cdx.json

@@ -3,7 +3,7 @@ SIDECAR := src/sign-sidecar/Cargo.toml
 
 WORKER := src/wm-worker
 
-.PHONY: up down logs build test test-kms robustness fmt sample conformance
+.PHONY: up down logs build test test-kms robustness fmt sample conformance scan
 
 up: ## Build and start the local stack
 	$(COMPOSE) up --build -d --wait
@@ -43,3 +43,8 @@ sample: ## Sign the fixtures through the running stack into docs/conformance/sam
 
 conformance: ## Run the C2PA program's asset rubric over docs/conformance/samples
 	tests/conformance/check-samples.sh
+
+scan: ## Vulnerability scan of lockfiles and the three service images (Trivy)
+	uv run --no-project -q --with pyyaml python tools/security/check-ignores.py
+	tools/security/scan.sh deps
+	for image in signunder-api signunder-sign-sidecar signunder-wm-worker; do tools/security/scan.sh image $$image:latest || exit 1; done
