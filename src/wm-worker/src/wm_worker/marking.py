@@ -14,7 +14,7 @@ PAYLOAD_BITS = 61
 
 ALGORITHM = "com.adobe.trustmark.Q"
 
-_FORMATS = {"image/jpeg": "JPEG", "image/png": "PNG"}
+_FORMATS = {"image/jpeg": "JPEG", "image/png": "PNG", "image/webp": "WEBP"}
 
 
 class UnsupportedImage(ValueError):
@@ -64,6 +64,8 @@ class Marker:
         if mime_type == "image/jpeg":
             # High quality and no chroma subsampling, so re-encoding costs the mark little.
             marked.save(out, "JPEG", quality=95, subsampling=0, **extras)
+        elif mime_type == "image/webp":
+            marked.save(out, "WEBP", quality=95, **extras)
         else:
             marked.save(out, "PNG", **extras)
         return out.getvalue(), fingerprint

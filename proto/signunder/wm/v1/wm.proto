@@ -17,7 +17,7 @@ service WatermarkService {
 
 message EmbedRequest {
   bytes asset = 1;
-  // "image/jpeg" or "image/png". The result has the same type.
+  // "image/jpeg", "image/png" or "image/webp". The result has the same type.
   string mime_type = 2;
   // The watermark payload: an unsigned number below 2^61, which is what TrustMark
   // carries with its strongest standard error correction (BCH_5).

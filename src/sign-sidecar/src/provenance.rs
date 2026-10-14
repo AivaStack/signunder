@@ -251,9 +251,14 @@ mod tests {
         let mut tampered = sign(dev().as_ref(), original, mime_type, DEFINITION)
             .unwrap()
             .asset;
-        // The manifest is embedded near the start of both formats, so this is image data.
-        let i = tampered.len() - 16;
-        tampered[i] ^= 0xFF;
+        // Flip a byte of image data: find a run of the original's middle in the signed file,
+        // wherever the format put the manifest.
+        let middle = &original[original.len() / 2..original.len() / 2 + 16];
+        let i = tampered
+            .windows(middle.len())
+            .position(|window| window == middle)
+            .expect("the image data is still in the signed file");
+        tampered[i + 8] ^= 0xFF;
 
         let (state, report_json) = validate(&tampered, mime_type).unwrap();
         let report: serde_json::Value = serde_json::from_str(&report_json).unwrap();
@@ -270,6 +275,18 @@ mod tests {
     #[test]
     fn png_signs_and_validates() {
         signs_and_validates(PNG, "image/png");
+    }
+
+    const WEBP: &[u8] = include_bytes!("../tests/fixtures/sample.webp");
+
+    #[test]
+    fn webp_signs_and_validates() {
+        signs_and_validates(WEBP, "image/webp");
+    }
+
+    #[test]
+    fn webp_tampering_is_detected() {
+        detects_tampering(WEBP, "image/webp");
     }
 
     #[test]

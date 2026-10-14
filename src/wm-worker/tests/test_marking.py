@@ -58,6 +58,17 @@ def test_png_round_trip_keeps_transparency(marker: Marker, photo: bytes):
     assert marker.decode(marked, "image/png")[0] == payload
 
 
+def test_webp_round_trip(marker: Marker, photo: bytes):
+    out = io.BytesIO()
+    Image.open(io.BytesIO(photo)).save(out, "WEBP", quality=90)
+    payload = 987654321
+
+    marked, _ = marker.embed(out.getvalue(), "image/webp", payload)
+
+    assert Image.open(io.BytesIO(marked)).format == "WEBP"
+    assert marker.decode(marked, "image/webp")[0] == payload
+
+
 def test_the_mark_is_hard_to_see(marker: Marker, photo: bytes):
     import numpy as np
 
@@ -91,7 +102,12 @@ def test_payload_out_of_range_is_refused(marker: Marker, photo: bytes, payload: 
 
 @pytest.mark.parametrize(
     ("asset", "mime_type"),
-    [(b"not an image", "image/jpeg"), (b"", "image/png"), (b"x", "image/gif")],
+    [
+        (b"not an image", "image/jpeg"),
+        (b"", "image/png"),
+        (b"x", "image/gif"),
+        (b"x", "image/webp"),
+    ],
 )
 def test_bad_input_is_refused(marker: Marker, asset: bytes, mime_type: str):
     with pytest.raises(UnsupportedImage):
