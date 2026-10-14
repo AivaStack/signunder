@@ -92,11 +92,30 @@ public sealed class ProxySigner(
         }
         RewriteUrls(body, Options.Fal.QueueBase.ToString(), ours);
 
+        // A submit: remember which model it went to (see ProxyRequest).
+        if (http.Request.Method == "POST" && response.IsSuccessStatusCode && (string?)body["request_id"] is { } submittedId)
+        {
+            db.ProxyRequests.Add(new ProxyRequest
+            {
+                TenantId = tenantId,
+                Provider = "fal",
+                UpstreamId = submittedId,
+                Model = path.Trim('/'),
+                CreatedAt = DateTimeOffset.UtcNow,
+            });
+            await db.SaveChangesAsync(ct);
+        }
+
         if (result is { Success: true } && response.IsSuccessStatusCode)
         {
+            var requestId = result.Groups["id"].Value;
+            var model = await db.ProxyRequests.AsNoTracking()
+                .Where(r => r.TenantId == tenantId && r.Provider == "fal" && r.UpstreamId == requestId)
+                .Select(r => r.Model)
+                .SingleOrDefaultAsync(ct) ?? result.Groups["model"].Value;
             try
             {
-                await SignFalImagesAsync(body, tenantId, result.Groups["model"].Value, http, ct);
+                await SignFalImagesAsync(body, tenantId, model, http, ct);
             }
             catch (UnsignableOutputException e)
             {

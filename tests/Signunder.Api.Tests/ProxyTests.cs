@@ -27,25 +27,38 @@ public class ProxyTests(ApiFactory api) : IClassFixture<ApiFactory>
 
     private static StringContent Body(string json) => new(json, Encoding.UTF8, "application/json");
 
+    /// <summary>
+    /// fal's bodies as recorded from fal-ai/flux/schnell on 14 Oct 2026, with the request id
+    /// and image URL swapped. Note that fal's follow-up URLs drop the model's last path
+    /// segment (fal-ai/flux, not fal-ai/flux/schnell).
+    /// </summary>
     private void FalRequest(string id, string imageUrl, string contentType = "image/png")
     {
-        api.Upstream.OnJson("POST", "https://queue.fal.run/fal-ai/flux/schnell", $$"""
-            {"request_id": "{{id}}", "status_url": "https://queue.fal.run/fal-ai/flux/requests/{{id}}/status",
-             "response_url": "https://queue.fal.run/fal-ai/flux/requests/{{id}}",
-             "cancel_url": "https://queue.fal.run/fal-ai/flux/requests/{{id}}/cancel", "queue_position": 0}
+        var urls = $$$"""
+            "response_url": "https://queue.fal.run/fal-ai/flux/requests/{{{id}}}",
+            "status_url": "https://queue.fal.run/fal-ai/flux/requests/{{{id}}}/status",
+            "cancel_url": "https://queue.fal.run/fal-ai/flux/requests/{{{id}}}/cancel"
+            """;
+        api.Upstream.OnJson("POST", "https://queue.fal.run/fal-ai/flux/schnell", $$$"""
+            {"status": "IN_QUEUE", "request_id": "{{{id}}}", {{{urls}}}, "logs": null, "metrics": {},
+             "queue_position": 0, "user_queue_position": 0, "user_queued_count": 1}
             """);
-        api.Upstream.OnJson("GET", $"https://queue.fal.run/fal-ai/flux/requests/{id}/status", """{"status": "COMPLETED"}""");
-        api.Upstream.OnJson("GET", $"https://queue.fal.run/fal-ai/flux/requests/{id}", $$"""
-            {"images": [{"url": "{{imageUrl}}", "width": 1024, "height": 768, "content_type": "{{contentType}}"}],
-             "seed": 42, "has_nsfw_concepts": [false], "prompt": "a lighthouse"}
+        api.Upstream.OnJson("GET", $"https://queue.fal.run/fal-ai/flux/requests/{id}/status", $$$"""
+            {"status": "COMPLETED", "request_id": "{{{id}}}", {{{urls}}}, "logs": null,
+             "metrics": {"inference_time": 3.1630001068115234}}
+            """);
+        api.Upstream.OnJson("GET", $"https://queue.fal.run/fal-ai/flux/requests/{id}", $$$"""
+            {"images": [{"url": "{{{imageUrl}}}", "width": 512, "height": 512, "content_type": "{{{contentType}}}"}],
+             "timings": {"inference": 2.8398281650152057}, "seed": 1182286634,
+             "has_nsfw_concepts": [false], "prompt": "a lighthouse on a cliff at dusk, photograph"}
             """);
     }
 
     [Fact]
     public async Task Fal_queue_round_trip_signs_the_image_and_routes_follow_ups_through_the_proxy()
     {
-        FalRequest("req-1", "https://v3.fal.media/files/abc/out.png");
-        api.Upstream.OnFile("https://v3.fal.media/files/abc/out.png", Png, "image/png");
+        FalRequest("req-1", "https://v3b.fal.media/files/b/abc/out.png");
+        api.Upstream.OnFile("https://v3b.fal.media/files/b/abc/out.png", Png, "image/png");
         var client = Customer(FalKey);
 
         var submitted = await (await client.PostAsync("/proxy/fal/queue/fal-ai/flux/schnell", Body("""{"prompt": "a lighthouse"}""")))
@@ -59,12 +72,15 @@ public class ProxyTests(ApiFactory api) : IClassFixture<ApiFactory>
         Assert.StartsWith("http://localhost/proxy/fal/queue/", responseUrl);
         Assert.StartsWith("http://localhost/proxy/fal/queue/", (string)submitted["status_url"]!);
 
+        Assert.Equal("IN_QUEUE", (string?)submitted["status"]);
         var status = await client.GetFromJsonAsync<JsonObject>((string)submitted["status_url"]!);
+        Assert.StartsWith("http://localhost/proxy/fal/queue/", (string)status!["response_url"]!);
         Assert.Equal("COMPLETED", (string?)status!["status"]);
 
         var result = await client.GetFromJsonAsync<JsonObject>(responseUrl);
         var image = result!["images"]![0]!;
-        Assert.Equal(42, (int?)result["seed"]);
+        Assert.Equal(1182286634, (long?)result["seed"]);
+        Assert.NotNull(result["timings"]);
         var recordId = (string)image["signunder_record_id"]!;
         Assert.Equal($"http://localhost/media/{recordId}", (string?)image["url"]);
 
@@ -77,7 +93,8 @@ public class ProxyTests(ApiFactory api) : IClassFixture<ApiFactory>
 
         var record = await api.ClientWithKey(ApiFactory.DemoKey).GetFromJsonAsync<JsonObject>($"/v1/records/{recordId}");
         Assert.Equal("fal", (string?)record!["provider"]);
-        Assert.Equal("fal-ai/flux", (string?)record["model_name"]);
+        // The full model from the submit call, though fal's result URL says fal-ai/flux.
+        Assert.Equal("fal-ai/flux/schnell", (string?)record["model_name"]);
         Assert.Equal($"http://localhost/media/{recordId}", (string?)record["media_url"]);
     }
 

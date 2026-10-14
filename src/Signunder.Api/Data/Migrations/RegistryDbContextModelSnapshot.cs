@@ -22,6 +22,35 @@ namespace Signunder.Api.Data.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("Signunder.Api.Data.ProxyRequest", b =>
+                {
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<string>("Provider")
+                        .HasColumnType("text")
+                        .HasColumnName("provider");
+
+                    b.Property<string>("UpstreamId")
+                        .HasColumnType("text")
+                        .HasColumnName("upstream_id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("Model")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("model");
+
+                    b.HasKey("TenantId", "Provider", "UpstreamId")
+                        .HasName("pk_proxy_request");
+
+                    b.ToTable("proxy_request", (string)null);
+                });
+
             modelBuilder.Entity("Signunder.Api.Data.ProxyResult", b =>
                 {
                     b.Property<Guid>("TenantId")
@@ -295,6 +324,16 @@ namespace Signunder.Api.Data.Migrations
                         .HasDatabaseName("ix_tenant_key_tenant_id");
 
                     b.ToTable("tenant_key", (string)null);
+                });
+
+            modelBuilder.Entity("Signunder.Api.Data.ProxyRequest", b =>
+                {
+                    b.HasOne("Signunder.Core.Registry.Tenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_proxy_request_tenant_tenant_id");
                 });
 
             modelBuilder.Entity("Signunder.Api.Data.ProxyResult", b =>

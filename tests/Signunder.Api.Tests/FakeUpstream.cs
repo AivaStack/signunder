@@ -6,8 +6,8 @@ using Signunder.Api.Signing;
 namespace Signunder.Api.Tests;
 
 /// <summary>
-/// Stands in for fal and Replicate. The response bodies are shaped from the providers'
-/// API documentation (read 14 Oct 2026), not recorded from live calls.
+/// Stands in for fal and Replicate. fal's bodies are recorded from a live call (14 Oct
+/// 2026); Replicate's are still shaped from its API documentation (read the same day).
 /// </summary>
 public sealed class FakeUpstream : HttpMessageHandler
 {
