@@ -18,6 +18,7 @@ Hosted service that gets a company signing AI-generated content under its own na
 - `proto/signunder/sign/v1/sign.proto`: the API-to-sidecar contract.
 - `proto/signunder/wm/v1/wm.proto`: the API-to-watermark-worker contract.
 - `tests/`: xUnit projects for Core, Rules and the API (`Signunder.Api.Tests` hosts the API against Postgres in a container with a stand-in sidecar); `tests/conformance` holds the sample generator; `tests/robustness` holds the watermark survival suite, run from the worker's environment; the other folders are placeholders.
+- `tools/security/`: the vulnerability scan (`scan.sh`) and the check that `.trivyignore.yaml` defers nothing beyond 90 days (ADR 0009).
 - `deploy/docker-compose.yml`: local stack.
 - `content/`: blog posts and reference pages (law, platforms, labels, guides, compare) as Markdown, with templates in `content/_templates/`. Published by `signunder-web`, never rendered from here.
 - The web front end (Next.js, shadcn/ui, Zippay template) lives in a separate private repo, `signunder-web`. Never copy template code into this repo: it is licensed, and this repo is meant to be opened.
@@ -33,6 +34,8 @@ make fmt     # dotnet format + cargo fmt + ruff format
 make up      # build and start the local stack in Docker
 make down
 make sample  # with the stack up: sign the fixtures into docs/conformance/samples
+make conformance  # run the C2PA program's asset rubric over the samples
+make scan    # Trivy: lockfiles and the three service images (ADR 0009)
 ```
 
 Toolchains are listed in the `Brewfile`. Install the missing formulae one by one (`brew install rustup protobuf`, then `rustup default stable`) rather than running `brew bundle`, which installs the `dotnet-sdk` cask over a dotnet that came from elsewhere. Homebrew's rustup is keg-only: `cargo` needs `/opt/homebrew/opt/rustup/bin` on PATH.
