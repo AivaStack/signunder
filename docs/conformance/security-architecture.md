@@ -22,7 +22,7 @@
 | 2 | Production deploy: API, sidecar and watermark worker on Fly.io (`fra`), registry on Supabase (EU), signing key in AWS KMS (eu-central-1) | O.2, O.5, O.6 | [Planned] |
 | 3 | IAM: the sidecar's AWS principal limited to `kms:Sign` and `kms:GetPublicKey` on SignUnder's key; human access time-bound | O.2, O.6 | [Planned] |
 | 4 | Mutual TLS 1.3 between the API and the sidecar, and between the API and the watermark worker | O.2, O.5 | [Built] locally (ADR 0010); production certificates [Planned] |
-| 5 | A CSR tool that has AWS KMS sign the certificate request, so the key never leaves KMS | O.1, O.2 | [Gap] |
+| 5 | A CSR tool that has AWS KMS sign the certificate request, so the key never leaves KMS | O.1, O.2 | [Built] (`kms-csr`); run against the production key [Planned] |
 | 6 | An OWASP Top 10 review or scan of the public API | O.6 | [Gap] |
 | 7 | Written vulnerability-remediation procedure (30/90/180 days for hosting, 90 days for CRITICAL/HIGH in the claim generator) | O.3, O.4, O.6 | Process written below; [Gap] to adopt formally |
 | 8 | Architecture diagram as PNG (the Mermaid source below renders it) | §1.6 | [Gap] |
@@ -164,8 +164,15 @@ hand.
 
 1. **Certificate Enrollment Process.** [Planned] After the Notice of Conformance, an
    operator creates the KMS key (§2.2), produces a certificate signing request whose
-   signature is made by KMS [Gap: tool], and submits it through the Certification
-   Authority's portal (SSL.com) with the CPL record id. The issued chain is stored as the
+   signature is made by KMS, and submits it through the Certification
+   Authority's portal (SSL.com) with the CPL record id. The request tool is `kms-csr` (in `src/sign-sidecar`)
+   [Built]: it reads the public key from KMS, has KMS sign the request (`Sign`, digest
+   mode), and writes the extensions the program's claim-signing AL1 request profile asks
+   for (subject C, O, CN; basic constraints critical and not a CA; key usage critical,
+   digitalSignature and contentCommitment; extended key usage C2PA claim signing and email
+   protection; the C2PA certificate policy; assurance level AL1; the CPL record id).
+   Tested against the local-kms emulator: openssl verifies the request's signature and the
+   request carries the KMS key's public key. The issued chain is stored as the
    key's `cert_chain_pem` in the registry (`tenant_key`) and the key is marked active.
    Before every signature the sidecar checks that the certificate's public key equals the
    KMS key's public key (`GetPublicKey`, cached) and refuses to sign otherwise [Built,

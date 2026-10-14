@@ -31,7 +31,7 @@ test-kms: ## Sidecar tests that sign through the local-kms emulator (needs Docke
 	$(COMPOSE) up -d --wait local-kms
 	AWS_ENDPOINT_URL=http://localhost:4599 AWS_REGION=eu-central-1 \
 	AWS_ACCESS_KEY_ID=local AWS_SECRET_ACCESS_KEY=local \
-	cargo test --manifest-path $(SIDECAR) -- --ignored
+	cargo test --manifest-path $(SIDECAR) --bins -- --ignored
 
 fmt:
 	dotnet format Signunder.sln
