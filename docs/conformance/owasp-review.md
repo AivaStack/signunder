@@ -44,7 +44,7 @@ the same day).
 - Findings 2, 3 and 6.
 - The OpenAPI description is served only in Development.
 - The development API key and the database seeding run only where `Database:MigrateAndSeedOnStartup` is set, which only the Development settings do (ADR 0006).
-- `AllowedHosts` is `*`. **Open:** set it to the production host names at deploy.
+- `AllowedHosts` is `*` locally; on staging it is `signunder-staging-api.fly.dev` (15 Oct 2026, ADR 0012), and the health check sends that host. **Open:** the production host names.
 
 **A03:2025 Software Supply Chain Failures.**
 - Lockfiles for every ecosystem; c2pa-rs pinned exactly.
@@ -53,9 +53,9 @@ the same day).
 
 **A04:2025 Cryptographic Failures.**
 - API keys are 256 random bits, stored as SHA-256 only (ADR 0006).
-- The claim signing key stays in AWS KMS; claims are signed with ES256 (ADR 0004).
+- The claim signing key stays in a cloud KMS, now a Google Cloud KMS HSM key; claims are signed with ES256 (ADRs 0004, 0011).
 - Internal channels use mutual TLS, with the API offering only TLS 1.3 (ADR 0010).
-- Public TLS terminates at the hosting edge. **Open:** confirm TLS 1.3 at Fly.io's edge.
+- Public TLS terminates at Fly.io's edge, which accepts TLS 1.3 and 1.2 and refuses 1.1 (checked against staging 15 Oct 2026; Let's Encrypt certificate).
 
 **A05:2025 Injection.**
 - Database access is EF Core with parameterised queries throughout; no SQL is built from strings.
@@ -91,7 +91,7 @@ the same day).
 
 ## Still open
 
-- Set `AllowedHosts` and confirm TLS 1.3 at the public edge, at deploy.
+- Set `AllowedHosts` for production. Whether the edge should refuse TLS 1.2, which Fly.io does not appear to offer a setting for (UNVERIFIED).
 - Alerting and central logs.
 - Quotas by tier.
 - Repeat this review and the ZAP scan against the deployed staging environment.
