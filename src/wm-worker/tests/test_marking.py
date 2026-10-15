@@ -87,6 +87,16 @@ def test_unmarked_image_has_no_payload(marker: Marker, photo: bytes):
     assert len(fingerprint.pdq) == 32
 
 
+def test_a_payload_of_another_width_is_not_a_watermark(marker: Marker):
+    # TrustMark's detector pass reads 68 bits from this unmarked photograph; our marks
+    # carry 61, and the API cannot take a wider number.
+    aurora = (PHOTO.parent / "aurora.jpg").read_bytes()
+
+    found, _ = marker.decode(aurora, "image/jpeg")
+
+    assert found is None
+
+
 def test_marking_barely_moves_the_fingerprint(marker: Marker, photo: bytes):
     _, original = marker.decode(photo, "image/jpeg")
     _, marked = marker.embed(photo, "image/jpeg", 1)

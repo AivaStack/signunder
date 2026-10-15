@@ -10,6 +10,11 @@ from PIL import Image
 from trustmark import TrustMark
 
 PAYLOAD_BITS = 61
+
+# Images are shrunk to this many pixels on the longer side for TrustMark's detector pass,
+# which otherwise runs out of memory on large ones; the mark survives the shrinking
+# (tests/robustness).
+DETECT_MAX_SIDE = 512
 """What TrustMark carries with BCH_5, its strongest standard error correction."""
 
 ALGORITHM = "com.adobe.trustmark.Q"
@@ -79,12 +84,18 @@ class Marker:
         """Looks for a payload in the whole image, then in the region TrustMark's detector
         picks out, which is what recovers a marked image shown inside a larger one (a
         screenshot). The second pass can report a payload in an unmarked image, so a
-        payload means something only once it is found in the registry."""
+        payload means something only once it is found in the registry. It can also report
+        one of another width (68 bits from an unmarked photograph), which cannot be ours."""
         with self._lock:
             bits, present, _ = self._trustmark.decode(image, MODE="binary")
             if not present:
-                bits, present, _ = self._trustmark.decode(image, MODE="binary", DETECTFIRST=True)
-        return int(bits, 2) if present else None
+                # The detector's memory grows with the image: about 2 GB for a 1280x853
+                # photograph, which killed the 2 GB worker on staging (15 Oct 2026). At
+                # 512 pixels it needs about half that.
+                detect = image.copy()
+                detect.thumbnail((DETECT_MAX_SIDE, DETECT_MAX_SIDE))
+                bits, present, _ = self._trustmark.decode(detect, MODE="binary", DETECTFIRST=True)
+        return int(bits, 2) if present and len(bits) == PAYLOAD_BITS else None
 
 
 def fingerprint_of(image: Image.Image) -> Fingerprint:
