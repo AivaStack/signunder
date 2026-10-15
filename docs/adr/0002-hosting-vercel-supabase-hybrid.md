@@ -23,7 +23,7 @@ Option 1.
 - **Vercel:** the Next.js marketing site and dashboard (`signunder-web`). The template sets `output: 'export'`, so the marketing site is a **fully static export**: no server rendering, no API routes, no middleware, and therefore no functions to place in an EU region. Static assets are served from Vercel's global CDN, which is not personal data. Any function added later must be pinned to an EU region.
 - **Supabase (EU region):** Postgres, Auth for dashboard sign-in, Storage for transient media and evidence retention, Supabase Queues (pgmq) for job dispatch in place of Redis.
 - **Fly.io, Frankfurt (`fra`):** the .NET API, Rust sign sidecar and Python workers, as containers. Chosen over Hetzner: it deploys from the existing Dockerfiles with rolling releases, needs no server administration, and gives private networking between the API and the sidecar.
-- **Unchanged:** AWS KMS for signing keys, Cloudflare in front of the public API, verify and detect endpoints.
+- **Unchanged:** AWS KMS for signing keys (*superseded 15 Oct 2026 by ADR 0011: Google Cloud KMS*), Cloudflare in front of the public API, verify and detect endpoints.
 
 ## Consequences
 

@@ -19,10 +19,10 @@
 | # | Item | Objective | Status |
 |---|---|---|---|
 | 1 | Applicant's legal name, address and contact; certificate subject fields | §1.1, §1.4 | [Eoin] |
-| 2 | Production deploy: API, sidecar and watermark worker on Fly.io (`fra`), registry on Supabase (EU), signing key in AWS KMS (eu-central-1) | O.2, O.5, O.6 | [Planned] |
-| 3 | IAM: the sidecar's AWS principal limited to `kms:Sign` and `kms:GetPublicKey` on SignUnder's key; human access time-bound | O.2, O.6 | [Planned] |
+| 2 | Production deploy: API, sidecar and watermark worker on Fly.io (`fra`), registry on Supabase (EU), signing key in Google Cloud KMS (HSM, `europe-west3`) | O.2, O.5, O.6 | [Planned] |
+| 3 | IAM: the sidecar's service account limited to signing with and reading the public key of SignUnder's key, reached from Fly.io by workload identity federation; human access time-bound | O.2, O.6 | [Planned] |
 | 4 | Mutual TLS 1.3 between the API and the sidecar, and between the API and the watermark worker | O.2, O.5 | [Built] locally (ADR 0010); production certificates [Planned] |
-| 5 | A CSR tool that has AWS KMS sign the certificate request, so the key never leaves KMS | O.1, O.2 | [Built] (`kms-csr`); run against the production key [Planned] |
+| 5 | A CSR tool that has the KMS sign the certificate request, so the key never leaves KMS | O.1, O.2 | [Built] (`kms-csr`); run against the production key [Planned] |
 | 6 | An OWASP Top 10 review or scan of the public API | O.6 | [Built] against the local stack (`owasp-review.md`); repeat against staging [Planned] |
 | 7 | Written vulnerability-remediation procedure (30/90/180 days for hosting, 90 days for CRITICAL/HIGH in the claim generator) | O.3, O.4, O.6 | Process written below; [Gap] to adopt formally |
 | 8 | Architecture diagram as PNG (the Mermaid source below renders it) | §1.6 | [Gap] |
@@ -68,7 +68,8 @@ image SignUnder:
    (`digitalSourceType` `trainedAlgorithmicMedia`) and `c2pa.watermarked.bound`,
    `allActionsIncluded: true`, a `c2pa.soft-binding` assertion carrying the watermark
    identifier, and the hard binding (`c2pa.hash.data`);
-3. signs the claim (ES256) with a key held in AWS KMS and adds an RFC 3161 timestamp;
+3. signs the claim (ES256) with a key held in a hardware security module in Google Cloud
+   KMS and adds an RFC 3161 timestamp;
 4. validates the signed asset with the same library before releasing it, and refuses to
    release one that does not validate;
 5. records hashes of the output and its manifest, never the image itself, in a registry.
@@ -94,7 +95,7 @@ for them to fetch.
 | API | Authenticates customers (API keys), applies the pipeline, writes registry records, serves stored signed copies | .NET 10 (ASP.NET Core) | Fly.io, Frankfurt | Code [Built]; deploy [Planned] |
 | Watermark worker | Embeds the TrustMark watermark; computes the PDQ fingerprint | Python 3.12, TrustMark 0.9.2, PyTorch (CPU), Pillow | Fly.io, Frankfurt | Code [Built]; deploy [Planned] |
 | Sign sidecar (claim generator) | Builds the manifest, has KMS sign the claim, adds the timestamp, validates the result | Rust, c2pa-rs 0.91.2 (pinned exactly) | Fly.io, Frankfurt | Code [Built]; deploy [Planned] |
-| Claim signing key | ECC P-256 key; signs claims | AWS KMS | AWS eu-central-1 | KMS code path [Built] against an emulator; key [Planned] |
+| Claim signing key | ECDSA P-256 key, HSM protection level; signs claims | Google Cloud KMS | Google Cloud `europe-west3` (Frankfurt) | Code path [Built]: tested against an emulator; the Cloud KMS path awaits a real key (`make test-gcp`); key [Planned] |
 | Registry | Tenants, key references and certificate chains, records of outputs (hashes only) | PostgreSQL | Supabase, EU (Frankfurt) | Schema [Built]; deploy [Planned] |
 | Signed-copy store | Signed outputs in proxy mode, kept up to 30 days | S3-compatible object storage | Supabase Storage, EU | Code [Built] against an S3 stand-in; deploy [Planned] |
 | Timestamp authority | RFC 3161 timestamps | External (SSL.com, per the certificate bundle) | — | Client [Built] (tested with DigiCert's public TSA) |
@@ -116,7 +117,7 @@ flowchart LR
     WM[Watermark worker Python]
     SC[Sign sidecar Rust / c2pa-rs]
   end
-  subgraph AWS[AWS eu-central-1]
+  subgraph GCP[Google Cloud europe-west3]
     KMS[(KMS key ECC P-256)]
   end
   subgraph Supabase[Supabase EU]
@@ -129,7 +130,7 @@ flowchart LR
   API -- proxy mode, HTTPS --> Rep
   API -- gRPC over mutual TLS 1.3 --> WM
   API -- gRPC over mutual TLS 1.3 --> SC
-  SC -- HTTPS, kms:Sign / GetPublicKey --> KMS
+  SC -- HTTPS, AsymmetricSign / GetPublicKey --> KMS
   SC -- HTTP(S) --> TSA
   API -- TLS --> DB
   API -- HTTPS --> S3
@@ -194,30 +195,34 @@ Not applicable (Assurance Level 1).
 
 #### 2.2.1 Assurance Level 1 & 2 Base Evidence (Key Generation, Least Privilege & Rotation)
 
-1. **Key Generation & Storage.** [Planned] The key is generated inside AWS KMS in
-   eu-central-1 as an asymmetric `ECC_NIST_P256` key with usage `SIGN_VERIFY`. Claims are
-   signed with ES256 (ECDSA P-256 with SHA-256), which NIST (FIPS 186-5) and the ENISA
-   Agreed Cryptographic Mechanisms list. The private key is created and kept in KMS's
-   hardware security modules (*from memory*; confirm against AWS's KMS documentation) and
-   cannot be exported. The sidecar computes the SHA-256
-   digest of the data to be signed and calls KMS `Sign` with `MessageType=DIGEST`,
-   `SigningAlgorithm=ECDSA_SHA_256` [Built, tested against the local-kms emulator; ADR
-   0004].
-2. **Access Controls & Encryption.** [Planned] Only the sidecar's AWS principal may use
-   the key, and only for `kms:Sign` and `kms:GetPublicKey` on that one key ARN, enforced
-   by both its IAM policy and the key policy. No application principal can export,
-   decrypt, schedule deletion or change the key policy. Key administration (creation,
-   policy, disabling, scheduled deletion) belongs to a separate administrator role,
-   assumed by named people with MFA for a limited session when needed. AWS CloudTrail
-   records every use of the key. The sidecar's credentials reach it as Fly.io secrets
-   [Planned; Gap: decide between long-lived access keys rotated quarterly and OIDC
-   federation from Fly.io to an IAM role (UNVERIFIED that Fly.io offers this)].
+1. **Key Generation & Storage.** [Planned] The key is generated inside Google Cloud KMS,
+   in a project used only for SignUnder, key ring in `europe-west3` (Frankfurt), as an
+   `EC_SIGN_P256_SHA256` key with purpose `ASYMMETRIC_SIGN` and protection level **HSM**.
+   Claims are signed with ES256 (ECDSA P-256 with SHA-256), which NIST (FIPS 186-5) and
+   the ENISA Agreed Cryptographic Mechanisms list. HSM key versions are always stored in a
+   hardware security module and are not extractable; Google provides an attestation,
+   signed by Google's and the HSM manufacturer's certificate chains, that the key was
+   created in an HSM (Cloud KMS documentation, read 15 October 2026). The sidecar computes
+   the SHA-256 digest of the data to be signed and calls `AsymmetricSign` with that digest
+   [Built: the shared KMS code is tested against an emulator; the Cloud KMS call awaits a
+   real key, `make test-gcp`; ADR 0004, ADR 0011].
+2. **Access Controls & Encryption.** [Planned] Only the sidecar's service account may use
+   the key, through IAM roles granted on that one key, not the project:
+   `roles/cloudkms.signerVerifier` and `roles/cloudkms.publicKeyViewer`. No application
+   principal can export the key (HSM keys are not extractable), destroy versions or change
+   IAM. Key administration (creating versions, disabling, scheduling destruction, IAM)
+   belongs to named people's accounts with multi-factor authentication. Cloud Audit Logs
+   record administrative actions; data-access logging for key use is to be enabled on the
+   key's project. The sidecar on Fly.io reaches the service account by workload identity
+   federation trusting Fly.io's OpenID Connect issuer for SignUnder's organisation and app,
+   so no credential is stored [Planned; to be proven at the first deploy. Fallback: a
+   service-account key held as a Fly.io secret and rotated quarterly; ADR 0011].
 3. **Ephemeral Plaintext Key Handling.** Not applicable: the plaintext private key is
    never present outside KMS.
 4. **Key Rotation Process.** [Built in the data model; Planned operationally] Rotation
-   creates a new KMS key and enrolls a new certificate for it (§2.1.1), stores it as a new
+   creates a new key version in Cloud KMS and enrolls a new certificate for it (§2.1.1), stores it as a new
    `tenant_key` marked active and marks the previous one retired. The sidecar always signs
-   with the active key. Retired keys are disabled in KMS but kept, so that past manifests
+   with the active key. Retired versions are disabled in Cloud KMS but not destroyed, so that past manifests
    remain checkable against their certificate's validity period. Triggers: certificate
    renewal (yearly), suspected compromise (immediately: revoke the certificate, disable
    the key, notify the CA, record the incident), or a change in the program's algorithm
@@ -237,7 +242,8 @@ Not applicable (Assurance Level 1).
      chains to the CA and matches the host it connected to. Tested: plain-text calls,
      calls without a client certificate, and calls with a valid certificate for another
      name are all refused.
-   - *Sidecar to AWS KMS:* AWS Signature Version 4 over TLS [Built].
+   - *Sidecar to Google Cloud KMS:* OAuth 2.0 access tokens over TLS, from the federated
+     credentials above [Planned].
 
 #### 2.2.2 and 2.2.3 Assurance Level 2 Additional Evidence
 
@@ -308,7 +314,7 @@ Not applicable (Assurance Level 1).
    |---|---|---|
    | Customer application → API | HTTPS terminated at Fly.io's edge; TLS 1.3 to be required (UNVERIFIED that Fly.io can enforce a minimum of 1.3) | [Planned] |
    | API → watermark worker, API → sidecar | gRPC over mutual TLS (private CA), inside Fly.io's private network (WireGuard-based, *from memory*, UNVERIFIED). The API offers only TLS 1.3, so every connection it makes is TLS 1.3 (checked: both services negotiate TLSv1.3). The servers would also accept TLS 1.2 from a client holding the API's certificate: neither tonic's nor Python gRPC's server settings expose a minimum version | [Built] locally; production certificates [Planned] |
-   | Sidecar → AWS KMS | HTTPS (TLS 1.2 or 1.3; AWS KMS supports TLS 1.3, *from memory*, UNVERIFIED) with SigV4 | [Built] |
+   | Sidecar → Google Cloud KMS | HTTPS with OAuth 2.0 tokens (Google's client library; TLS version negotiated with Google's front end, TLS 1.3 *from memory*, UNVERIFIED) | [Planned] |
    | API → fal.ai / Replicate, downloads from their media hosts | HTTPS only; hosts on an allowlist; no redirects | [Built] |
    | API → Supabase Postgres and Storage | TLS | [Planned] |
    | Sidecar → timestamp authority | RFC 3161 over HTTP or HTTPS; the response is signed by the TSA and checked on validation | [Built] |
@@ -321,16 +327,17 @@ Not applicable (Assurance Level 1).
 
 1. **IAM & Role-Based Access Control.** [Planned] Three IAM systems cover the hosting
    environment:
-   - AWS IAM for the KMS key (§2.2.1);
+   - Google Cloud IAM for the KMS key and its service account (§2.2.1);
    - Fly.io organisation roles and scoped deploy tokens for the application machines;
    - Supabase organisation roles for the database and storage, with Postgres roles and
      row-level security for tenant isolation (SIGNUNDER.md §4.10).
 2. **Principal Access Policies.** [Planned]
    - *Non-human:* the CI deployer holds a Fly.io deploy token scoped to the SignUnder
-     apps. The sidecar's AWS principal may only sign. The API connects to Postgres as a
+     apps. The sidecar's service account may only sign
+     with and read the public key of one key. The API connects to Postgres as a
      role subject to row-level security, never the service role, on tenant paths.
-   - *Human:* named accounts with MFA on GitHub, Fly.io, Supabase, AWS and the CA; no
-     shared accounts; elevated AWS access by time-limited role assumption.
+   - *Human:* named accounts with MFA on GitHub, Fly.io, Supabase, Google Cloud and the
+     CA; no shared accounts.
 3. **Cloud Resource IAM Policies.** [Planned]
    - KMS key: key policy as in §2.2.1.
    - Storage bucket for signed copies: private; written by the API only; objects expire
@@ -348,7 +355,7 @@ Not applicable (Assurance Level 1).
      no failures (`docs/conformance/evidence/zap-api-scan-2026-10-14.html`).
 5. **Timely Remediation Policy.** Hosting-environment vulnerabilities are fixed within 30
    days (high), 90 days (moderate) and 180 days (low) of detection, by CVSS severity.
-   Detection is the daily scans plus provider security notices (Fly.io, Supabase, AWS).
+   Detection is the daily scans plus provider security notices (Fly.io, Supabase, Google Cloud).
    Images are rebuilt at least monthly and whenever a scan finds a fixable issue, which
    also applies operating-system updates. [Written here; Gap: adopt and assign an owner.]
 

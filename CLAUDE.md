@@ -29,6 +29,7 @@ Hosted service that gets a company signing AI-generated content under its own na
 make build   # dotnet build + cargo build
 make test    # dotnet test + cargo test + the worker's pytest (the API tests start Postgres in Docker)
 make test-kms  # sidecar tests that sign through the local-kms emulator (needs Docker)
+make test-gcp  # sign through a real Cloud KMS key: SIGNUNDER_TEST_GCP_KEY=projects/.../cryptoKeyVersions/1
 make robustness  # watermark and fingerprint survival table, then its assertions
 make fmt     # dotnet format + cargo fmt + ruff format
 make up      # build and start the local stack in Docker
@@ -42,4 +43,4 @@ Toolchains are listed in the `Brewfile`. Install the missing formulae one by one
 
 ## Hosting
 
-Vercel for the web front end, Supabase (EU) for Postgres, auth, storage and the queue, Fly.io (Frankfurt) for the API, sidecar and worker containers, AWS KMS for signing keys. See ADR 0002.
+Vercel for the web front end, Supabase (EU) for Postgres, auth, storage and the queue, Fly.io (Frankfurt) for the API, sidecar and worker containers, Google Cloud KMS (HSM, Frankfurt) for signing keys; no AWS account (ADR 0011). See ADRs 0002 and 0011.

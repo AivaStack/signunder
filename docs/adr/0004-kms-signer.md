@@ -1,6 +1,6 @@
 # ADR 0004 — KMS signer: one `Sign` call per signature, local-kms as the stand-in
 
-- **Status:** Accepted
+- **Status:** Accepted; amended by ADR 0011 (15 Oct 2026): production keys are in Google Cloud KMS, and the AWS SDK path described here is kept only for the local-kms emulator.
 - **Date:** 13 October 2026
 - **Deciders:** Eoin
 
