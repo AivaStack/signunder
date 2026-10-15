@@ -16,6 +16,8 @@ SIGNUNDER.md §4.3 and §4.7 call for an invisible watermark and a perceptual fi
 - **Soft binding.** The manifest carries a `c2pa.soft-binding` assertion with `alg = com.adobe.trustmark.Q` and the payload as eight big-endian bytes. The sidecar takes that assertion out of the JSON manifest definition and adds it as a typed assertion, because a value left in the JSON is stored as CBOR text, not bytes. In the definition the value is base64.
 - **Output encoding.** A JPEG is re-encoded at quality 95 without chroma subsampling; a PNG stays lossless and keeps its alpha channel. ICC profile and EXIF are carried over.
 - **Decoding** tries the whole image, then the region TrustMark's detector picks out. The second pass is what recovers a marked image shown inside a larger one.
+  - *Added 15 Oct 2026:* the detector pass works on a copy shrunk to at most 512 pixels on the longer side. At full size it needed about 2 GB on a 1280×853 photograph and the staging worker was killed for memory. The robustness table is identical before and after.
+  - *Added 15 Oct 2026:* a payload whose width is not 61 bits is not a watermark. The detector pass read 68 bits from an unmarked photograph.
 - **Transport.** The worker is a Python gRPC service (`proto/signunder/wm/v1/wm.proto`) called inside the request, like the sidecar. It is optional: with no `Watermark:Address` the API signs unmarked and the record says so.
 - **Model weights are baked into the worker image**, so it starts with no network.
 

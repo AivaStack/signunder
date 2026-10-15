@@ -19,6 +19,7 @@ ADR 0002 put the API, sign sidecar and watermark worker on Fly.io in Frankfurt, 
 - **Suspend when idle, start on demand.** Fly.io bills a suspended machine as stopped (storage only) and resumes it in a few hundred milliseconds (suspend/resume reference, 15 Oct 2026). Suspend needs 2 GB of memory or less.
   - Prices from Fly.io's pricing page: always on, the three would cost about $23 a month; idle, under $1.
   - Measured: Fly.io suspended all three after about 5 idle minutes, and the first sign afterwards took 3.4 s.
+  - **Except the sign sidecar, which is stopped rather than suspended** (changed 15 Oct 2026; see below). A stopped machine is billed the same and boots in about half a second, with nothing cached.
 - **Addresses.** The API has a shared IPv4 (free) and a public IPv6; there are no dedicated IPv4s and no volumes. The sidecar and worker have only private Flycast addresses (`*.flycast`), through which Fly.io's proxy starts them on demand and passes their TLS through untouched.
 - **Secrets as files.** Internal TLS certificates and keys (ADR 0010, a staging set generated outside the repository with the Flycast names), the signer's certificate chain and the database connection are Fly secrets. Files are mounted with `[[files]] secret_name`, which requires the secret to be stored base64-encoded; Fly.io gives the files to the image's user.
 - **Keyless signing** (ADR 0011). Fly.io writes a machine identity token to `/.fly/oidc_token`, but only when `AWS_ROLE_ARN` is set, so the sidecar sets a dummy one; nothing calls AWS.
@@ -38,6 +39,12 @@ ADR 0002 put the API, sign sidecar and watermark worker on Fly.io in Frankfurt, 
   - Idle connections close after 15 s.
   - HTTP/2 pings, sent only during a call, detect a dead connection in seconds.
   - A call that failed in the transport (a network exception under Internal or Unavailable) is retried on a new connection, which wakes the service.
+- **The sidecar stops instead of suspending.** After about six hours suspended, every sign failed with `UNAUTHENTICATED`. Google's auth library times its access token's expiry on a monotonic clock, which stops while a machine is suspended, so the resumed process kept offering a token that had expired in real time (read in `google-cloud-auth` 1.17.0, `token_cache.rs`).
+  - Rebuilding the client on `UNAUTHENTICATED` (kept as a safeguard) was not enough: after 80 minutes suspended, the new client exchanged `/.fly/oidc_token`, which was as stale, Google refused it, and the library then reported the credential as permanently failed.
+  - Asking Fly.io's machine API (`/.fly/api`) for a fresh identity token was tried: the socket refuses the sidecar's non-root user.
+  - A stopped machine boots fresh: Fly.io writes a new identity token and the process has no cached credentials.
+  - Checked 15 Oct 2026: after about 80 minutes stopped, the first sign succeeded in 6.7 s, booting included, and the next in 1.1 s.
+- **The watermark worker's detector pass runs on a copy at most 512 pixels on a side.** On an unmarked 1280×853 photograph the pass needed about 2 GB and the 2 GB worker was killed for memory; at 512 pixels it needs about 1 GB (ADR 0007).
 - **Signed copies are deleted after 30 days by the API** (`MediaSweep`), because Supabase Storage lifecycle rules only expire previous versions of objects.
 
 ## Consequences
@@ -46,7 +53,7 @@ ADR 0002 put the API, sign sidecar and watermark worker on Fly.io in Frankfurt, 
 - The sweep runs only while the API is awake; it catches up on waking.
 - Fly.io's public edge accepts TLS 1.3 and 1.2 for the API (checked 15 Oct 2026). The program's TLS 1.3 requirement covers channels between SignUnder's own subsystems, which use mutual TLS (ADR 0010).
 - The machine identity token outlives its 10 minutes in both directions (checked 15 Oct 2026):
-  - after about 16 minutes suspended, the first sign succeeded in 3.3 s;
+  - after about 16 minutes suspended, the first sign succeeded in 3.3 s, because the cached Google access token was still inside its hour (the failure above needs a suspension past it);
   - with the sidecar awake for 13 minutes without a restart, a sign every minute all succeeded, in 1.2–1.8 s. One, at about 6 minutes, took 6.7 s, cause not identified.
 - The dummy `AWS_ROLE_ARN` depends on undocumented Fly.io behaviour, and could break if Fly.io changes how it writes the token.
 
