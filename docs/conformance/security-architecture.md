@@ -20,7 +20,7 @@
 |---|---|---|---|
 | 1 | Applicant's legal name, address and contact; certificate subject fields | §1.1, §1.4 | [Eoin] |
 | 2 | Production deploy: API, sidecar and watermark worker on Fly.io (`fra`), registry on Supabase (EU), signing key in Google Cloud KMS (HSM, `europe-west3`) | O.2, O.5, O.6 | [Planned] |
-| 3 | IAM: the sidecar's service account limited to signing with and reading the public key of SignUnder's key, reached from Fly.io by workload identity federation; human access time-bound | O.2, O.6 | [Planned] |
+| 3 | IAM: the sidecar's service account limited to signing with and reading the public key of SignUnder's key, reached from Fly.io by workload identity federation; human access time-bound | O.2, O.6 | Key and service account [Built] 15 Oct 2026 (checked: it can sign and read the public key; listing keys and destroying the version are refused); federation [Planned] |
 | 4 | Mutual TLS 1.3 between the API and the sidecar, and between the API and the watermark worker | O.2, O.5 | [Built] locally (ADR 0010); production certificates [Planned] |
 | 5 | A CSR tool that has the KMS sign the certificate request, so the key never leaves KMS | O.1, O.2 | [Built] (`kms-csr`); run against the production key [Planned] |
 | 6 | An OWASP Top 10 review or scan of the public API | O.6 | [Built] against the local stack (`owasp-review.md`); repeat against staging [Planned] |
@@ -195,7 +195,10 @@ Not applicable (Assurance Level 1).
 
 #### 2.2.1 Assurance Level 1 & 2 Base Evidence (Key Generation, Least Privilege & Rotation)
 
-1. **Key Generation & Storage.** [Planned] The key is generated inside Google Cloud KMS,
+1. **Key Generation & Storage.** [Built 15 October 2026: `claim-signing` version 1 in key
+   ring `signunder`, `europe-west3`, generated 06:50:58 UTC; its HSM attestation, the
+   Cavium and Google certificate chains and the public key are in
+   `evidence/cloud-kms-claim-signing-v1/`] The key is generated inside Google Cloud KMS,
    in a project used only for SignUnder, key ring in `europe-west3` (Frankfurt), as an
    `EC_SIGN_P256_SHA256` key with purpose `ASYMMETRIC_SIGN` and protection level **HSM**.
    Claims are signed with ES256 (ECDSA P-256 with SHA-256), which NIST (FIPS 186-5) and
@@ -206,8 +209,8 @@ Not applicable (Assurance Level 1).
    the SHA-256 digest of the data to be signed and calls `AsymmetricSign` with that digest
    [Built: the shared KMS code is tested against an emulator; the Cloud KMS call awaits a
    real key, `make test-gcp`; ADR 0004, ADR 0011].
-2. **Access Controls & Encryption.** [Planned] Only the sidecar's service account may use
-   the key, through IAM roles granted on that one key, not the project:
+2. **Access Controls & Encryption.** [Built for the key; federation Planned] Only the
+   sidecar's service account (`signunder-signer`) may use the key, through IAM roles granted on that one key, not the project:
    `roles/cloudkms.signerVerifier` and `roles/cloudkms.publicKeyViewer`. No application
    principal can export the key (HSM keys are not extractable), destroy versions or change
    IAM. Key administration (creating versions, disabling, scheduling destruction, IAM)
