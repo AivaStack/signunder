@@ -45,6 +45,9 @@ ADR 0002 put the API, sign sidecar and watermark worker on Fly.io in Frankfurt, 
 - A staging request that wakes suspended services takes a few seconds. One arriving moments after a manual suspend took about 21 s while dead connections were detected; that cannot happen with automatic suspension, which waits minutes.
 - The sweep runs only while the API is awake; it catches up on waking.
 - Fly.io's public edge accepts TLS 1.3 and 1.2 for the API (checked 15 Oct 2026). The program's TLS 1.3 requirement covers channels between SignUnder's own subsystems, which use mutual TLS (ADR 0010).
+- The machine identity token outlives its 10 minutes in both directions (checked 15 Oct 2026):
+  - after about 16 minutes suspended, the first sign succeeded in 3.3 s;
+  - with the sidecar awake for 13 minutes without a restart, a sign every minute all succeeded, in 1.2–1.8 s. One, at about 6 minutes, took 6.7 s, cause not identified.
 - The dummy `AWS_ROLE_ARN` depends on undocumented Fly.io behaviour, and could break if Fly.io changes how it writes the token.
 
 ## Open
@@ -52,5 +55,4 @@ ADR 0002 put the API, sign sidecar and watermark worker on Fly.io in Frankfurt, 
 - Per-address rate limiting for callers without a key sees Fly.io's proxy, not the caller, so they share one limit. `Fly-Client-IP` could identify them, if only the proxy can set it.
 
 - Production apps, certificates and tenant set-up; a release step for migrations rather than start-up.
-- Whether the token in `/.fly/oidc_token` is refreshed for a machine that stays awake longer than 10 minutes.
 - A spending alert, if Fly.io's billing settings offer one.
