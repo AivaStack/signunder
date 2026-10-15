@@ -36,11 +36,12 @@ Read on 15 Oct 2026:
 - Cloud HSM key attestations may give the hardware-backed evidence that Assurance Level 2 asks for (Security Requirements v0.2, O.2 Level 2). Not yet checked against the program's exact wording.
 - The production signing path is not exercised by the local stack or CI. It is tested by `make test-gcp` against a real key, which costs a few cents per run.
 - Workload identity federation from Fly.io to Google Cloud is unproven until the first deploy.
-- HSM key versions cost more than software ones. The price was not confirmed on 15 Oct 2026 (the pricing page did not load); it is checked before the key is created.
+- Price, from Google's Cloud Billing catalog on 15 Oct 2026 (the pricing page did not load): an active HSM ECDSA P-256 key version is **€2.20 a month** (for the first 2,000), and each HSM P-256 signature **€0.000013** (€0.13 per 10,000). A software key version would be €0.05 a month and €0.000003 per signature.
+- **Created 15 Oct 2026:** `projects/vaulted-journal-511706-v2/locations/europe-west3/keyRings/signunder/cryptoKeys/claim-signing/cryptoKeyVersions/1` (HSM, `EC_SIGN_P256_SHA256`), and service account `signunder-signer` with `roles/cloudkms.signerVerifier` and `roles/cloudkms.publicKeyViewer` on that key only. Checked acting as that account: signing and reading the public key work and openssl verifies the signature; listing keys and destroying the version are refused. Eoin's account may act as the service account (`roles/iam.serviceAccountTokenCreator` on it) so tests run with its permissions. The HSM attestation and certificate chains are in `docs/conformance/evidence/cloud-kms-claim-signing-v1/`.
 
 ## Open
 
 - Prove Fly.io-to-Google workload identity federation, and how the machine's token reaches the credential source (a file such as `/.fly/oidc_token`, or the `/.fly/api` socket).
-- Confirm Cloud KMS HSM prices.
+- Verify the HSM attestation with Google's verification script.
 - Read the Level 2 attestation requirements against Cloud HSM attestations before offering Level 2.
 - Rotation procedure for Cloud KMS key versions (a new version, a new certificate, the old version disabled, not destroyed).
