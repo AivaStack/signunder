@@ -5,6 +5,9 @@ public static class RateLimits
 {
     /// <summary>Per API key, or per address for callers without one.</summary>
     public const string PerKey = "per-key";
+
+    /// <summary>Per address, for the public verify endpoints, which anyone may call.</summary>
+    public const string Public = "public";
 }
 
 /// <summary>

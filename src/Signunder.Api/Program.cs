@@ -10,6 +10,7 @@ using Signunder.Api.Auth;
 using Signunder.Api.Data;
 using Signunder.Api.Proxy;
 using Signunder.Api.Signing;
+using Signunder.Api.Verification;
 using Signunder.Core.Registry;
 using Signunder.Core.Verification;
 using Signunder.Sign.V1;
@@ -80,6 +81,11 @@ builder.Services.AddRateLimiter(o =>
     o.AddPolicy(RateLimits.PerKey, http => RateLimitPartition.GetFixedWindowLimiter(
         http.User.FindFirst("api_key_id")?.Value ?? $"ip:{http.Connection.RemoteIpAddress}",
         _ => new FixedWindowRateLimiterOptions { PermitLimit = perMinute, Window = TimeSpan.FromMinutes(1) }));
+    // Lower, because each public verify can run the sidecar and the watermark worker.
+    var publicPerMinute = builder.Configuration.GetValue("RateLimit:PublicPerMinute", 30);
+    o.AddPolicy(RateLimits.Public, http => RateLimitPartition.GetFixedWindowLimiter(
+        $"ip:{http.Connection.RemoteIpAddress}",
+        _ => new FixedWindowRateLimiterOptions { PermitLimit = publicPerMinute, Window = TimeSpan.FromMinutes(1) }));
     o.OnRejected = (context, _) =>
     {
         context.HttpContext.Response.Headers.RetryAfter = "60";
@@ -108,6 +114,7 @@ else
     builder.Services.AddSingleton<IMediaStore, NoMediaStore>();
 }
 builder.Services.AddProxy(builder.Configuration);
+builder.Services.AddPublicVerify(builder.Configuration);
 builder.Services.AddHostedService<MediaSweep>();
 
 builder.Services
@@ -157,6 +164,7 @@ if (!app.Environment.IsDevelopment())
     app.UseExceptionHandler();
 }
 app.UseSecurityHeaders();
+app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseRateLimiter();
@@ -310,6 +318,7 @@ app.MapGet("/media/{id}", async (string id, RegistryDbContext db, IMediaStore me
 }).RequireRateLimiting(RateLimits.PerKey);
 
 app.MapProxy();
+app.MapPublicVerify();
 
 app.Run();
 

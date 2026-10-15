@@ -21,6 +21,9 @@ public class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
 {
     public const string DemoKey = "su_test_api_tests_demo_tenant_key_000000000000";
 
+    /// <summary>The one origin allowed to call the public verify endpoints from a browser.</summary>
+    public const string AllowedOrigin = "https://signunder.example";
+
     private readonly PostgreSqlContainer _postgres = new PostgreSqlBuilder("postgres:18").Build();
 
     public FakeSidecar Sidecar { get; } = new();
@@ -50,6 +53,7 @@ public class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
         builder.UseSetting("Database:MigrateAndSeedOnStartup", "true");
         builder.UseSetting("Signer:KeyRef", "dev:local");
         builder.UseSetting("Development:ApiKey", DemoKey);
+        builder.UseSetting("PublicVerify:AllowedOrigins", AllowedOrigin);
         builder.ConfigureTestServices(services =>
         {
             services.RemoveAll<SignService.SignServiceClient>();
@@ -162,11 +166,39 @@ public sealed class FakeSidecar : SignService.SignServiceClient
 
 /// <summary>
 /// Stands in for the watermark worker: "marks" by appending a marker and returns a fixed
-/// fingerprint. A one-byte image is refused, as an unreadable one would be.
+/// fingerprint. A one-byte image is refused, as an unreadable one would be. Decoding finds
+/// the payload of any image it marked, signed or not; an image starting with
+/// <see cref="NearCopy"/> fingerprints within a few bits of the marked ones, and anything
+/// else far from them.
 /// </summary>
 public sealed class FakeWatermarker : WatermarkService.WatermarkServiceClient
 {
     public static readonly byte[] Pdq = [.. Enumerable.Range(0, 32).Select(i => (byte)i)];
+
+    public static readonly byte[] NearCopy = "near copy"u8.ToArray();
+
+    private readonly System.Collections.Concurrent.ConcurrentDictionary<string, ulong> _payloads = new();
+
+    public override AsyncUnaryCall<DecodeResponse> DecodeAsync(DecodeRequest request, CallOptions options)
+    {
+        var image = request.Asset.ToByteArray().AsSpan();
+        if (image.EndsWith("[signed]"u8))
+        {
+            image = image[..^"[signed]"u8.Length];
+        }
+        ulong payload = 0;
+        var marked = image.EndsWith("[marked]"u8)
+            && _payloads.TryGetValue(Convert.ToBase64String(image[..^"[marked]"u8.Length]), out payload);
+        byte[] pdq = marked ? Pdq
+            : image.StartsWith(NearCopy) ? [(byte)(Pdq[0] ^ 0b111), .. Pdq[1..]]
+            : [.. Pdq.Select(b => (byte)~b)];
+        return FakeSidecar.Call(new DecodeResponse
+        {
+            Present = marked,
+            Payload = payload,
+            Fingerprint = new Fingerprint { Pdq = ByteString.CopyFrom(pdq), Quality = 87 },
+        });
+    }
 
     public EmbedRequest? LastRequest { get; private set; }
 
@@ -177,6 +209,7 @@ public sealed class FakeWatermarker : WatermarkService.WatermarkServiceClient
             throw new RpcException(new Status(StatusCode.InvalidArgument, "could not read the image"));
         }
         LastRequest = request;
+        _payloads[Convert.ToBase64String(request.Asset.ToByteArray())] = request.Payload;
         return FakeSidecar.Call(new EmbedResponse
         {
             WatermarkedAsset = ByteString.CopyFrom([.. request.Asset.Span, .. "[marked]"u8]),

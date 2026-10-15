@@ -12,6 +12,8 @@ primary_region = "fra"
   ForwardedHeaders__Proto = "true"
   # The caller's address, set by Fly.io's proxy (callers cannot set it: checked 15 Oct 2026).
   ForwardedHeaders__ClientIpHeader = "Fly-Client-IP"
+  # Browser origins allowed to call the public verify endpoints (the website's verify page).
+  PublicVerify__AllowedOrigins = "https://signunder.com,http://localhost:3000"
   # Applies migrations and seeds one tenant with the signer below and the key in the
   # Development__ApiKey secret. Staging only.
   Database__MigrateAndSeedOnStartup = "true"
