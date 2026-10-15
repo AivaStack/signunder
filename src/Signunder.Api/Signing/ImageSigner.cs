@@ -69,9 +69,9 @@ public sealed class ImageSigner(
             var payload = Marking.NewPayload();
             try
             {
-                var embedded = await watermarker.EmbedAsync(
+                var embedded = await InternalTls.WithReconnect(() => watermarker.EmbedAsync(
                     new EmbedRequest { Asset = asset, MimeType = mime, Payload = (ulong)payload },
-                    deadline: DateTime.UtcNow.AddSeconds(30), cancellationToken: ct);
+                    deadline: DateTime.UtcNow.AddSeconds(30), cancellationToken: ct).ResponseAsync);
                 asset = embedded.WatermarkedAsset;
                 marking = new Marking(payload, embedded.Algorithm, embedded.Fingerprint.Pdq.ToByteArray(), embedded.Fingerprint.Quality);
             }
@@ -102,7 +102,8 @@ public sealed class ImageSigner(
         SignResponse reply;
         try
         {
-            reply = await sidecar.SignAsync(request, deadline: DateTime.UtcNow.AddSeconds(30), cancellationToken: ct);
+            reply = await InternalTls.WithReconnect(() =>
+                sidecar.SignAsync(request, deadline: DateTime.UtcNow.AddSeconds(30), cancellationToken: ct).ResponseAsync);
         }
         catch (RpcException e) when (e.StatusCode == StatusCode.InvalidArgument)
         {

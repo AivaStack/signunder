@@ -1,5 +1,5 @@
 # Sign sidecar, staging (ADR 0011). Deploy from the repository root:
-#   fly deploy --config deploy/fly/sidecar-staging.toml
+#   fly deploy . --config deploy/fly/sidecar-staging.toml --dockerfile src/sign-sidecar/Dockerfile --ha=false
 app = "signunder-staging-sidecar"
 primary_region = "fra"
 
@@ -34,7 +34,7 @@ primary_region = "fra"
 [[services]]
   internal_port = 50051
   protocol = "tcp"
-  auto_stop_machines = "stop"
+  auto_stop_machines = "suspend"  # resumes in ~100s of ms; billed as stopped (storage only)
   auto_start_machines = true
   min_machines_running = 0
 

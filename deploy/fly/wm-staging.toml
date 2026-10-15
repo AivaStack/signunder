@@ -1,0 +1,39 @@
+# Watermark worker, staging (ADR 0007, ADR 0010). Deploy from the repository root:
+#   fly deploy . --config deploy/fly/wm-staging.toml --dockerfile src/wm-worker/Dockerfile --ha=false
+app = "signunder-staging-wm"
+primary_region = "fra"
+
+[env]
+  WM_ADDR = "[::]:50052"
+  WM_TLS_CERT = "/etc/signunder/tls/wm-worker.pem"
+  WM_TLS_KEY = "/etc/signunder/tls/wm-worker.key"
+  WM_TLS_CLIENT_CA = "/etc/signunder/tls/ca.pem"
+
+[[files]]
+  guest_path = "/etc/signunder/tls/wm-worker.pem"
+  secret_name = "TLS_SERVER_CERT"
+
+[[files]]
+  guest_path = "/etc/signunder/tls/wm-worker.key"
+  secret_name = "TLS_SERVER_KEY"
+
+[[files]]
+  guest_path = "/etc/signunder/tls/ca.pem"
+  secret_name = "TLS_CA"
+
+# Private only, reached at signunder-staging-wm.flycast; started on demand. The model takes
+# a few seconds to load, so the first call after an idle stop is slow.
+[[services]]
+  internal_port = 50052
+  protocol = "tcp"
+  auto_stop_machines = "suspend"  # resumes in ~100s of ms; billed as stopped (storage only)
+  auto_start_machines = true
+  min_machines_running = 0
+
+  [[services.ports]]
+    port = 50052
+
+# About 920 MB in use after marking a 1920x1920 image locally (15 Oct 2026).
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "2gb"

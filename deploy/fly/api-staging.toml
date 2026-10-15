@@ -1,0 +1,62 @@
+# API, staging. Deploy from the repository root:
+#   fly deploy . --config deploy/fly/api-staging.toml --dockerfile src/Signunder.Api/Dockerfile --ha=false
+# Secrets: ConnectionStrings__Postgres, Development__ApiKey (the staging tenant's key),
+# TLS_CLIENT_CERT, TLS_CLIENT_KEY, TLS_CA, SIGNER_CERT_CHAIN (base64 for the files).
+app = "signunder-staging-api"
+primary_region = "fra"
+
+[env]
+  ASPNETCORE_ENVIRONMENT = "Staging"
+  AllowedHosts = "signunder-staging-api.fly.dev"
+  # Applies migrations and seeds one tenant with the signer below and the key in the
+  # Development__ApiKey secret. Staging only.
+  Database__MigrateAndSeedOnStartup = "true"
+  Sidecar__Address = "https://signunder-staging-sidecar.flycast:50051"
+  Watermark__Address = "https://signunder-staging-wm.flycast:50052"
+  Internal__Tls__CaPath = "/etc/signunder/tls/ca.pem"
+  Internal__Tls__CertPath = "/etc/signunder/tls/signunder-api.pem"
+  Internal__Tls__KeyPath = "/etc/signunder/tls/signunder-api.key"
+  Signer__KeyRef = "projects/vaulted-journal-511706-v2/locations/europe-west3/keyRings/signunder/cryptoKeys/claim-signing/cryptoKeyVersions/1"
+  Signer__Algorithm = "es256"
+  # A certificate from a throwaway test CA until the conformance listing (NOT CONFORMANT).
+  Signer__CertChainPath = "/etc/signunder/signer-chain.pem"
+  Signer__TsaUrl = "http://timestamp.digicert.com"
+
+[[files]]
+  guest_path = "/etc/signunder/tls/ca.pem"
+  secret_name = "TLS_CA"
+
+[[files]]
+  guest_path = "/etc/signunder/tls/signunder-api.pem"
+  secret_name = "TLS_CLIENT_CERT"
+
+[[files]]
+  guest_path = "/etc/signunder/tls/signunder-api.key"
+  secret_name = "TLS_CLIENT_KEY"
+
+[[files]]
+  guest_path = "/etc/signunder/signer-chain.pem"
+  secret_name = "SIGNER_CERT_CHAIN"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = "suspend"  # resumes in ~100s of ms; billed as stopped (storage only)
+  auto_start_machines = true
+  min_machines_running = 0
+
+  [[http_service.checks]]
+    method = "GET"
+    path = "/healthz"
+    interval = "30s"
+    timeout = "5s"
+    grace_period = "20s"
+
+    # AllowedHosts admits only the public name; the checker would otherwise send the
+    # machine's private address and get 400.
+    [http_service.checks.headers]
+      Host = "signunder-staging-api.fly.dev"
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "512mb"

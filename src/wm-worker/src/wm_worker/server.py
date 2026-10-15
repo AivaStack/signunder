@@ -3,6 +3,7 @@
 import logging
 import os
 import signal
+import threading
 from concurrent import futures
 from pathlib import Path
 
@@ -53,8 +54,49 @@ def _fingerprint(fingerprint: Fingerprint) -> wm_pb2.Fingerprint:
     return wm_pb2.Fingerprint(pdq=fingerprint.pdq, quality=fingerprint.quality)
 
 
+class LazyMarker:
+    """Loads the model on a background thread so the port opens at once. On Fly.io a
+    stopped machine is started by the first request, and the proxy gives up if the port
+    stays closed for more than a few seconds; loading the model takes longer than that on
+    a shared CPU. Calls made while it loads wait for it."""
+
+    def __init__(self, load=Marker, wait_seconds: float = 60) -> None:
+        self._ready = threading.Event()
+        self._marker: Marker | None = None
+        self._error: BaseException | None = None
+        self._wait_seconds = wait_seconds
+        threading.Thread(target=self._load, args=(load,), daemon=True).start()
+
+    def _load(self, load) -> None:
+        try:
+            self._marker = load()
+            log.info("model loaded")
+        except BaseException as e:  # reported to every caller rather than lost
+            self._error = e
+            log.exception("loading the model failed")
+        finally:
+            self._ready.set()
+
+    def get(self) -> Marker:
+        if not self._ready.wait(self._wait_seconds):
+            raise ModelNotReady("the watermark model is still loading")
+        if self._error is not None:
+            raise ModelNotReady(f"the watermark model failed to load: {self._error}")
+        return self._marker
+
+    def embed(self, asset, mime_type, payload):
+        return self.get().embed(asset, mime_type, payload)
+
+    def decode(self, asset, mime_type):
+        return self.get().decode(asset, mime_type)
+
+
+class ModelNotReady(RuntimeError):
+    pass
+
+
 class WatermarkService(wm_pb2_grpc.WatermarkServiceServicer):
-    def __init__(self, marker: Marker) -> None:
+    def __init__(self, marker: Marker | LazyMarker) -> None:
         self._marker = marker
 
     def Embed(self, request, context):
@@ -65,6 +107,8 @@ class WatermarkService(wm_pb2_grpc.WatermarkServiceServicer):
             )
         except ValueError as e:  # includes UnsupportedImage
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, str(e))
+        except ModelNotReady as e:
+            context.abort(grpc.StatusCode.UNAVAILABLE, str(e))
         return wm_pb2.EmbedResponse(
             watermarked_asset=marked, fingerprint=_fingerprint(fingerprint), algorithm=ALGORITHM
         )
@@ -75,12 +119,16 @@ class WatermarkService(wm_pb2_grpc.WatermarkServiceServicer):
             payload, fingerprint = self._marker.decode(request.asset, request.mime_type)
         except UnsupportedImage as e:
             context.abort(grpc.StatusCode.INVALID_ARGUMENT, str(e))
+        except ModelNotReady as e:
+            context.abort(grpc.StatusCode.UNAVAILABLE, str(e))
         return wm_pb2.DecodeResponse(
             present=payload is not None, payload=payload or 0, fingerprint=_fingerprint(fingerprint)
         )
 
 
-def serve(address: str, marker: Marker, tls: grpc.ServerCredentials | None = None) -> grpc.Server:
+def serve(
+    address: str, marker: Marker | LazyMarker, tls: grpc.ServerCredentials | None = None
+) -> grpc.Server:
     limits = [
         ("grpc.max_receive_message_length", MAX_MESSAGE_BYTES),
         ("grpc.max_send_message_length", MAX_MESSAGE_BYTES),
@@ -103,7 +151,7 @@ def main() -> None:
     logging.basicConfig(level=logging.INFO, format="%(message)s")
     address = os.environ.get("WM_ADDR", "0.0.0.0:50052")
     tls = tls_from_env()
-    marker = Marker()  # loads the model before the port opens
+    marker = LazyMarker()  # the port opens now; the model loads in the background
     server = serve(address, marker, tls)
     if tls is None:
         log.warning("mutual TLS off (WM_TLS_* unset); for local development only")

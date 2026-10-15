@@ -1,4 +1,6 @@
 using System.Net.Security;
+using Grpc.Core;
+using Grpc.Net.Client.Configuration;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 
@@ -14,7 +16,18 @@ public static class InternalTls
 {
     public static SocketsHttpHandler Handler(IConfiguration config, Uri address)
     {
-        var handler = new SocketsHttpHandler { EnableMultipleHttp2Connections = true };
+        var handler = new SocketsHttpHandler
+        {
+            EnableMultipleHttp2Connections = true,
+            // On Fly.io the services are suspended when idle and woken by a new connection;
+            // traffic on an old one goes nowhere. So idle connections are dropped well before
+            // a service could be suspended, and a dead connection is noticed within seconds
+            // during a call (pings only then, so idle services can still be suspended).
+            PooledConnectionIdleTimeout = TimeSpan.FromSeconds(15),
+            KeepAlivePingDelay = TimeSpan.FromSeconds(5),
+            KeepAlivePingTimeout = TimeSpan.FromSeconds(5),
+            KeepAlivePingPolicy = HttpKeepAlivePingPolicy.WithActiveRequests,
+        };
         if (address.Scheme != Uri.UriSchemeHttps)
         {
             return handler;
@@ -31,6 +44,54 @@ public static class InternalTls
     }
 
     /// <summary>Fails at start-up, rather than on the first call, if an https address has no certificates.</summary>
+    /// <summary>
+    /// Retries a call that failed as unavailable, on a new connection, which wakes a suspended
+    /// service. Watermarking and signing give the same result when repeated.
+    /// </summary>
+    public static ServiceConfig RetryUnavailable() => new()
+    {
+        MethodConfigs =
+        {
+            new MethodConfig
+            {
+                Names = { MethodName.Default },
+                RetryPolicy = new RetryPolicy
+                {
+                    MaxAttempts = 3,
+                    InitialBackoff = TimeSpan.FromMilliseconds(500),
+                    MaxBackoff = TimeSpan.FromSeconds(2),
+                    BackoffMultiplier = 2,
+                    RetryableStatusCodes = { StatusCode.Unavailable },
+                },
+            },
+        },
+    };
+
+    /// <summary>
+    /// Runs a call, and runs it again (twice at most) if it failed in the transport rather
+    /// than in the service: a broken HTTP/2 connection, for example to a service Fly.io has
+    /// suspended, surfaces as Internal or Unavailable with a network exception underneath.
+    /// The repeat opens a new connection, which wakes the service.
+    /// </summary>
+    public static async Task<T> WithReconnect<T>(Func<Task<T>> call)
+    {
+        for (var attempt = 1; ; attempt++)
+        {
+            try
+            {
+                return await call();
+            }
+            catch (RpcException e) when (attempt < 3 && IsTransportFailure(e))
+            {
+                await Task.Delay(TimeSpan.FromMilliseconds(250 * attempt));
+            }
+        }
+    }
+
+    internal static bool IsTransportFailure(RpcException e) =>
+        e.StatusCode is StatusCode.Internal or StatusCode.Unavailable
+        && e.Status.DebugException is HttpRequestException or IOException;
+
     public static void EnsureConfigured(IConfiguration config, params Uri?[] addresses)
     {
         if (addresses.Any(a => a?.Scheme == Uri.UriSchemeHttps))

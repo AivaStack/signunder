@@ -37,6 +37,10 @@ builder.Services
     {
         o.MaxSendMessageSize = MaxSidecarMessageBytes;
         o.MaxReceiveMessageSize = MaxSidecarMessageBytes;
+        o.ServiceConfig = InternalTls.RetryUnavailable();
+        // A retry resends the image, so it must be kept for the length of the call.
+        o.MaxRetryBufferPerCallSize = MaxSidecarMessageBytes;
+        o.MaxRetryBufferSize = 4L * MaxSidecarMessageBytes;
     });
 builder.Services
     .AddGrpcClient<Health.HealthClient>(o => o.Address = sidecarAddress)
@@ -54,6 +58,9 @@ if (watermarkUri is not null)
         {
             o.MaxSendMessageSize = MaxSidecarMessageBytes;
             o.MaxReceiveMessageSize = MaxSidecarMessageBytes;
+            o.ServiceConfig = InternalTls.RetryUnavailable();
+            o.MaxRetryBufferPerCallSize = MaxSidecarMessageBytes;
+            o.MaxRetryBufferSize = 4L * MaxSidecarMessageBytes;
         });
 }
 
@@ -195,7 +202,8 @@ app.MapPost("/v1/verify", async (
 
     try
     {
-        var reply = await sidecar.ValidateAsync(request, deadline: DateTime.UtcNow.AddSeconds(30), cancellationToken: ct);
+        var reply = await InternalTls.WithReconnect(() =>
+            sidecar.ValidateAsync(request, deadline: DateTime.UtcNow.AddSeconds(30), cancellationToken: ct).ResponseAsync);
         var body = JsonSerializer.SerializeToNode(
             VerificationSummary.FromCrJson(reply.ValidationReportJson, ImageSigner.ToCore(reply.ValidationState)), snakeCase)!.AsObject();
         body.Insert(0, "manifest_found", true);
