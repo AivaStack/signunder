@@ -322,7 +322,7 @@ Not applicable (Assurance Level 1).
    | API → watermark worker, API → sidecar | gRPC over mutual TLS (private CA), inside Fly.io's private network (WireGuard-based, *from memory*, UNVERIFIED). The API offers only TLS 1.3, so every connection it makes is TLS 1.3 (checked: both services negotiate TLSv1.3). The servers would also accept TLS 1.2 from a client holding the API's certificate: neither tonic's nor Python gRPC's server settings expose a minimum version | [Built] locally; production certificates [Planned] |
    | Sidecar → Google Cloud KMS | HTTPS with OAuth 2.0 tokens (Google's client library; TLS version negotiated with Google's front end, TLS 1.3 *from memory*, UNVERIFIED) | [Planned] |
    | API → fal.ai / Replicate, downloads from their media hosts | HTTPS only; hosts on an allowlist; no redirects | [Built] |
-   | API → Supabase Postgres and Storage | TLS (`SSL Mode=Require` through Supabase's session pooler; HTTPS for Storage) | [Built on staging] for Postgres; Storage once its access key exists |
+   | API → Supabase Postgres and Storage | TLS (`SSL Mode=Require` through Supabase's session pooler; HTTPS for Storage) | [Built on staging] |
    | Sidecar → timestamp authority | RFC 3161 over HTTP or HTTPS; the response is signed by the TSA and checked on validation | [Built] |
 
 ---

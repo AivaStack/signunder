@@ -8,6 +8,8 @@ primary_region = "fra"
 [env]
   ASPNETCORE_ENVIRONMENT = "Staging"
   AllowedHosts = "signunder-staging-api.fly.dev"
+  # Fly.io terminates TLS; the scheme comes from X-Forwarded-Proto.
+  ForwardedHeaders__Proto = "true"
   # Applies migrations and seeds one tenant with the signer below and the key in the
   # Development__ApiKey secret. Staging only.
   Database__MigrateAndSeedOnStartup = "true"
@@ -21,6 +23,11 @@ primary_region = "fra"
   # A certificate from a throwaway test CA until the conformance listing (NOT CONFORMANT).
   Signer__CertChainPath = "/etc/signunder/signer-chain.pem"
   Signer__TsaUrl = "http://timestamp.digicert.com"
+  # Signed copies kept for proxy mode: Supabase Storage over its S3 protocol. The access
+  # key is in the Media__AccessKey and Media__SecretKey secrets.
+  Media__ServiceUrl = "https://lqxxcrkimjbysfqmedmt.storage.supabase.co/storage/v1/s3"
+  Media__Region = "eu-central-1"
+  Media__Bucket = "signed-media"
 
 [[files]]
   guest_path = "/etc/signunder/tls/ca.pem"

@@ -95,6 +95,8 @@ if (builder.Configuration["Media:ServiceUrl"] is { Length: > 0 } mediaUrl)
         {
             ServiceURL = mediaUrl,
             ForcePathStyle = true,
+            // Supabase Storage checks signatures against the project's region.
+            AuthenticationRegion = builder.Configuration["Media:Region"],
             // Checksums only where S3 requires them; local S3 stand-ins reject the extras.
             RequestChecksumCalculation = Amazon.Runtime.RequestChecksumCalculation.WHEN_REQUIRED,
             ResponseChecksumValidation = Amazon.Runtime.ResponseChecksumValidation.WHEN_REQUIRED,
@@ -117,7 +119,26 @@ foreach (var scope in ApiScopes.All)
     authorization.AddPolicy(scope, policy => policy.RequireClaim(ApiKeyAuthenticationHandler.ScopeClaim, scope));
 }
 
+// Behind a proxy that terminates TLS (Fly.io), take the original scheme from
+// X-Forwarded-Proto so links such as media_url are https. Only the scheme: the proxy
+// is the only way in, but the client address is not trusted from headers.
+var behindTlsProxy = builder.Configuration.GetValue<bool>("ForwardedHeaders:Proto");
+if (behindTlsProxy)
+{
+    builder.Services.Configure<Microsoft.AspNetCore.Builder.ForwardedHeadersOptions>(options =>
+    {
+        options.ForwardedHeaders = Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedProto;
+        options.KnownIPNetworks.Clear();
+        options.KnownProxies.Clear();
+    });
+}
+
 var app = builder.Build();
+
+if (behindTlsProxy)
+{
+    app.UseForwardedHeaders();
+}
 
 if (!app.Environment.IsDevelopment())
 {

@@ -26,6 +26,8 @@ ADR 0002 put the API, sign sidecar and watermark worker on Fly.io in Frankfurt, 
   - `deploy/fly/gcp-wif-staging.json`, which holds no secret, exchanges it at the workload identity pool `fly-io`, provider `fly-eoin-butler`. The provider accepts only that issuer and audience, from apps whose name starts `signunder-`.
   - Only `signunder-staging-sidecar` may act as `signunder-signer`.
 - **Database.** Supabase, through the session pooler (`aws-1-eu-central-1.pooler.supabase.com:5432`), as role `signunder_api`, which owns schema `registry` and can create nothing in `public` (ADR 0005). On staging the API applies migrations and seeds one tenant at start-up. Its API key is a Fly secret, also kept in the local `.env` as `SIGNUNDER_STAGING_API_KEY`.
+- **Signed copies** from proxy mode go to Supabase Storage bucket `signed-media` over its S3 protocol, region `eu-central-1`, with an S3 access key made in the dashboard (the API cannot create one) and held as Fly secrets. Checked 15 Oct 2026: a fal image through the staging proxy came back as an `https` `/media` link that verifies as valid.
+- **Fly.io terminates TLS**, so the API takes the scheme from `X-Forwarded-Proto` (`ForwardedHeaders:Proto`) to build `https` links. It does not take the client address from headers.
 - **Health check** on `/healthz`, sending `Host: signunder-staging-api.fly.dev`, so `AllowedHosts` can stay limited to the public name.
 - **Staging signs with a certificate from a throwaway test CA** ("SignUnder TEST - NOT CONFORMANT") issued for the HSM key's request from `kms-csr`, until the conformance listing. Timestamps come from DigiCert's public TSA.
 
@@ -47,7 +49,8 @@ ADR 0002 put the API, sign sidecar and watermark worker on Fly.io in Frankfurt, 
 
 ## Open
 
+- Per-address rate limiting for callers without a key sees Fly.io's proxy, not the caller, so they share one limit. `Fly-Client-IP` could identify them, if only the proxy can set it.
+
 - Production apps, certificates and tenant set-up; a release step for migrations rather than start-up.
 - Whether the token in `/.fly/oidc_token` is refreshed for a machine that stays awake longer than 10 minutes.
-- An S3 access key for the `signed-media` bucket (dashboard only), so proxy mode can keep signed copies on staging.
 - A spending alert, if Fly.io's billing settings offer one.
