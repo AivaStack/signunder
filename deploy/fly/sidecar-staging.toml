@@ -34,7 +34,11 @@ primary_region = "fra"
 [[services]]
   internal_port = 50051
   protocol = "tcp"
-  auto_stop_machines = "suspend"  # resumes in ~100s of ms; billed as stopped (storage only)
+  # Stopped, not suspended: a resumed process keeps its Google access token and Fly.io's
+  # identity token as they were when it slept, with the clocks that time them stopped
+  # too, so after an hour asleep every sign failed (15 Oct 2026). A stopped machine boots
+  # fresh: new identity token, no cached credentials. Billed the same (storage only).
+  auto_stop_machines = "stop"
   auto_start_machines = true
   min_machines_running = 0
 

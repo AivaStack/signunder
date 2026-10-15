@@ -78,11 +78,7 @@ impl Kms {
             return Ok(client.clone());
         }
         let unavailable = |e: String| Status::unavailable(format!("Google Cloud KMS client: {e}"));
-        let mut builder = KeyManagementService::builder();
-        if let Some(credentials) = crate::fly_identity::credentials_from_env() {
-            builder = builder.with_credentials(credentials.map_err(unavailable)?);
-        }
-        let client = builder
+        let client = KeyManagementService::builder()
             .build()
             .await
             .map_err(|e| unavailable(e.to_string()))?;
@@ -91,9 +87,10 @@ impl Kms {
     }
 
     /// Runs a Cloud KMS call. If Google rejects the access token, builds a new client
-    /// and tries once more: after a long suspension the cached token has expired, but the
-    /// auth library times expiry on a clock that stopped while the machine slept, so it
-    /// keeps offering the token (ADR 0012).
+    /// and tries once more. The auth library times token expiry on a monotonic clock, so a
+    /// process frozen and resumed (a suspended Fly.io machine) keeps offering an expired
+    /// token; staging therefore stops the sidecar rather than suspending it (ADR 0012),
+    /// and this is the safeguard if a token goes stale some other way.
     async fn with_google<T, F, Fut>(
         &self,
         call: &str,

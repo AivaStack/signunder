@@ -3748,7 +3748,6 @@ dependencies = [
  "aws-sdk-kms",
  "base64 0.22.1",
  "c2pa",
- "google-cloud-auth",
  "google-cloud-gax",
  "google-cloud-kms-v1",
  "pem 3.0.6",
