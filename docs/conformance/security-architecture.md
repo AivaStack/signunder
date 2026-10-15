@@ -19,10 +19,10 @@
 | # | Item | Objective | Status |
 |---|---|---|---|
 | 1 | Applicant's legal name, address and contact; certificate subject fields | §1.1, §1.4 | [Eoin] |
-| 2 | Production deploy: API, sidecar and watermark worker on Fly.io (`fra`), registry on Supabase (EU), signing key in Google Cloud KMS (HSM, `europe-west3`) | O.2, O.5, O.6 | [Planned] |
-| 3 | IAM: the sidecar's service account limited to signing with and reading the public key of SignUnder's key, reached from Fly.io by workload identity federation; human access time-bound | O.2, O.6 | Key and service account [Built] 15 Oct 2026 (checked: it can sign and read the public key; listing keys and destroying the version are refused); federation [Planned] |
-| 4 | Mutual TLS 1.3 between the API and the sidecar, and between the API and the watermark worker | O.2, O.5 | [Built] locally (ADR 0010); production certificates [Planned] |
-| 5 | A CSR tool that has the KMS sign the certificate request, so the key never leaves KMS | O.1, O.2 | [Built] (`kms-csr`); run against the production key [Planned] |
+| 2 | Production deploy: API, sidecar and watermark worker on Fly.io (`fra`), registry on Supabase (EU), signing key in Google Cloud KMS (HSM, `europe-west3`) | O.2, O.5, O.6 | [Built on staging] 15 Oct 2026 (ADR 0012); production apps [Planned] |
+| 3 | IAM: the sidecar's service account limited to signing with and reading the public key of SignUnder's key, reached from Fly.io by workload identity federation; human access time-bound | O.2, O.6 | Key and service account [Built] 15 Oct 2026 (checked: it can sign and read the public key; listing keys and destroying the version are refused); federation [Built on staging]: the staging sidecar signs with no stored credential |
+| 4 | Mutual TLS 1.3 between the API and the sidecar, and between the API and the watermark worker | O.2, O.5 | [Built] locally and [Built on staging] with its own certificate set; production certificates [Planned] |
+| 5 | A CSR tool that has the KMS sign the certificate request, so the key never leaves KMS | O.1, O.2 | [Built] (`kms-csr`); run against the HSM key 15 Oct 2026 (a test CA issued the staging certificate from it) |
 | 6 | An OWASP Top 10 review or scan of the public API | O.6 | [Built] against the local stack (`owasp-review.md`); repeat against staging [Planned] |
 | 7 | Written vulnerability-remediation procedure (30/90/180 days for hosting, 90 days for CRITICAL/HIGH in the claim generator) | O.3, O.4, O.6 | Process written below; [Gap] to adopt formally |
 | 8 | Architecture diagram as PNG (the Mermaid source below renders it) | §1.6 | [Gap] |
@@ -218,8 +218,10 @@ Not applicable (Assurance Level 1).
    record administrative actions; data-access logging for key use is to be enabled on the
    key's project. The sidecar on Fly.io reaches the service account by workload identity
    federation trusting Fly.io's OpenID Connect issuer for SignUnder's organisation and app,
-   so no credential is stored [Planned; to be proven at the first deploy. Fallback: a
-   service-account key held as a Fly.io secret and rotated quarterly; ADR 0011].
+   so no credential is stored [Built on staging 15 Oct 2026: Fly.io's machine token from
+   `/.fly/oidc_token` is exchanged at workload identity pool `fly-io`, which trusts only
+   issuer `https://oidc.fly.io/eoin-butler` for apps named `signunder-*`; only the sidecar
+   app may act as the signer; ADR 0011, ADR 0012].
 3. **Ephemeral Plaintext Key Handling.** Not applicable: the plaintext private key is
    never present outside KMS.
 4. **Key Rotation Process.** [Built in the data model; Planned operationally] Rotation
@@ -237,7 +239,8 @@ Not applicable (Assurance Level 1).
      revocable. The API key only limits access to the backend; it plays no part in signing
      [Built; ADR 0006].
    - *API to sidecar and API to watermark worker:* mutual TLS with certificates from a
-     private CA used for nothing else (ADR 0010) [Built; production certificates Planned].
+     private CA used for nothing else (ADR 0010) [Built; on staging with its own set,
+     held as Fly secrets; production certificates Planned].
      Each server presents a certificate for its own name (`sign-sidecar`, `wm-worker`) and
      requires a client certificate from the CA; it then accepts only a certificate naming
      `signunder-api` and refuses any other with `PERMISSION_DENIED`, so the role of each
@@ -246,7 +249,7 @@ Not applicable (Assurance Level 1).
      calls without a client certificate, and calls with a valid certificate for another
      name are all refused.
    - *Sidecar to Google Cloud KMS:* OAuth 2.0 access tokens over TLS, from the federated
-     credentials above [Planned].
+     credentials above [Built on staging].
 
 #### 2.2.2 and 2.2.3 Assurance Level 2 Additional Evidence
 
@@ -315,11 +318,11 @@ Not applicable (Assurance Level 1).
 
    | Channel | Protection | Status |
    |---|---|---|
-   | Customer application → API | HTTPS terminated at Fly.io's edge; TLS 1.3 to be required (UNVERIFIED that Fly.io can enforce a minimum of 1.3) | [Planned] |
+   | Customer application → API | HTTPS terminated at Fly.io's edge, which accepts TLS 1.3 and 1.2 (checked 15 Oct 2026; Let's Encrypt certificate). Customer applications are outside the TOE | [Built on staging] |
    | API → watermark worker, API → sidecar | gRPC over mutual TLS (private CA), inside Fly.io's private network (WireGuard-based, *from memory*, UNVERIFIED). The API offers only TLS 1.3, so every connection it makes is TLS 1.3 (checked: both services negotiate TLSv1.3). The servers would also accept TLS 1.2 from a client holding the API's certificate: neither tonic's nor Python gRPC's server settings expose a minimum version | [Built] locally; production certificates [Planned] |
    | Sidecar → Google Cloud KMS | HTTPS with OAuth 2.0 tokens (Google's client library; TLS version negotiated with Google's front end, TLS 1.3 *from memory*, UNVERIFIED) | [Planned] |
    | API → fal.ai / Replicate, downloads from their media hosts | HTTPS only; hosts on an allowlist; no redirects | [Built] |
-   | API → Supabase Postgres and Storage | TLS | [Planned] |
+   | API → Supabase Postgres and Storage | TLS (`SSL Mode=Require` through Supabase's session pooler; HTTPS for Storage) | [Built on staging] for Postgres; Storage once its access key exists |
    | Sidecar → timestamp authority | RFC 3161 over HTTP or HTTPS; the response is signed by the TSA and checked on validation | [Built] |
 
 ---
