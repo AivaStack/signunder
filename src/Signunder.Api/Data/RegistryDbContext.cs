@@ -12,8 +12,15 @@ public sealed class RegistryDbContext(DbContextOptions<RegistryDbContext> option
     public DbSet<ProxyResult> ProxyResults => Set<ProxyResult>();
     public DbSet<ProxyRequest> ProxyRequests => Set<ProxyRequest>();
 
+    /// <summary>
+    /// The registry's own schema. Supabase serves the public schema through its REST API to
+    /// anyone with the project's public key, so nothing of SignUnder's goes there (ADR 0005).
+    /// </summary>
+    public const string Schema = "registry";
+
     protected override void OnModelCreating(ModelBuilder model)
     {
+        model.HasDefaultSchema(Schema);
         model.Entity<Tenant>(tenant =>
         {
             tenant.ToTable("tenant");

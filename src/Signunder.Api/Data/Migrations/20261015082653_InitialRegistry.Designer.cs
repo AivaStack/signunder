@@ -12,7 +12,7 @@ using Signunder.Api.Data;
 namespace Signunder.Api.Data.Migrations
 {
     [DbContext(typeof(RegistryDbContext))]
-    [Migration("20261013113914_InitialRegistry")]
+    [Migration("20261015082653_InitialRegistry")]
     partial class InitialRegistry
     {
         /// <inheritdoc />
@@ -20,10 +20,120 @@ namespace Signunder.Api.Data.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
+                .HasDefaultSchema("registry")
                 .HasAnnotation("ProductVersion", "10.0.12")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+
+            modelBuilder.Entity("Signunder.Api.Data.ProxyRequest", b =>
+                {
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<string>("Provider")
+                        .HasColumnType("text")
+                        .HasColumnName("provider");
+
+                    b.Property<string>("UpstreamId")
+                        .HasColumnType("text")
+                        .HasColumnName("upstream_id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("Model")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("model");
+
+                    b.HasKey("TenantId", "Provider", "UpstreamId")
+                        .HasName("pk_proxy_request");
+
+                    b.ToTable("proxy_request", "registry");
+                });
+
+            modelBuilder.Entity("Signunder.Api.Data.ProxyResult", b =>
+                {
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<string>("Provider")
+                        .HasColumnType("text")
+                        .HasColumnName("provider");
+
+                    b.Property<string>("UpstreamId")
+                        .HasColumnType("text")
+                        .HasColumnName("upstream_id");
+
+                    b.Property<string>("Body")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("body");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.HasKey("TenantId", "Provider", "UpstreamId")
+                        .HasName("pk_proxy_result");
+
+                    b.ToTable("proxy_result", "registry");
+                });
+
+            modelBuilder.Entity("Signunder.Core.Registry.ApiKey", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("Hash")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("hash");
+
+                    b.Property<DateTimeOffset?>("LastUsedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_used_at");
+
+                    b.Property<string>("Prefix")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("prefix");
+
+                    b.Property<DateTimeOffset?>("RevokedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("revoked_at");
+
+                    b.PrimitiveCollection<string[]>("Scopes")
+                        .IsRequired()
+                        .HasColumnType("text[]")
+                        .HasColumnName("scopes");
+
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_api_key");
+
+                    b.HasIndex("Hash")
+                        .IsUnique()
+                        .HasDatabaseName("ix_api_key_hash");
+
+                    b.HasIndex("TenantId")
+                        .HasDatabaseName("ix_api_key_tenant_id");
+
+                    b.ToTable("api_key", "registry");
+                });
 
             modelBuilder.Entity("Signunder.Core.Registry.AssetRecord", b =>
                 {
@@ -45,6 +155,14 @@ namespace Signunder.Api.Data.Migrations
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
+
+                    b.Property<byte[]>("Fingerprint")
+                        .HasColumnType("bytea")
+                        .HasColumnName("fingerprint");
+
+                    b.Property<int?>("FingerprintQuality")
+                        .HasColumnType("integer")
+                        .HasColumnName("fingerprint_quality");
 
                     b.Property<string>("Layers")
                         .IsRequired()
@@ -70,6 +188,18 @@ namespace Signunder.Api.Data.Migrations
                         .HasColumnType("text")
                         .HasColumnName("modality");
 
+                    b.Property<string>("ModelName")
+                        .HasColumnType("text")
+                        .HasColumnName("model_name");
+
+                    b.Property<string>("Provider")
+                        .HasColumnType("text")
+                        .HasColumnName("provider");
+
+                    b.Property<string>("RetainedMediaKey")
+                        .HasColumnType("text")
+                        .HasColumnName("retained_media_key");
+
                     b.Property<long>("Size")
                         .HasColumnType("bigint")
                         .HasColumnName("size");
@@ -92,6 +222,10 @@ namespace Signunder.Api.Data.Migrations
                         .HasColumnType("text")
                         .HasColumnName("validation_state");
 
+                    b.Property<long?>("WmPayload")
+                        .HasColumnType("bigint")
+                        .HasColumnName("wm_payload");
+
                     b.HasKey("Id")
                         .HasName("pk_asset_record");
 
@@ -101,10 +235,14 @@ namespace Signunder.Api.Data.Migrations
                     b.HasIndex("TenantKeyId")
                         .HasDatabaseName("ix_asset_record_tenant_key_id");
 
+                    b.HasIndex("WmPayload")
+                        .IsUnique()
+                        .HasDatabaseName("ix_asset_record_wm_payload");
+
                     b.HasIndex("TenantId", "CreatedAt")
                         .HasDatabaseName("ix_asset_record_tenant_id_created_at");
 
-                    b.ToTable("asset_record", (string)null);
+                    b.ToTable("asset_record", "registry");
                 });
 
             modelBuilder.Entity("Signunder.Core.Registry.Tenant", b =>
@@ -145,7 +283,7 @@ namespace Signunder.Api.Data.Migrations
                         .IsUnique()
                         .HasDatabaseName("ix_tenant_slug");
 
-                    b.ToTable("tenant", (string)null);
+                    b.ToTable("tenant", "registry");
                 });
 
             modelBuilder.Entity("Signunder.Core.Registry.TenantKey", b =>
@@ -189,7 +327,37 @@ namespace Signunder.Api.Data.Migrations
                     b.HasIndex("TenantId")
                         .HasDatabaseName("ix_tenant_key_tenant_id");
 
-                    b.ToTable("tenant_key", (string)null);
+                    b.ToTable("tenant_key", "registry");
+                });
+
+            modelBuilder.Entity("Signunder.Api.Data.ProxyRequest", b =>
+                {
+                    b.HasOne("Signunder.Core.Registry.Tenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_proxy_request_tenant_tenant_id");
+                });
+
+            modelBuilder.Entity("Signunder.Api.Data.ProxyResult", b =>
+                {
+                    b.HasOne("Signunder.Core.Registry.Tenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_proxy_result_tenant_tenant_id");
+                });
+
+            modelBuilder.Entity("Signunder.Core.Registry.ApiKey", b =>
+                {
+                    b.HasOne("Signunder.Core.Registry.Tenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_api_key_tenant_tenant_id");
                 });
 
             modelBuilder.Entity("Signunder.Core.Registry.AssetRecord", b =>

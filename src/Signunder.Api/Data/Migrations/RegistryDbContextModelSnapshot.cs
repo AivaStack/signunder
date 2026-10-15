@@ -17,6 +17,7 @@ namespace Signunder.Api.Data.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
+                .HasDefaultSchema("registry")
                 .HasAnnotation("ProductVersion", "10.0.12")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
@@ -48,7 +49,7 @@ namespace Signunder.Api.Data.Migrations
                     b.HasKey("TenantId", "Provider", "UpstreamId")
                         .HasName("pk_proxy_request");
 
-                    b.ToTable("proxy_request", (string)null);
+                    b.ToTable("proxy_request", "registry");
                 });
 
             modelBuilder.Entity("Signunder.Api.Data.ProxyResult", b =>
@@ -77,7 +78,7 @@ namespace Signunder.Api.Data.Migrations
                     b.HasKey("TenantId", "Provider", "UpstreamId")
                         .HasName("pk_proxy_result");
 
-                    b.ToTable("proxy_result", (string)null);
+                    b.ToTable("proxy_result", "registry");
                 });
 
             modelBuilder.Entity("Signunder.Core.Registry.ApiKey", b =>
@@ -128,7 +129,7 @@ namespace Signunder.Api.Data.Migrations
                     b.HasIndex("TenantId")
                         .HasDatabaseName("ix_api_key_tenant_id");
 
-                    b.ToTable("api_key", (string)null);
+                    b.ToTable("api_key", "registry");
                 });
 
             modelBuilder.Entity("Signunder.Core.Registry.AssetRecord", b =>
@@ -238,7 +239,7 @@ namespace Signunder.Api.Data.Migrations
                     b.HasIndex("TenantId", "CreatedAt")
                         .HasDatabaseName("ix_asset_record_tenant_id_created_at");
 
-                    b.ToTable("asset_record", (string)null);
+                    b.ToTable("asset_record", "registry");
                 });
 
             modelBuilder.Entity("Signunder.Core.Registry.Tenant", b =>
@@ -279,7 +280,7 @@ namespace Signunder.Api.Data.Migrations
                         .IsUnique()
                         .HasDatabaseName("ix_tenant_slug");
 
-                    b.ToTable("tenant", (string)null);
+                    b.ToTable("tenant", "registry");
                 });
 
             modelBuilder.Entity("Signunder.Core.Registry.TenantKey", b =>
@@ -323,7 +324,7 @@ namespace Signunder.Api.Data.Migrations
                     b.HasIndex("TenantId")
                         .HasDatabaseName("ix_tenant_key_tenant_id");
 
-                    b.ToTable("tenant_key", (string)null);
+                    b.ToTable("tenant_key", "registry");
                 });
 
             modelBuilder.Entity("Signunder.Api.Data.ProxyRequest", b =>

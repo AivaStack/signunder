@@ -58,7 +58,8 @@ if (watermarkUri is not null)
 }
 
 builder.Services.AddDbContext<RegistryDbContext>(o => o
-    .UseNpgsql(builder.Configuration.GetConnectionString("Postgres"))
+    .UseNpgsql(builder.Configuration.GetConnectionString("Postgres"),
+        npgsql => npgsql.MigrationsHistoryTable("__EFMigrationsHistory", RegistryDbContext.Schema))
     .UseSnakeCaseNamingConvention());
 
 builder.Services.AddOpenApi();
