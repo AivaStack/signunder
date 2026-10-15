@@ -106,6 +106,7 @@ else
     builder.Services.AddSingleton<IMediaStore, NoMediaStore>();
 }
 builder.Services.AddProxy(builder.Configuration);
+builder.Services.AddHostedService<MediaSweep>();
 
 builder.Services
     .AddAuthentication(ApiKeyAuthenticationHandler.SchemeName)

@@ -52,4 +52,10 @@ public sealed class InMemoryMediaStore : IMediaStore
 
     public Task<(byte[] Content, string ContentType)?> GetAsync(string key, CancellationToken ct) =>
         Task.FromResult(Items.TryGetValue(key, out var item) ? item : ((byte[], string)?)null);
+
+    public Task DeleteAsync(string key, CancellationToken ct)
+    {
+        Items.TryRemove(key, out _);
+        return Task.CompletedTask;
+    }
 }

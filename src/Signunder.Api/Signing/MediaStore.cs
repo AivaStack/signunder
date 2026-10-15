@@ -13,6 +13,9 @@ public interface IMediaStore
 
     /// <summary>The stored copy and its type, or null if it is gone.</summary>
     Task<(byte[] Content, string ContentType)?> GetAsync(string key, CancellationToken ct);
+
+    /// <summary>Deletes a copy; deleting one that is already gone is not an error.</summary>
+    Task DeleteAsync(string key, CancellationToken ct);
 }
 
 /// <summary>S3-compatible storage: MinIO locally, Supabase Storage in production.</summary>
@@ -31,6 +34,9 @@ public sealed class S3MediaStore(IAmazonS3 s3, IConfiguration config) : IMediaSt
             ContentType = contentType,
         }, ct);
     }
+
+    public async Task DeleteAsync(string key, CancellationToken ct) =>
+        await s3.DeleteObjectAsync(Bucket, key, ct);
 
     public async Task<(byte[] Content, string ContentType)?> GetAsync(string key, CancellationToken ct)
     {
@@ -56,4 +62,6 @@ public sealed class NoMediaStore : IMediaStore
 
     public Task<(byte[] Content, string ContentType)?> GetAsync(string key, CancellationToken ct) =>
         Task.FromResult<(byte[], string)?>(null);
+
+    public Task DeleteAsync(string key, CancellationToken ct) => Task.CompletedTask;
 }
