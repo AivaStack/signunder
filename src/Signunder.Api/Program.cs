@@ -120,14 +120,25 @@ foreach (var scope in ApiScopes.All)
 }
 
 // Behind a proxy that terminates TLS (Fly.io), take the original scheme from
-// X-Forwarded-Proto so links such as media_url are https. Only the scheme: the proxy
-// is the only way in, but the client address is not trusted from headers.
+// X-Forwarded-Proto so links such as media_url are https. The client address comes only
+// from a header the proxy itself sets and callers cannot (ForwardedHeaders:ClientIpHeader,
+// Fly-Client-IP on Fly.io), so rate limits and logs see the caller, not the proxy.
 var behindTlsProxy = builder.Configuration.GetValue<bool>("ForwardedHeaders:Proto");
-if (behindTlsProxy)
+var clientIpHeader = builder.Configuration["ForwardedHeaders:ClientIpHeader"];
+if (behindTlsProxy || !string.IsNullOrEmpty(clientIpHeader))
 {
     builder.Services.Configure<Microsoft.AspNetCore.Builder.ForwardedHeadersOptions>(options =>
     {
-        options.ForwardedHeaders = Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedProto;
+        options.ForwardedHeaders = Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.None;
+        if (behindTlsProxy)
+        {
+            options.ForwardedHeaders |= Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedProto;
+        }
+        if (!string.IsNullOrEmpty(clientIpHeader))
+        {
+            options.ForwardedHeaders |= Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedFor;
+            options.ForwardedForHeaderName = clientIpHeader;
+        }
         options.KnownIPNetworks.Clear();
         options.KnownProxies.Clear();
     });
@@ -135,7 +146,7 @@ if (behindTlsProxy)
 
 var app = builder.Build();
 
-if (behindTlsProxy)
+if (behindTlsProxy || !string.IsNullOrEmpty(clientIpHeader))
 {
     app.UseForwardedHeaders();
 }

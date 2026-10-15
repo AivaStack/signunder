@@ -1,5 +1,6 @@
 using System.Net;
 using System.Net.Http.Headers;
+using Microsoft.AspNetCore.Hosting;
 
 namespace Signunder.Api.Tests;
 
@@ -54,6 +55,12 @@ public class HardeningTests(ApiFactory api) : IClassFixture<ApiFactory>
 public sealed class TightRateLimitApiFactory : ApiFactory
 {
     protected override int RateLimitPerMinute => 3;
+
+    protected override void ConfigureWebHost(IWebHostBuilder builder)
+    {
+        base.ConfigureWebHost(builder);
+        builder.UseSetting("ForwardedHeaders:ClientIpHeader", "Fly-Client-IP");
+    }
 }
 
 public class RateLimitTests(TightRateLimitApiFactory api) : IClassFixture<TightRateLimitApiFactory>
@@ -74,5 +81,26 @@ public class RateLimitTests(TightRateLimitApiFactory api) : IClassFixture<TightR
         // Another tenant's key is unaffected.
         var other = api.ClientWithKey(await api.AddTenantAsync("rate-other", Core.Registry.ApiScopes.All, "arn:aws:kms:eu-central-1:1:key/o"));
         Assert.Equal(HttpStatusCode.NotFound, (await other.GetAsync("/v1/records/01ARZ3NDEKTSV4RRFFQ69G5FAV")).StatusCode);
+    }
+
+    [Fact]
+    public async Task Callers_without_a_key_are_limited_by_the_address_the_proxy_reports()
+    {
+        // Behind Fly.io every connection comes from the proxy; Fly-Client-IP names the caller.
+        async Task<HttpStatusCode> Media(string address)
+        {
+            var client = api.ClientWithKey(null);
+            client.DefaultRequestHeaders.Add("Fly-Client-IP", address);
+            return (await client.GetAsync("/media/01ARZ3NDEKTSV4RRFFQ69G5FAV")).StatusCode;
+        }
+
+        for (var i = 0; i < 3; i++)
+        {
+            Assert.Equal(HttpStatusCode.NotFound, await Media("203.0.113.1"));
+        }
+        Assert.Equal(HttpStatusCode.TooManyRequests, await Media("203.0.113.1"));
+
+        // A different caller through the same proxy has its own limit.
+        Assert.Equal(HttpStatusCode.NotFound, await Media("203.0.113.2"));
     }
 }

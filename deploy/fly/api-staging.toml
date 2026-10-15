@@ -10,6 +10,8 @@ primary_region = "fra"
   AllowedHosts = "signunder-staging-api.fly.dev"
   # Fly.io terminates TLS; the scheme comes from X-Forwarded-Proto.
   ForwardedHeaders__Proto = "true"
+  # The caller's address, set by Fly.io's proxy (callers cannot set it: checked 15 Oct 2026).
+  ForwardedHeaders__ClientIpHeader = "Fly-Client-IP"
   # Applies migrations and seeds one tenant with the signer below and the key in the
   # Development__ApiKey secret. Staging only.
   Database__MigrateAndSeedOnStartup = "true"
