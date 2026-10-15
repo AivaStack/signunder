@@ -1,0 +1,1197 @@
+{
+	"@programName": "ZAP",
+	"@version": "2.17.0",
+	"@generated": "Thu, 15 Oct 2026 10:30:34",
+	"created": "2026-10-15T10:30:34.739998839Z",
+	"insights":[
+		{
+			"level": "Medium",
+			"reason": "Exceeded High",
+			"site": "https://signunder-staging-api.fly.dev",
+			"key": "insight.code.4xx",
+			"description": "Percentage of responses with status code 4xx",
+			"statistic": "99"
+		},
+		{
+			"level": "Low",
+			"reason": "Warning",
+			"site": "",
+			"key": "insight.log.error",
+			"description": "ZAP errors logged - see the zap.log file for details",
+			"statistic": "1"
+		},
+		{
+			"level": "Info",
+			"reason": "Informational",
+			"site": "https://signunder-staging-api.fly.dev",
+			"key": "insight.code.2xx",
+			"description": "Percentage of responses with status code 2xx",
+			"statistic": "1"
+		},
+		{
+			"level": "Info",
+			"reason": "Informational",
+			"site": "https://signunder-staging-api.fly.dev",
+			"key": "insight.endpoint.ctype.application/json",
+			"description": "Percentage of endpoints with content type application/json",
+			"statistic": "2"
+		},
+		{
+			"level": "Info",
+			"reason": "Informational",
+			"site": "https://signunder-staging-api.fly.dev",
+			"key": "insight.endpoint.ctype.application/problem+json",
+			"description": "Percentage of endpoints with content type application/problem+json",
+			"statistic": "12"
+		},
+		{
+			"level": "Info",
+			"reason": "Informational",
+			"site": "https://signunder-staging-api.fly.dev",
+			"key": "insight.endpoint.ctype.text/html",
+			"description": "Percentage of endpoints with content type text/html",
+			"statistic": "9"
+		},
+		{
+			"level": "Info",
+			"reason": "Informational",
+			"site": "https://signunder-staging-api.fly.dev",
+			"key": "insight.endpoint.method.DELETE",
+			"description": "Percentage of endpoints with method DELETE",
+			"statistic": "12"
+		},
+		{
+			"level": "Info",
+			"reason": "Informational",
+			"site": "https://signunder-staging-api.fly.dev",
+			"key": "insight.endpoint.method.GET",
+			"description": "Percentage of endpoints with method GET",
+			"statistic": "66"
+		},
+		{
+			"level": "Info",
+			"reason": "Informational",
+			"site": "https://signunder-staging-api.fly.dev",
+			"key": "insight.endpoint.method.POST",
+			"description": "Percentage of endpoints with method POST",
+			"statistic": "18"
+		},
+		{
+			"level": "Info",
+			"reason": "Informational",
+			"site": "https://signunder-staging-api.fly.dev",
+			"key": "insight.endpoint.method.PUT",
+			"description": "Percentage of endpoints with method PUT",
+			"statistic": "2"
+		},
+		{
+			"level": "Info",
+			"reason": "Informational",
+			"site": "https://signunder-staging-api.fly.dev",
+			"key": "insight.endpoint.total",
+			"description": "Count of total endpoints",
+			"statistic": "75"
+		},
+		{
+			"level": "Info",
+			"reason": "Informational",
+			"site": "https://signunder-staging-api.fly.dev",
+			"key": "insight.response.slow",
+			"description": "Percentage of slow responses",
+			"statistic": "4"
+		}
+	],
+	"site":[ 
+		{
+			"@name": "https://signunder-staging-api.fly.dev",
+			"@host": "signunder-staging-api.fly.dev",
+			"@port": "443",
+			"@ssl": "true",
+			"alerts": [ 
+				{
+					"pluginid": "10036",
+					"alertRef": "10036-2",
+					"alert": "Server Leaks Version Information via \"Server\" HTTP Response Header Field",
+					"name": "Server Leaks Version Information via \"Server\" HTTP Response Header Field",
+					"riskcode": "1",
+					"confidence": "3",
+					"riskdesc": "Low (High)",
+					"desc": "<p>The web/application server is leaking version information via the \"Server\" HTTP response header. Access to such information may facilitate attackers identifying other vulnerabilities your web/application server is subject to.</p>",
+					"instances":[ 
+						{
+							"id": "6",
+							"uri": "https://signunder-staging-api.fly.dev/healthz",
+							"nodeName": "https:\/\/signunder-staging-api.fly.dev\/healthz",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "Fly/ad0302a95 (2026-10-13)",
+							"otherinfo": ""
+						},
+						{
+							"id": "19",
+							"uri": "https://signunder-staging-api.fly.dev/proxy/fal/queue/path",
+							"nodeName": "https:\/\/signunder-staging-api.fly.dev\/proxy\/fal\/queue\/path",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "Fly/ad0302a95 (2026-10-13)",
+							"otherinfo": ""
+						},
+						{
+							"id": "5",
+							"uri": "https://signunder-staging-api.fly.dev/readyz",
+							"nodeName": "https:\/\/signunder-staging-api.fly.dev\/readyz",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "Fly/ad0302a95 (2026-10-13)",
+							"otherinfo": ""
+						},
+						{
+							"id": "7",
+							"uri": "https://signunder-staging-api.fly.dev/v1/sign",
+							"nodeName": "https:\/\/signunder-staging-api.fly.dev\/v1\/sign ()(multipart:file)",
+							"method": "POST",
+							"param": "",
+							"attack": "",
+							"evidence": "Fly/ad0302a95 (2026-10-13)",
+							"otherinfo": ""
+						},
+						{
+							"id": "8",
+							"uri": "https://signunder-staging-api.fly.dev/v1/verify",
+							"nodeName": "https:\/\/signunder-staging-api.fly.dev\/v1\/verify ()(multipart:file)",
+							"method": "POST",
+							"param": "",
+							"attack": "",
+							"evidence": "Fly/ad0302a95 (2026-10-13)",
+							"otherinfo": ""
+						}
+					],
+					"count": "5",
+					"systemic": true,
+					"solution": "<p>Ensure that your web server, application server, load balancer, etc. is configured to suppress the \"Server\" header or provide generic details.</p>",
+					"otherinfo": "",
+					"reference": "<p>https://httpd.apache.org/docs/current/mod/core.html#servertokens</p><p>https://learn.microsoft.com/en-us/previous-versions/msp-n-p/ff648552(v=pandp.10)</p><p>https://www.troyhunt.com/shhh-dont-let-your-response-headers/</p>",
+					"cweid": "497",
+					"wascid": "13",
+					"sourceid": "1"
+				},
+				{
+					"pluginid": "100001",
+					"alertRef": "100001",
+					"alert": "Unexpected Content-Type was returned",
+					"name": "Unexpected Content-Type was returned",
+					"riskcode": "1",
+					"confidence": "3",
+					"riskdesc": "Low (High)",
+					"desc": "<p>A Content-Type of text/html was returned by the server.</p><p>This is not one of the types expected to be returned by an API.</p><p>Raised by the 'Alert on Unexpected Content Types' script</p>",
+					"instances":[ 
+						{
+							"id": "620",
+							"uri": "https://signunder-staging-api.fly.dev/computeMetadata/v1/",
+							"nodeName": "https:\/\/signunder-staging-api.fly.dev\/computeMetadata\/v1\/",
+							"method": "DELETE",
+							"param": "",
+							"attack": "",
+							"evidence": "text/html",
+							"otherinfo": ""
+						},
+						{
+							"id": "612",
+							"uri": "https://signunder-staging-api.fly.dev/latest/meta-data/",
+							"nodeName": "https:\/\/signunder-staging-api.fly.dev\/latest\/meta-data\/",
+							"method": "DELETE",
+							"param": "",
+							"attack": "",
+							"evidence": "text/html",
+							"otherinfo": ""
+						},
+						{
+							"id": "660",
+							"uri": "https://signunder-staging-api.fly.dev/metadata/instance",
+							"nodeName": "https:\/\/signunder-staging-api.fly.dev\/metadata\/instance",
+							"method": "DELETE",
+							"param": "",
+							"attack": "",
+							"evidence": "text/html",
+							"otherinfo": ""
+						},
+						{
+							"id": "665",
+							"uri": "https://signunder-staging-api.fly.dev/metadata/v1",
+							"nodeName": "https:\/\/signunder-staging-api.fly.dev\/metadata\/v1",
+							"method": "DELETE",
+							"param": "",
+							"attack": "",
+							"evidence": "text/html",
+							"otherinfo": ""
+						},
+						{
+							"id": "630",
+							"uri": "https://signunder-staging-api.fly.dev/opc/v1/instance/",
+							"nodeName": "https:\/\/signunder-staging-api.fly.dev\/opc\/v1\/instance\/",
+							"method": "DELETE",
+							"param": "",
+							"attack": "",
+							"evidence": "text/html",
+							"otherinfo": ""
+						},
+						{
+							"id": "640",
+							"uri": "https://signunder-staging-api.fly.dev/opc/v2/instance/",
+							"nodeName": "https:\/\/signunder-staging-api.fly.dev\/opc\/v2\/instance\/",
+							"method": "DELETE",
+							"param": "",
+							"attack": "",
+							"evidence": "text/html",
+							"otherinfo": ""
+						},
+						{
+							"id": "670",
+							"uri": "https://signunder-staging-api.fly.dev/openstack/latest/meta_data.json",
+							"nodeName": "https:\/\/signunder-staging-api.fly.dev\/openstack\/latest\/meta_data.json",
+							"method": "DELETE",
+							"param": "",
+							"attack": "",
+							"evidence": "text/html",
+							"otherinfo": ""
+						}
+					],
+					"count": "7",
+					"systemic": false,
+					"solution": "",
+					"otherinfo": "",
+					"reference": "",
+					"cweid": "-1",
+					"wascid": "-1",
+					"sourceid": "620"
+				},
+				{
+					"pluginid": "100000",
+					"alertRef": "100000-1",
+					"alert": "A Client Error response code was returned by the server",
+					"name": "A Client Error response code was returned by the server",
+					"riskcode": "0",
+					"confidence": "3",
+					"riskdesc": "Informational (High)",
+					"desc": "<p>A response code of 400 was returned by the server.</p><p>This may indicate that the application is failing to handle unexpected input correctly.</p><p>Raised by the 'Alert on HTTP Response Code Error' script</p>",
+					"instances":[ 
+						{
+							"id": "619",
+							"uri": "https://signunder-staging-api.fly.dev/computeMetadata/v1/",
+							"nodeName": "https:\/\/signunder-staging-api.fly.dev\/computeMetadata\/v1\/",
+							"method": "DELETE",
+							"param": "",
+							"attack": "",
+							"evidence": "400",
+							"otherinfo": ""
+						},
+						{
+							"id": "610",
+							"uri": "https://signunder-staging-api.fly.dev/latest/meta-data/",
+							"nodeName": "https:\/\/signunder-staging-api.fly.dev\/latest\/meta-data\/",
+							"method": "DELETE",
+							"param": "",
+							"attack": "",
+							"evidence": "400",
+							"otherinfo": ""
+						},
+						{
+							"id": "659",
+							"uri": "https://signunder-staging-api.fly.dev/metadata/instance",
+							"nodeName": "https:\/\/signunder-staging-api.fly.dev\/metadata\/instance",
+							"method": "DELETE",
+							"param": "",
+							"attack": "",
+							"evidence": "400",
+							"otherinfo": ""
+						},
+						{
+							"id": "664",
+							"uri": "https://signunder-staging-api.fly.dev/metadata/v1",
+							"nodeName": "https:\/\/signunder-staging-api.fly.dev\/metadata\/v1",
+							"method": "DELETE",
+							"param": "",
+							"attack": "",
+							"evidence": "400",
+							"otherinfo": ""
+						},
+						{
+							"id": "629",
+							"uri": "https://signunder-staging-api.fly.dev/opc/v1/instance/",
+							"nodeName": "https:\/\/signunder-staging-api.fly.dev\/opc\/v1\/instance\/",
+							"method": "DELETE",
+							"param": "",
+							"attack": "",
+							"evidence": "400",
+							"otherinfo": ""
+						},
+						{
+							"id": "639",
+							"uri": "https://signunder-staging-api.fly.dev/opc/v2/instance/",
+							"nodeName": "https:\/\/signunder-staging-api.fly.dev\/opc\/v2\/instance\/",
+							"method": "DELETE",
+							"param": "",
+							"attack": "",
+							"evidence": "400",
+							"otherinfo": ""
+						},
+						{
+							"id": "669",
+							"uri": "https://signunder-staging-api.fly.dev/openstack/latest/meta_data.json",
+							"nodeName": "https:\/\/signunder-staging-api.fly.dev\/openstack\/latest\/meta_data.json",
+							"method": "DELETE",
+							"param": "",
+							"attack": "",
+							"evidence": "400",
+							"otherinfo": ""
+						},
+						{
+							"id": "17",
+							"uri": "https://signunder-staging-api.fly.dev/proxy/fal/queue/path",
+							"nodeName": "https:\/\/signunder-staging-api.fly.dev\/proxy\/fal\/queue\/path",
+							"method": "DELETE",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "820",
+							"uri": "https://signunder-staging-api.fly.dev/proxy/fal/queue/path/",
+							"nodeName": "https:\/\/signunder-staging-api.fly.dev\/proxy\/fal\/queue\/path\/",
+							"method": "DELETE",
+							"param": "",
+							"attack": "",
+							"evidence": "429",
+							"otherinfo": ""
+						},
+						{
+							"id": "56",
+							"uri": "https://signunder-staging-api.fly.dev",
+							"nodeName": "https:\/\/signunder-staging-api.fly.dev",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "828",
+							"uri": "https://signunder-staging-api.fly.dev/",
+							"nodeName": "https:\/\/signunder-staging-api.fly.dev\/",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "36",
+							"uri": "https://signunder-staging-api.fly.dev/2578330573110471661",
+							"nodeName": "https:\/\/signunder-staging-api.fly.dev\/2578330573110471661",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "59",
+							"uri": "https://signunder-staging-api.fly.dev/media",
+							"nodeName": "https:\/\/signunder-staging-api.fly.dev\/media",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "829",
+							"uri": "https://signunder-staging-api.fly.dev/media/",
+							"nodeName": "https:\/\/signunder-staging-api.fly.dev\/media\/",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "37",
+							"uri": "https://signunder-staging-api.fly.dev/media/7066924219973372885",
+							"nodeName": "https:\/\/signunder-staging-api.fly.dev\/media\/7066924219973372885",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "13",
+							"uri": "https://signunder-staging-api.fly.dev/media/id",
+							"nodeName": "https:\/\/signunder-staging-api.fly.dev\/media\/id",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "831",
+							"uri": "https://signunder-staging-api.fly.dev/media/id/",
+							"nodeName": "https:\/\/signunder-staging-api.fly.dev\/media\/id\/",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "429",
+							"otherinfo": ""
+						},
+						{
+							"id": "60",
+							"uri": "https://signunder-staging-api.fly.dev/proxy",
+							"nodeName": "https:\/\/signunder-staging-api.fly.dev\/proxy",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "832",
+							"uri": "https://signunder-staging-api.fly.dev/proxy/",
+							"nodeName": "https:\/\/signunder-staging-api.fly.dev\/proxy\/",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "38",
+							"uri": "https://signunder-staging-api.fly.dev/proxy/3783951869531039076",
+							"nodeName": "https:\/\/signunder-staging-api.fly.dev\/proxy\/3783951869531039076",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "62",
+							"uri": "https://signunder-staging-api.fly.dev/proxy/fal",
+							"nodeName": "https:\/\/signunder-staging-api.fly.dev\/proxy\/fal",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "834",
+							"uri": "https://signunder-staging-api.fly.dev/proxy/fal/",
+							"nodeName": "https:\/\/signunder-staging-api.fly.dev\/proxy\/fal\/",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "39",
+							"uri": "https://signunder-staging-api.fly.dev/proxy/fal/2237898381477297004",
+							"nodeName": "https:\/\/signunder-staging-api.fly.dev\/proxy\/fal\/2237898381477297004",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "65",
+							"uri": "https://signunder-staging-api.fly.dev/proxy/fal/queue",
+							"nodeName": "https:\/\/signunder-staging-api.fly.dev\/proxy\/fal\/queue",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "400",
+							"otherinfo": ""
+						},
+						{
+							"id": "453",
+							"uri": "https://signunder-staging-api.fly.dev/proxy/fal/queue",
+							"nodeName": "https:\/\/signunder-staging-api.fly.dev\/proxy\/fal\/queue",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "429",
+							"otherinfo": ""
+						},
+						{
+							"id": "836",
+							"uri": "https://signunder-staging-api.fly.dev/proxy/fal/queue/",
+							"nodeName": "https:\/\/signunder-staging-api.fly.dev\/proxy\/fal\/queue\/",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "429",
+							"otherinfo": ""
+						},
+						{
+							"id": "40",
+							"uri": "https://signunder-staging-api.fly.dev/proxy/fal/queue/8327447070507835110",
+							"nodeName": "https:\/\/signunder-staging-api.fly.dev\/proxy\/fal\/queue\/8327447070507835110",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "981",
+							"uri": "https://signunder-staging-api.fly.dev/proxy/fal/queue/actuator/health",
+							"nodeName": "https:\/\/signunder-staging-api.fly.dev\/proxy\/fal\/queue\/actuator\/health",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "429",
+							"otherinfo": ""
+						},
+						{
+							"id": "14",
+							"uri": "https://signunder-staging-api.fly.dev/proxy/fal/queue/path",
+							"nodeName": "https:\/\/signunder-staging-api.fly.dev\/proxy\/fal\/queue\/path",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "838",
+							"uri": "https://signunder-staging-api.fly.dev/proxy/fal/queue/path/",
+							"nodeName": "https:\/\/signunder-staging-api.fly.dev\/proxy\/fal\/queue\/path\/",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "429",
+							"otherinfo": ""
+						},
+						{
+							"id": "67",
+							"uri": "https://signunder-staging-api.fly.dev/proxy/replicate",
+							"nodeName": "https:\/\/signunder-staging-api.fly.dev\/proxy\/replicate",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "839",
+							"uri": "https://signunder-staging-api.fly.dev/proxy/replicate/",
+							"nodeName": "https:\/\/signunder-staging-api.fly.dev\/proxy\/replicate\/",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "41",
+							"uri": "https://signunder-staging-api.fly.dev/proxy/replicate/6063127848876477309",
+							"nodeName": "https:\/\/signunder-staging-api.fly.dev\/proxy\/replicate\/6063127848876477309",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "70",
+							"uri": "https://signunder-staging-api.fly.dev/proxy/replicate/v1",
+							"nodeName": "https:\/\/signunder-staging-api.fly.dev\/proxy\/replicate\/v1",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "841",
+							"uri": "https://signunder-staging-api.fly.dev/proxy/replicate/v1/",
+							"nodeName": "https:\/\/signunder-staging-api.fly.dev\/proxy\/replicate\/v1\/",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "42",
+							"uri": "https://signunder-staging-api.fly.dev/proxy/replicate/v1/2174788286501690922",
+							"nodeName": "https:\/\/signunder-staging-api.fly.dev\/proxy\/replicate\/v1\/2174788286501690922",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "73",
+							"uri": "https://signunder-staging-api.fly.dev/proxy/replicate/v1/models",
+							"nodeName": "https:\/\/signunder-staging-api.fly.dev\/proxy\/replicate\/v1\/models",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "843",
+							"uri": "https://signunder-staging-api.fly.dev/proxy/replicate/v1/models/",
+							"nodeName": "https:\/\/signunder-staging-api.fly.dev\/proxy\/replicate\/v1\/models\/",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "43",
+							"uri": "https://signunder-staging-api.fly.dev/proxy/replicate/v1/models/2921150537444017620",
+							"nodeName": "https:\/\/signunder-staging-api.fly.dev\/proxy\/replicate\/v1\/models\/2921150537444017620",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "76",
+							"uri": "https://signunder-staging-api.fly.dev/proxy/replicate/v1/models/owner",
+							"nodeName": "https:\/\/signunder-staging-api.fly.dev\/proxy\/replicate\/v1\/models\/owner",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "845",
+							"uri": "https://signunder-staging-api.fly.dev/proxy/replicate/v1/models/owner/",
+							"nodeName": "https:\/\/signunder-staging-api.fly.dev\/proxy\/replicate\/v1\/models\/owner\/",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "44",
+							"uri": "https://signunder-staging-api.fly.dev/proxy/replicate/v1/models/owner/1506234395373557825",
+							"nodeName": "https:\/\/signunder-staging-api.fly.dev\/proxy\/replicate\/v1\/models\/owner\/1506234395373557825",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "77",
+							"uri": "https://signunder-staging-api.fly.dev/proxy/replicate/v1/models/owner/ZAP",
+							"nodeName": "https:\/\/signunder-staging-api.fly.dev\/proxy\/replicate\/v1\/models\/owner\/ZAP",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "847",
+							"uri": "https://signunder-staging-api.fly.dev/proxy/replicate/v1/models/owner/ZAP/",
+							"nodeName": "https:\/\/signunder-staging-api.fly.dev\/proxy\/replicate\/v1\/models\/owner\/ZAP\/",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "45",
+							"uri": "https://signunder-staging-api.fly.dev/proxy/replicate/v1/models/owner/ZAP/6137372148141901383",
+							"nodeName": "https:\/\/signunder-staging-api.fly.dev\/proxy\/replicate\/v1\/models\/owner\/ZAP\/6137372148141901383",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "80",
+							"uri": "https://signunder-staging-api.fly.dev/proxy/replicate/v1/predictions",
+							"nodeName": "https:\/\/signunder-staging-api.fly.dev\/proxy\/replicate\/v1\/predictions",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "405",
+							"otherinfo": ""
+						},
+						{
+							"id": "849",
+							"uri": "https://signunder-staging-api.fly.dev/proxy/replicate/v1/predictions/",
+							"nodeName": "https:\/\/signunder-staging-api.fly.dev\/proxy\/replicate\/v1\/predictions\/",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "405",
+							"otherinfo": ""
+						},
+						{
+							"id": "46",
+							"uri": "https://signunder-staging-api.fly.dev/proxy/replicate/v1/predictions/7332495694486017916",
+							"nodeName": "https:\/\/signunder-staging-api.fly.dev\/proxy\/replicate\/v1\/predictions\/7332495694486017916",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "401",
+							"otherinfo": ""
+						},
+						{
+							"id": "34",
+							"uri": "https://signunder-staging-api.fly.dev/proxy/replicate/v1/predictions/id",
+							"nodeName": "https:\/\/signunder-staging-api.fly.dev\/proxy\/replicate\/v1\/predictions\/id",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "401",
+							"otherinfo": ""
+						},
+						{
+							"id": "850",
+							"uri": "https://signunder-staging-api.fly.dev/proxy/replicate/v1/predictions/id/",
+							"nodeName": "https:\/\/signunder-staging-api.fly.dev\/proxy\/replicate\/v1\/predictions\/id\/",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "429",
+							"otherinfo": ""
+						},
+						{
+							"id": "47",
+							"uri": "https://signunder-staging-api.fly.dev/proxy/replicate/v1/predictions/id/6785628569328843798",
+							"nodeName": "https:\/\/signunder-staging-api.fly.dev\/proxy\/replicate\/v1\/predictions\/id\/6785628569328843798",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "81",
+							"uri": "https://signunder-staging-api.fly.dev/v1",
+							"nodeName": "https:\/\/signunder-staging-api.fly.dev\/v1",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "852",
+							"uri": "https://signunder-staging-api.fly.dev/v1/",
+							"nodeName": "https:\/\/signunder-staging-api.fly.dev\/v1\/",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "48",
+							"uri": "https://signunder-staging-api.fly.dev/v1/1066230458590263151",
+							"nodeName": "https:\/\/signunder-staging-api.fly.dev\/v1\/1066230458590263151",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "83",
+							"uri": "https://signunder-staging-api.fly.dev/v1/records",
+							"nodeName": "https:\/\/signunder-staging-api.fly.dev\/v1\/records",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "854",
+							"uri": "https://signunder-staging-api.fly.dev/v1/records/",
+							"nodeName": "https:\/\/signunder-staging-api.fly.dev\/v1\/records\/",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "49",
+							"uri": "https://signunder-staging-api.fly.dev/v1/records/7457599119631774952",
+							"nodeName": "https:\/\/signunder-staging-api.fly.dev\/v1\/records\/7457599119631774952",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "2",
+							"uri": "https://signunder-staging-api.fly.dev/v1/records/id",
+							"nodeName": "https:\/\/signunder-staging-api.fly.dev\/v1\/records\/id",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "855",
+							"uri": "https://signunder-staging-api.fly.dev/v1/records/id/",
+							"nodeName": "https:\/\/signunder-staging-api.fly.dev\/v1\/records\/id\/",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "429",
+							"otherinfo": ""
+						},
+						{
+							"id": "15",
+							"uri": "https://signunder-staging-api.fly.dev/proxy/fal/queue/path",
+							"nodeName": "https:\/\/signunder-staging-api.fly.dev\/proxy\/fal\/queue\/path",
+							"method": "POST",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "818",
+							"uri": "https://signunder-staging-api.fly.dev/proxy/fal/queue/path/",
+							"nodeName": "https:\/\/signunder-staging-api.fly.dev\/proxy\/fal\/queue\/path\/",
+							"method": "POST",
+							"param": "",
+							"attack": "",
+							"evidence": "429",
+							"otherinfo": ""
+						},
+						{
+							"id": "33",
+							"uri": "https://signunder-staging-api.fly.dev/proxy/replicate/v1/models/owner/ZAP/predictions",
+							"nodeName": "https:\/\/signunder-staging-api.fly.dev\/proxy\/replicate\/v1\/models\/owner\/ZAP\/predictions",
+							"method": "POST",
+							"param": "",
+							"attack": "",
+							"evidence": "401",
+							"otherinfo": ""
+						},
+						{
+							"id": "821",
+							"uri": "https://signunder-staging-api.fly.dev/proxy/replicate/v1/models/owner/ZAP/predictions/",
+							"nodeName": "https:\/\/signunder-staging-api.fly.dev\/proxy\/replicate\/v1\/models\/owner\/ZAP\/predictions\/",
+							"method": "POST",
+							"param": "",
+							"attack": "",
+							"evidence": "429",
+							"otherinfo": ""
+						},
+						{
+							"id": "18",
+							"uri": "https://signunder-staging-api.fly.dev/proxy/replicate/v1/predictions",
+							"nodeName": "https:\/\/signunder-staging-api.fly.dev\/proxy\/replicate\/v1\/predictions",
+							"method": "POST",
+							"param": "",
+							"attack": "",
+							"evidence": "401",
+							"otherinfo": ""
+						},
+						{
+							"id": "823",
+							"uri": "https://signunder-staging-api.fly.dev/proxy/replicate/v1/predictions/",
+							"nodeName": "https:\/\/signunder-staging-api.fly.dev\/proxy\/replicate\/v1\/predictions\/",
+							"method": "POST",
+							"param": "",
+							"attack": "",
+							"evidence": "429",
+							"otherinfo": ""
+						},
+						{
+							"id": "35",
+							"uri": "https://signunder-staging-api.fly.dev/proxy/replicate/v1/predictions/id/cancel",
+							"nodeName": "https:\/\/signunder-staging-api.fly.dev\/proxy\/replicate\/v1\/predictions\/id\/cancel",
+							"method": "POST",
+							"param": "",
+							"attack": "",
+							"evidence": "401",
+							"otherinfo": ""
+						},
+						{
+							"id": "822",
+							"uri": "https://signunder-staging-api.fly.dev/proxy/replicate/v1/predictions/id/cancel/",
+							"nodeName": "https:\/\/signunder-staging-api.fly.dev\/proxy\/replicate\/v1\/predictions\/id\/cancel\/",
+							"method": "POST",
+							"param": "",
+							"attack": "",
+							"evidence": "429",
+							"otherinfo": ""
+						},
+						{
+							"id": "110",
+							"uri": "https://signunder-staging-api.fly.dev/v1/sign",
+							"nodeName": "https:\/\/signunder-staging-api.fly.dev\/v1\/sign ()(multipart:file)",
+							"method": "POST",
+							"param": "",
+							"attack": "",
+							"evidence": "400",
+							"otherinfo": ""
+						},
+						{
+							"id": "0",
+							"uri": "https://signunder-staging-api.fly.dev/v1/sign",
+							"nodeName": "https:\/\/signunder-staging-api.fly.dev\/v1\/sign ()(multipart:file)",
+							"method": "POST",
+							"param": "",
+							"attack": "",
+							"evidence": "415",
+							"otherinfo": ""
+						},
+						{
+							"id": "395",
+							"uri": "https://signunder-staging-api.fly.dev/v1/sign",
+							"nodeName": "https:\/\/signunder-staging-api.fly.dev\/v1\/sign ()(multipart:file)",
+							"method": "POST",
+							"param": "",
+							"attack": "",
+							"evidence": "429",
+							"otherinfo": ""
+						},
+						{
+							"id": "1014",
+							"uri": "https://signunder-staging-api.fly.dev/v1/sign",
+							"nodeName": "https:\/\/signunder-staging-api.fly.dev\/v1\/sign ()(multipart:rtobject)",
+							"method": "POST",
+							"param": "",
+							"attack": "",
+							"evidence": "429",
+							"otherinfo": ""
+						},
+						{
+							"id": "826",
+							"uri": "https://signunder-staging-api.fly.dev/v1/sign/",
+							"nodeName": "https:\/\/signunder-staging-api.fly.dev\/v1\/sign\/ ()(multipart:file)",
+							"method": "POST",
+							"param": "",
+							"attack": "",
+							"evidence": "429",
+							"otherinfo": ""
+						},
+						{
+							"id": "109",
+							"uri": "https://signunder-staging-api.fly.dev/v1/verify",
+							"nodeName": "https:\/\/signunder-staging-api.fly.dev\/v1\/verify ()(multipart:file)",
+							"method": "POST",
+							"param": "",
+							"attack": "",
+							"evidence": "400",
+							"otherinfo": ""
+						},
+						{
+							"id": "1",
+							"uri": "https://signunder-staging-api.fly.dev/v1/verify",
+							"nodeName": "https:\/\/signunder-staging-api.fly.dev\/v1\/verify ()(multipart:file)",
+							"method": "POST",
+							"param": "",
+							"attack": "",
+							"evidence": "415",
+							"otherinfo": ""
+						},
+						{
+							"id": "400",
+							"uri": "https://signunder-staging-api.fly.dev/v1/verify",
+							"nodeName": "https:\/\/signunder-staging-api.fly.dev\/v1\/verify ()(multipart:file)",
+							"method": "POST",
+							"param": "",
+							"attack": "",
+							"evidence": "429",
+							"otherinfo": ""
+						},
+						{
+							"id": "1015",
+							"uri": "https://signunder-staging-api.fly.dev/v1/verify",
+							"nodeName": "https:\/\/signunder-staging-api.fly.dev\/v1\/verify ()(multipart:rtobject)",
+							"method": "POST",
+							"param": "",
+							"attack": "",
+							"evidence": "429",
+							"otherinfo": ""
+						},
+						{
+							"id": "824",
+							"uri": "https://signunder-staging-api.fly.dev/v1/verify/",
+							"nodeName": "https:\/\/signunder-staging-api.fly.dev\/v1\/verify\/ ()(multipart:file)",
+							"method": "POST",
+							"param": "",
+							"attack": "",
+							"evidence": "429",
+							"otherinfo": ""
+						},
+						{
+							"id": "16",
+							"uri": "https://signunder-staging-api.fly.dev/proxy/fal/queue/path",
+							"nodeName": "https:\/\/signunder-staging-api.fly.dev\/proxy\/fal\/queue\/path",
+							"method": "PUT",
+							"param": "",
+							"attack": "",
+							"evidence": "404",
+							"otherinfo": ""
+						},
+						{
+							"id": "819",
+							"uri": "https://signunder-staging-api.fly.dev/proxy/fal/queue/path/",
+							"nodeName": "https:\/\/signunder-staging-api.fly.dev\/proxy\/fal\/queue\/path\/",
+							"method": "PUT",
+							"param": "",
+							"attack": "",
+							"evidence": "429",
+							"otherinfo": ""
+						}
+					],
+					"count": "79",
+					"systemic": false,
+					"solution": "",
+					"otherinfo": "",
+					"reference": "",
+					"cweid": "388",
+					"wascid": "20",
+					"sourceid": "620"
+				},
+				{
+					"pluginid": "10049",
+					"alertRef": "10049-1",
+					"alert": "Non-Storable Content",
+					"name": "Non-Storable Content",
+					"riskcode": "0",
+					"confidence": "2",
+					"riskdesc": "Informational (Medium)",
+					"desc": "<p>The response contents are not storable by caching components such as proxy servers. If the response does not contain sensitive, personal or user-specific information, it may benefit from being stored and cached, to improve performance.</p>",
+					"instances":[ 
+						{
+							"id": "12",
+							"uri": "https://signunder-staging-api.fly.dev/healthz",
+							"nodeName": "https:\/\/signunder-staging-api.fly.dev\/healthz",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "no-store",
+							"otherinfo": ""
+						},
+						{
+							"id": "9",
+							"uri": "https://signunder-staging-api.fly.dev/readyz",
+							"nodeName": "https:\/\/signunder-staging-api.fly.dev\/readyz",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "no-store",
+							"otherinfo": ""
+						},
+						{
+							"id": "26",
+							"uri": "https://signunder-staging-api.fly.dev/proxy/fal/queue/path",
+							"nodeName": "https:\/\/signunder-staging-api.fly.dev\/proxy\/fal\/queue\/path",
+							"method": "POST",
+							"param": "",
+							"attack": "",
+							"evidence": "no-store",
+							"otherinfo": ""
+						},
+						{
+							"id": "10",
+							"uri": "https://signunder-staging-api.fly.dev/v1/sign",
+							"nodeName": "https:\/\/signunder-staging-api.fly.dev\/v1\/sign ()(multipart:file)",
+							"method": "POST",
+							"param": "",
+							"attack": "",
+							"evidence": "no-store",
+							"otherinfo": ""
+						},
+						{
+							"id": "11",
+							"uri": "https://signunder-staging-api.fly.dev/v1/verify",
+							"nodeName": "https:\/\/signunder-staging-api.fly.dev\/v1\/verify ()(multipart:file)",
+							"method": "POST",
+							"param": "",
+							"attack": "",
+							"evidence": "no-store",
+							"otherinfo": ""
+						}
+					],
+					"count": "5",
+					"systemic": true,
+					"solution": "<p>The content may be marked as storable by ensuring that the following conditions are satisfied:</p><p>The request method must be understood by the cache and defined as being cacheable (\"GET\", \"HEAD\", and \"POST\" are currently defined as cacheable)</p><p>The response status code must be understood by the cache (one of the 1XX, 2XX, 3XX, 4XX, or 5XX response classes are generally understood)</p><p>The \"no-store\" cache directive must not appear in the request or response header fields</p><p>For caching by \"shared\" caches such as \"proxy\" caches, the \"private\" response directive must not appear in the response</p><p>For caching by \"shared\" caches such as \"proxy\" caches, the \"Authorization\" header field must not appear in the request, unless the response explicitly allows it (using one of the \"must-revalidate\", \"public\", or \"s-maxage\" Cache-Control response directives)</p><p>In addition to the conditions above, at least one of the following conditions must also be satisfied by the response:</p><p>It must contain an \"Expires\" header field</p><p>It must contain a \"max-age\" response directive</p><p>For \"shared\" caches such as \"proxy\" caches, it must contain a \"s-maxage\" response directive</p><p>It must contain a \"Cache Control Extension\" that allows it to be cached</p><p>It must have a status code that is defined as cacheable by default (200, 203, 204, 206, 300, 301, 404, 405, 410, 414, 501).</p>",
+					"otherinfo": "",
+					"reference": "<p>https://datatracker.ietf.org/doc/html/rfc7234</p><p>https://datatracker.ietf.org/doc/html/rfc7231</p><p>https://www.w3.org/Protocols/rfc2616/rfc2616-sec13.html</p>",
+					"cweid": "524",
+					"wascid": "13",
+					"sourceid": "1"
+				},
+				{
+					"pluginid": "10015",
+					"alertRef": "10015",
+					"alert": "Re-examine Cache-control Directives",
+					"name": "Re-examine Cache-control Directives",
+					"riskcode": "0",
+					"confidence": "1",
+					"riskdesc": "Informational (Low)",
+					"desc": "<p>The cache-control header has not been set properly or is missing, allowing the browser and proxies to cache content. For static assets like css, js, or image files this might be intended, however, the resources should be reviewed to ensure that no sensitive content will be cached.</p>",
+					"instances":[ 
+						{
+							"id": "4",
+							"uri": "https://signunder-staging-api.fly.dev/healthz",
+							"nodeName": "https:\/\/signunder-staging-api.fly.dev\/healthz",
+							"method": "GET",
+							"param": "cache-control",
+							"attack": "",
+							"evidence": "no-store",
+							"otherinfo": ""
+						},
+						{
+							"id": "3",
+							"uri": "https://signunder-staging-api.fly.dev/readyz",
+							"nodeName": "https:\/\/signunder-staging-api.fly.dev\/readyz",
+							"method": "GET",
+							"param": "cache-control",
+							"attack": "",
+							"evidence": "no-store",
+							"otherinfo": ""
+						}
+					],
+					"count": "2",
+					"systemic": false,
+					"solution": "<p>For secure content, ensure the cache-control HTTP header is set with \"no-cache, no-store, must-revalidate\". If an asset should be cached consider setting the directives \"public, max-age, immutable\".</p>",
+					"otherinfo": "",
+					"reference": "<p>https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html#web-content-caching</p><p>https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Cache-Control</p><p>https://grayduck.mn/2021/09/13/cache-control-recommendations/</p>",
+					"cweid": "525",
+					"wascid": "13",
+					"sourceid": "1"
+				}
+			]
+		}
+	],
+	"sequences":[
+	]
+
+}

@@ -20,6 +20,13 @@ public class HardeningTests(ApiFactory api) : IClassFixture<ApiFactory>
         Assert.Equal("nosniff", health.Headers.GetValues("X-Content-Type-Options").Single());
         Assert.Equal("same-origin", health.Headers.GetValues("Cross-Origin-Resource-Policy").Single());
         Assert.False(health.Headers.CacheControl?.NoStore ?? false);
+        Assert.False(health.Headers.Contains("Strict-Transport-Security"));
+
+        // Over HTTPS, browsers are told to stay on HTTPS.
+        var https = api.ClientWithKey(null);
+        https.BaseAddress = new Uri("https://localhost");
+        var secure = await https.GetAsync("/healthz");
+        Assert.Equal("max-age=31536000; includeSubDomains", secure.Headers.GetValues("Strict-Transport-Security").Single());
 
         // Signed copies are meant to be embedded by customers' pages elsewhere.
         var media = await api.ClientWithKey(null).GetAsync("/media/01ARZ3NDEKTSV4RRFFQ69G5FAV");

@@ -19,6 +19,9 @@ the same day).
   - Before fixes: 117 checks passed and 2 warned (missing `X-Content-Type-Options` and `Cross-Origin-Resource-Policy`).
   - After fixes: **119 passed, 0 warnings, 0 failures**. Report: `evidence/zap-api-scan-2026-10-14.html` (and `.json`).
 - **Code review:** each category below, against the source and the automated tests.
+- **Staging scan, 15 October 2026:** the same scan against `https://signunder-staging-api.fly.dev` (ADR 0012), through Fly.io's edge, with the description from the local build and the staging key sent as `X-SignUnder-Key` (so proxy calls reached fal and Replicate without credentials and cost nothing).
+  - First run: 117 passed, 3 warnings. Strict-Transport-Security was missing (finding 7, fixed).
+  - After the fix: **118 passed, 0 failures, 2 warnings**, both accepted below. Report: `evidence/zap-api-scan-staging-2026-10-15.html` (and `.json`).
 - **Not done:** a manual penetration test, or a scan of the production deployment (not yet deployed).
 
 ## Findings fixed in this review
@@ -31,6 +34,11 @@ the same day).
 | 4 | No rate limiting | A06 | Fixed window per API key, `RateLimit:PerKeyPerMinute` (default 300); per address for callers without a key; 429 with `Retry-After: 60` | `RateLimitTests.Each_api_key_has_its_own_limit` |
 | 5 | Refused API keys were not logged | A09 | Each refusal logged with reason, path and address (never the key) | — |
 | 6 | Unhandled exceptions outside Development had no defined response | A10 | `UseExceptionHandler` with problem details: a bare 500, no stack trace | — |
+| 7 | No `Strict-Transport-Security` on staging (ZAP 10035) | A02, A04 | `max-age=31536000; includeSubDomains` on every HTTPS response | `HardeningTests.Responses_carry_the_security_headers`; staging rescan clean |
+
+**Accepted from the staging scan:**
+- *Server version in the `Server` header (ZAP 10036):* the header is `Fly/<build>`, Fly.io's edge proxy, not the API, which sends none. Fly.io offers no setting to remove it (UNVERIFIED).
+- *Unexpected content type (ZAP 100001):* `text/html` 400s to ZAP's cloud-metadata probes, which send a foreign `Host` header. They are the API's host filtering (`AllowedHosts`) refusing the request, as intended.
 
 ## Category by category
 
@@ -94,4 +102,4 @@ the same day).
 - Set `AllowedHosts` for production. Whether the edge should refuse TLS 1.2, which Fly.io does not appear to offer a setting for (UNVERIFIED).
 - Alerting and central logs.
 - Quotas by tier.
-- Repeat this review and the ZAP scan against the deployed staging environment.
+- Repeat the ZAP scan against production once it is deployed.
