@@ -16,7 +16,7 @@ use c2pa::{CallbackSigner, SigningAlg};
 use google_cloud_kms_v1::client::KeyManagementService;
 use sha2::{Digest, Sha256};
 use tokio::runtime::Handle;
-use tokio::sync::OnceCell;
+use tokio::sync::RwLock;
 use tonic::Status;
 use x509_parser::pem::parse_x509_pem;
 
@@ -49,8 +49,9 @@ impl Backend {
 /// KMS access shared by every request.
 pub struct Kms {
     aws: aws_sdk_kms::Client,
-    /// Built on first use, so a process that never sees a Google key needs no Google credentials.
-    google: OnceCell<KeyManagementService>,
+    /// Built on first use, so a process that never sees a Google key needs no Google
+    /// credentials, and rebuilt when Google stops accepting its access token.
+    google: RwLock<Option<KeyManagementService>>,
     /// Public keys (DER SubjectPublicKeyInfo) by key reference. A key version's public key
     /// never changes, so entries are kept for the life of the process.
     public_keys: Mutex<HashMap<String, Vec<u8>>>,
@@ -63,20 +64,58 @@ impl Kms {
         let config = aws_config::load_defaults(aws_config::BehaviorVersion::latest()).await;
         Self {
             aws: aws_sdk_kms::Client::new(&config),
-            google: OnceCell::new(),
+            google: RwLock::new(None),
             public_keys: Mutex::default(),
         }
     }
 
-    async fn google(&self) -> Result<&KeyManagementService, Status> {
-        self.google
-            .get_or_try_init(|| async {
-                KeyManagementService::builder()
-                    .build()
-                    .await
-                    .map_err(|e| Status::unavailable(format!("Google Cloud KMS client: {e}")))
-            })
+    async fn google(&self) -> Result<KeyManagementService, Status> {
+        if let Some(client) = self.google.read().await.as_ref() {
+            return Ok(client.clone());
+        }
+        let mut slot = self.google.write().await;
+        if let Some(client) = slot.as_ref() {
+            return Ok(client.clone());
+        }
+        let unavailable = |e: String| Status::unavailable(format!("Google Cloud KMS client: {e}"));
+        let mut builder = KeyManagementService::builder();
+        if let Some(credentials) = crate::fly_identity::credentials_from_env() {
+            builder = builder.with_credentials(credentials.map_err(unavailable)?);
+        }
+        let client = builder
+            .build()
             .await
+            .map_err(|e| unavailable(e.to_string()))?;
+        *slot = Some(client.clone());
+        Ok(client)
+    }
+
+    /// Runs a Cloud KMS call. If Google rejects the access token, builds a new client
+    /// and tries once more: after a long suspension the cached token has expired, but the
+    /// auth library times expiry on a clock that stopped while the machine slept, so it
+    /// keeps offering the token (ADR 0012).
+    async fn with_google<T, F, Fut>(
+        &self,
+        call: &str,
+        key_ref: &str,
+        request: F,
+    ) -> Result<T, Status>
+    where
+        F: Fn(KeyManagementService) -> Fut,
+        Fut: Future<Output = Result<T, google_cloud_kms_v1::Error>>,
+    {
+        match request(self.google().await?).await {
+            Err(e) if is_unauthenticated(&e) => {
+                println!(
+                    "Cloud KMS {call}: access token refused; building a new client and retrying"
+                );
+                *self.google.write().await = None;
+                request(self.google().await?)
+                    .await
+                    .map_err(|e| google_status(call, key_ref, &e))
+            }
+            result => result.map_err(|e| google_status(call, key_ref, &e)),
+        }
     }
 
     fn backend(key_ref: &str) -> Result<Backend, Status> {
@@ -114,13 +153,10 @@ impl Kms {
             }
             Backend::GoogleCloud => {
                 let reply = self
-                    .google()
-                    .await?
-                    .get_public_key()
-                    .set_name(key_ref)
-                    .send()
-                    .await
-                    .map_err(|e| google_status("GetPublicKey", key_ref, &e))?;
+                    .with_google("GetPublicKey", key_ref, |client| async move {
+                        client.get_public_key().set_name(key_ref).send().await
+                    })
+                    .await?;
                 pem::parse(&reply.pem)
                     .map_err(|e| Status::internal(format!("Cloud KMS public key: {e}")))?
                     .into_contents()
@@ -161,16 +197,18 @@ impl Kms {
             }
             Backend::GoogleCloud => {
                 let reply = self
-                    .google()
-                    .await?
-                    .asymmetric_sign()
-                    .set_name(key_ref)
-                    .set_digest(
-                        google_cloud_kms_v1::model::Digest::new().set_sha256(digest.to_vec()),
-                    )
-                    .send()
-                    .await
-                    .map_err(|e| google_status("AsymmetricSign", key_ref, &e))?;
+                    .with_google("AsymmetricSign", key_ref, |client| async move {
+                        client
+                            .asymmetric_sign()
+                            .set_name(key_ref)
+                            .set_digest(
+                                google_cloud_kms_v1::model::Digest::new()
+                                    .set_sha256(digest.to_vec()),
+                            )
+                            .send()
+                            .await
+                    })
+                    .await?;
                 Ok(reply.signature.to_vec())
             }
         }
@@ -234,6 +272,11 @@ impl Kms {
             None => signer,
         })
     }
+}
+
+fn is_unauthenticated(e: &google_cloud_kms_v1::Error) -> bool {
+    e.status().map(|status| status.code)
+        == Some(google_cloud_gax::error::rpc::Code::Unauthenticated)
 }
 
 fn google_status(call: &str, key_ref: &str, e: &google_cloud_kms_v1::Error) -> Status {
