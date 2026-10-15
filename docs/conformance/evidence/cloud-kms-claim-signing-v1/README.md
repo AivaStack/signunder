@@ -28,9 +28,13 @@ With Google's scripts from `GoogleCloudPlatform/python-docs-samples`, `kms/attes
 | `verify_attestation.py` with `chain-cavium.pem` | Signature verified |
 | `verify_attestation.py` with `chain-google-partition.pem` | Signature verified |
 | `verify_attestation.py` with `chain-google-card.pem` | Fails, as expected: the partition signs attestations, not the card |
-| `verify_attestation_chains.py` | **Not run to the end.** It downloads the HSM maker's root certificate from marvell.com, which refuses scripted downloads (HTTP 403) |
+| `verify_attestation_chains.py` | **The attestation has been verified**: both certificate chains built, and both partitions' signatures check. Run with Marvell's root read from a copy of `liquid_security_certificate.zip` downloaded in a browser (marvell.com refuses scripted downloads with HTTP 403); the script's download function was replaced by one reading that file, and nothing else was changed. Control: with one byte of the attestation altered, the same run fails |
 
-Checked separately, because of the gap:
+Marvell's root in that zip: `CN=localca.liquidsecurity.cavium.com`, SHA-256 fingerprint
+`97:57:57:F0:…:CC:28` (zip SHA-256 `ea68f351…ba1858`). It expired on 16 Nov 2025. Google's
+script checks signatures, not validity dates, and Marvell still publishes this file as the root.
+
+Also checked on their own:
 
 | Check | Result |
 |---|---|
@@ -40,13 +44,10 @@ Checked separately, because of the gap:
 | Google's and Cavium's certificates are for the same card key and the same partition key | Yes, both |
 | The attestation is about this key | The key version's public point (`04‖X‖Y`, from `public-key.pem`) appears in the decompressed attestation |
 
-Not yet checked:
-- That Marvell's root (`localca.liquidsecurity.cavium.com`) issued the Cavium card certificate.
-- The key attributes inside the attestation, such as non-extractable.
-
-These are the remaining steps that make the files evidence that the key was generated in a
-Marvell HSM and cannot be extracted (Cloud KMS documentation, "Verifying attestations",
-read 15 Oct 2026).
+Together these show that an HSM certified by its maker (Marvell, formerly Cavium) and by Google
+signed a statement about this key version. Not checked: the key attributes inside the
+attestation, such as non-extractable; Google's scripts do not parse them (Cloud KMS
+documentation, "Verifying attestations", read 15 Oct 2026).
 
 Checked on 15 October 2026, acting as the sidecar's service account `signunder-signer`:
 reading the public key and signing a digest work (openssl verifies the signature with
