@@ -1,78 +1,188 @@
-//! A c2pa-rs signer whose private key stays in AWS KMS: each signature is one KMS
-//! `Sign` call (SIGNUNDER.md §4.5).
+//! A c2pa-rs signer whose private key stays in a cloud KMS: each signature is one KMS
+//! signing call on a digest (SIGNUNDER.md §4.5, ADR 0004, ADR 0011).
+//!
+//! Two backends, chosen by the key reference:
+//! - **Google Cloud KMS** (`projects/…/cryptoKeyVersions/N`), the production signer;
+//! - **AWS KMS API** (`arn:aws:kms:…`), used only against the local-kms emulator in the
+//!   local stack and CI. No AWS account is involved.
 
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 
-use aws_sdk_kms::Client;
 use aws_sdk_kms::error::DisplayErrorContext;
 use aws_sdk_kms::primitives::Blob;
 use aws_sdk_kms::types::{MessageType, SigningAlgorithmSpec};
 use c2pa::{CallbackSigner, SigningAlg};
+use google_cloud_kms_v1::client::KeyManagementService;
 use sha2::{Digest, Sha256};
 use tokio::runtime::Handle;
+use tokio::sync::OnceCell;
 use tonic::Status;
 use x509_parser::pem::parse_x509_pem;
 
-/// `SignerRef.key_ref` values with this prefix are KMS key ARNs.
-pub const KEY_ARN_PREFIX: &str = "arn:aws:kms:";
+/// Which KMS holds a key, from its reference.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Backend {
+    /// A Google Cloud KMS key version: `projects/P/locations/L/keyRings/R/cryptoKeys/K/cryptoKeyVersions/N`.
+    GoogleCloud,
+    /// An AWS KMS key ARN, as served by the local-kms emulator.
+    AwsApi,
+}
+
+impl Backend {
+    pub fn of(key_ref: &str) -> Option<Self> {
+        if key_ref.starts_with("arn:aws:kms:") {
+            return Some(Self::AwsApi);
+        }
+        let parts: Vec<&str> = key_ref.split('/').collect();
+        let google = parts.len() == 10
+            && parts[0] == "projects"
+            && parts[2] == "locations"
+            && parts[4] == "keyRings"
+            && parts[6] == "cryptoKeys"
+            && parts[8] == "cryptoKeyVersions"
+            && parts.iter().all(|part| !part.is_empty());
+        google.then_some(Self::GoogleCloud)
+    }
+}
 
 /// KMS access shared by every request.
 pub struct Kms {
-    client: Client,
-    /// Public keys (DER SubjectPublicKeyInfo) by key ARN. A KMS key's public key never
-    /// changes, so entries are kept for the life of the process.
+    aws: aws_sdk_kms::Client,
+    /// Built on first use, so a process that never sees a Google key needs no Google credentials.
+    google: OnceCell<KeyManagementService>,
+    /// Public keys (DER SubjectPublicKeyInfo) by key reference. A key version's public key
+    /// never changes, so entries are kept for the life of the process.
     public_keys: Mutex<HashMap<String, Vec<u8>>>,
 }
 
 impl Kms {
-    /// Region, credentials and (for the local-kms emulator) `AWS_ENDPOINT_URL` come from
-    /// the environment. Nothing is resolved until the first call.
+    /// AWS settings (for the emulator) come from the environment; Google credentials come
+    /// from Application Default Credentials when a Google key is first used.
     pub async fn from_env() -> Self {
         let config = aws_config::load_defaults(aws_config::BehaviorVersion::latest()).await;
         Self {
-            client: Client::new(&config),
+            aws: aws_sdk_kms::Client::new(&config),
+            google: OnceCell::new(),
             public_keys: Mutex::default(),
         }
     }
 
-    async fn public_key(&self, key_arn: &str) -> Result<Vec<u8>, Status> {
-        if let Some(key) = self.public_keys.lock().unwrap().get(key_arn) {
+    async fn google(&self) -> Result<&KeyManagementService, Status> {
+        self.google
+            .get_or_try_init(|| async {
+                KeyManagementService::builder()
+                    .build()
+                    .await
+                    .map_err(|e| Status::unavailable(format!("Google Cloud KMS client: {e}")))
+            })
+            .await
+    }
+
+    fn backend(key_ref: &str) -> Result<Backend, Status> {
+        Backend::of(key_ref).ok_or_else(|| {
+            Status::invalid_argument(format!("{key_ref:?} is not a KMS key reference"))
+        })
+    }
+
+    /// The key's public half as DER SubjectPublicKeyInfo.
+    pub async fn public_key(&self, key_ref: &str) -> Result<Vec<u8>, Status> {
+        if let Some(key) = self.public_keys.lock().unwrap().get(key_ref) {
             return Ok(key.clone());
         }
-        let reply = self
-            .client
-            .get_public_key()
-            .key_id(key_arn)
-            .send()
-            .await
-            .map_err(|e| match e.as_service_error() {
-                Some(e) if e.is_not_found_exception() => {
-                    Status::not_found(format!("KMS key {key_arn} does not exist"))
-                }
-                _ => Status::unavailable(format!(
-                    "KMS GetPublicKey for {key_arn}: {}",
-                    DisplayErrorContext(&e)
-                )),
-            })?;
-        let key = reply
-            .public_key
-            .map(Blob::into_inner)
-            .ok_or_else(|| Status::internal("KMS returned no public key"))?;
+        let key = match Self::backend(key_ref)? {
+            Backend::AwsApi => {
+                let reply = self
+                    .aws
+                    .get_public_key()
+                    .key_id(key_ref)
+                    .send()
+                    .await
+                    .map_err(|e| match e.as_service_error() {
+                        Some(e) if e.is_not_found_exception() => {
+                            Status::not_found(format!("KMS key {key_ref} does not exist"))
+                        }
+                        _ => Status::unavailable(format!(
+                            "KMS GetPublicKey for {key_ref}: {}",
+                            DisplayErrorContext(&e)
+                        )),
+                    })?;
+                reply
+                    .public_key
+                    .map(Blob::into_inner)
+                    .ok_or_else(|| Status::internal("KMS returned no public key"))?
+            }
+            Backend::GoogleCloud => {
+                let reply = self
+                    .google()
+                    .await?
+                    .get_public_key()
+                    .set_name(key_ref)
+                    .send()
+                    .await
+                    .map_err(|e| google_status("GetPublicKey", key_ref, &e))?;
+                pem::parse(&reply.pem)
+                    .map_err(|e| Status::internal(format!("Cloud KMS public key: {e}")))?
+                    .into_contents()
+            }
+        };
         self.public_keys
             .lock()
             .unwrap()
-            .insert(key_arn.to_owned(), key.clone());
+            .insert(key_ref.to_owned(), key.clone());
         Ok(key)
     }
 
-    /// Builds a signer for the KMS key `key_arn`, presenting `cert_chain_pem` (signing
+    /// Signs a SHA-256 digest with ECDSA P-256 and returns the DER-encoded signature.
+    /// Both services take the digest rather than the data (AWS limits raw messages to
+    /// 4096 bytes).
+    pub async fn sign_digest(&self, key_ref: &str, digest: &[u8; 32]) -> Result<Vec<u8>, Status> {
+        match Self::backend(key_ref)? {
+            Backend::AwsApi => {
+                let reply = self
+                    .aws
+                    .sign()
+                    .key_id(key_ref)
+                    .signing_algorithm(SigningAlgorithmSpec::EcdsaSha256)
+                    .message_type(MessageType::Digest)
+                    .message(Blob::new(digest.to_vec()))
+                    .send()
+                    .await
+                    .map_err(|e| {
+                        Status::unavailable(format!(
+                            "KMS Sign with {key_ref}: {}",
+                            DisplayErrorContext(&e)
+                        ))
+                    })?;
+                reply
+                    .signature
+                    .map(Blob::into_inner)
+                    .ok_or_else(|| Status::internal("KMS returned no signature"))
+            }
+            Backend::GoogleCloud => {
+                let reply = self
+                    .google()
+                    .await?
+                    .asymmetric_sign()
+                    .set_name(key_ref)
+                    .set_digest(
+                        google_cloud_kms_v1::model::Digest::new().set_sha256(digest.to_vec()),
+                    )
+                    .send()
+                    .await
+                    .map_err(|e| google_status("AsymmetricSign", key_ref, &e))?;
+                Ok(reply.signature.to_vec())
+            }
+        }
+    }
+
+    /// Builds a signer for the KMS key `key_ref`, presenting `cert_chain_pem` (signing
     /// certificate first), after checking that the certificate is for that key. The
     /// signer and this call block on `runtime`, so use both from a blocking thread.
     pub fn signer(
         self: &Arc<Self>,
         runtime: Handle,
-        key_arn: String,
+        key_ref: String,
         algorithm: &str,
         cert_chain_pem: &str,
         tsa_url: Option<String>,
@@ -90,6 +200,7 @@ impl Kms {
                 )));
             }
         }
+        Self::backend(&key_ref)?;
 
         let bad_chain = || {
             Status::invalid_argument(
@@ -98,31 +209,23 @@ impl Kms {
         };
         let (_, leaf) = parse_x509_pem(cert_chain_pem.as_bytes()).map_err(|_| bad_chain())?;
         let leaf = leaf.parse_x509().map_err(|_| bad_chain())?;
-        if leaf.public_key().raw != runtime.block_on(self.public_key(&key_arn))? {
+        if leaf.public_key().raw != runtime.block_on(self.public_key(&key_ref))? {
             return Err(Status::failed_precondition(format!(
-                "the signing certificate is not for KMS key {key_arn}"
+                "the signing certificate is not for KMS key {key_ref}"
             )));
         }
 
-        let client = self.client.clone();
+        let kms = Arc::clone(self);
         let sign = move |_context: *const (), data: &[u8]| {
-            // KMS takes at most 4096 bytes of raw message, so it gets the digest.
-            let request = client
-                .sign()
-                .key_id(&key_arn)
-                .signing_algorithm(SigningAlgorithmSpec::EcdsaSha256)
-                .message_type(MessageType::Digest)
-                .message(Blob::new(Sha256::digest(data).to_vec()))
-                .send();
-            let reply = runtime.block_on(request).map_err(|e| {
-                let message = format!("KMS Sign with {key_arn}: {}", DisplayErrorContext(&e));
-                c2pa::Error::OtherError(Box::new(std::io::Error::other(message)))
-            })?;
+            let digest: [u8; 32] = Sha256::digest(data).into();
             // DER-encoded ECDSA; c2pa-rs converts it to the fixed-width form COSE wants.
-            reply
-                .signature
-                .map(Blob::into_inner)
-                .ok_or_else(|| c2pa::Error::BadParam("KMS returned no signature".into()))
+            runtime
+                .block_on(kms.sign_digest(&key_ref, &digest))
+                .map_err(|status| {
+                    c2pa::Error::OtherError(Box::new(std::io::Error::other(
+                        status.message().to_owned(),
+                    )))
+                })
         };
 
         let signer = CallbackSigner::new(sign, SigningAlg::Es256, cert_chain_pem);
@@ -130,6 +233,18 @@ impl Kms {
             Some(url) => signer.set_tsa_url(url),
             None => signer,
         })
+    }
+}
+
+fn google_status(call: &str, key_ref: &str, e: &google_cloud_kms_v1::Error) -> Status {
+    match e.status().map(|status| status.code) {
+        Some(google_cloud_gax::error::rpc::Code::NotFound) => {
+            Status::not_found(format!("Cloud KMS key {key_ref} does not exist"))
+        }
+        Some(google_cloud_gax::error::rpc::Code::PermissionDenied) => {
+            Status::permission_denied(format!("Cloud KMS {call} on {key_ref}: permission denied"))
+        }
+        _ => Status::unavailable(format!("Cloud KMS {call} on {key_ref}: {e}")),
     }
 }
 
@@ -203,6 +318,52 @@ mod tests {
         assert_eq!(status.code(), tonic::Code::FailedPrecondition, "{status}");
     }
 
+    /// Signs through a real Google Cloud KMS key version and verifies the signature with the
+    /// key's public half. Set `SIGNUNDER_TEST_GCP_KEY` to the key version's resource name
+    /// and log in with `gcloud auth application-default login`.
+    #[test]
+    #[ignore = "needs a Cloud KMS key version in SIGNUNDER_TEST_GCP_KEY"]
+    fn google_cloud_key_signs_a_digest_that_verifies() {
+        let key = std::env::var("SIGNUNDER_TEST_GCP_KEY").expect("SIGNUNDER_TEST_GCP_KEY");
+        crate::internal_tls::install_crypto_provider();
+        let runtime = tokio::runtime::Runtime::new().unwrap();
+        let kms = runtime.block_on(Kms::from_env());
+        let message = b"SignUnder Cloud KMS test";
+        let digest: [u8; 32] = Sha256::digest(message).into();
+
+        let spki = runtime.block_on(kms.public_key(&key)).unwrap();
+        let signature = runtime.block_on(kms.sign_digest(&key, &digest)).unwrap();
+
+        let (_, spki) =
+            <x509_parser::x509::SubjectPublicKeyInfo as x509_parser::prelude::FromDer<_>>::from_der(&spki)
+                .unwrap();
+        ring::signature::UnparsedPublicKey::new(
+            &ring::signature::ECDSA_P256_SHA256_ASN1,
+            spki.subject_public_key.data.as_ref(),
+        )
+        .verify(message, &signature)
+        .expect("Cloud KMS's signature verifies with its public key");
+    }
+
+    #[test]
+    fn key_references_choose_the_backend() {
+        assert_eq!(Backend::of(KEY_ARN), Some(Backend::AwsApi));
+        assert_eq!(
+            Backend::of(
+                "projects/signunder-prod/locations/europe-west3/keyRings/signunder/cryptoKeys/claim-signing/cryptoKeyVersions/1"
+            ),
+            Some(Backend::GoogleCloud)
+        );
+        for bad in [
+            "dev:local",
+            "projects/p/locations/l/keyRings/r/cryptoKeys/k",
+            "projects//locations/l/keyRings/r/cryptoKeys/k/cryptoKeyVersions/1",
+            "projects/p/locations/l/keyRings/r/cryptoKeys/k/cryptoKeyVersions/1/extra",
+        ] {
+            assert_eq!(Backend::of(bad), None, "{bad}");
+        }
+    }
+
     #[test]
     fn rejects_bad_requests_before_calling_kms() {
         let runtime = tokio::runtime::Runtime::new().unwrap();
@@ -223,5 +384,16 @@ mod tests {
         assert_eq!(build("es256", "not pem"), tonic::Code::InvalidArgument);
         assert_eq!(build("rs256", CHAIN), tonic::Code::InvalidArgument);
         assert_eq!(build("ps256", CHAIN), tonic::Code::Unimplemented);
+        let not_a_key = kms
+            .signer(
+                runtime.handle().clone(),
+                "dev:local".into(),
+                "es256",
+                CHAIN,
+                None,
+            )
+            .err()
+            .unwrap();
+        assert_eq!(not_a_key.code(), tonic::Code::InvalidArgument);
     }
 }

@@ -3,7 +3,7 @@ SIDECAR := src/sign-sidecar/Cargo.toml
 
 WORKER := src/wm-worker
 
-.PHONY: up down logs build test test-kms robustness fmt sample conformance scan
+.PHONY: up down logs build test test-kms test-gcp robustness fmt sample conformance scan
 
 up: ## Build and start the local stack
 	$(COMPOSE) up --build -d --wait
@@ -31,7 +31,10 @@ test-kms: ## Sidecar tests that sign through the local-kms emulator (needs Docke
 	$(COMPOSE) up -d --wait local-kms
 	AWS_ENDPOINT_URL=http://localhost:4599 AWS_REGION=eu-central-1 \
 	AWS_ACCESS_KEY_ID=local AWS_SECRET_ACCESS_KEY=local \
-	cargo test --manifest-path $(SIDECAR) --bins -- --ignored
+	cargo test --manifest-path $(SIDECAR) -- --ignored --skip google_cloud
+
+test-gcp: ## Sign through a real Cloud KMS key: SIGNUNDER_TEST_GCP_KEY=projects/.../cryptoKeyVersions/1
+	cargo test --manifest-path $(SIDECAR) -- --ignored google_cloud
 
 fmt:
 	dotnet format Signunder.sln

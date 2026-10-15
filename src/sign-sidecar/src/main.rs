@@ -6,18 +6,15 @@ use tokio::signal::unix::{SignalKind, signal};
 use tonic::service::interceptor::InterceptedService;
 use tonic::{Request, Response, Status, transport::Server};
 
-mod internal_tls;
-mod kms;
-mod provenance;
-
 pub mod pb {
     tonic::include_proto!("signunder.sign.v1");
 }
 
-use kms::{KEY_ARN_PREFIX, Kms};
 use pb::sign_service_server::{SignService, SignServiceServer};
 use pb::{SignRequest, SignResponse, SignerRef, ValidateRequest, ValidateResponse};
 use provenance::{DEV_KEY_REF, DevSigner};
+use sign_sidecar::kms::{self, Kms};
+use sign_sidecar::{internal_tls, provenance};
 
 /// Assets travel as unary bytes (see sign.proto), so tonic's 4 MB default is too small.
 const MAX_MESSAGE_BYTES: usize = 64 * 1024 * 1024;
@@ -67,11 +64,11 @@ impl SignService for Sidecar {
 
         let dev = if signer.key_ref == DEV_KEY_REF {
             Some(self.dev_signer(&signer)?)
-        } else if signer.key_ref.starts_with(KEY_ARN_PREFIX) {
+        } else if kms::Backend::of(&signer.key_ref).is_some() {
             None
         } else {
             return Err(Status::invalid_argument(format!(
-                "key_ref must be a KMS key ARN or {DEV_KEY_REF}"
+                "key_ref must be a Cloud KMS key version, a KMS key ARN or {DEV_KEY_REF}"
             )));
         };
         let kms = self.kms.clone();
