@@ -19,6 +19,7 @@ services:
       Media__AccessKey: local
       Media__SecretKey: local
       Media__Bucket: signed-media
+      PublicVerify__AllowedOrigins: http://localhost:3000
       # The development key, held by the local-kms emulator. NON-CONFORMANT (ADR 0003).
       Signer__KeyRef: arn:aws:kms:eu-central-1:111122223333:key/00000000-0000-4000-8000-00005160de01
       Signer__CertChainPath: /dev-signer/es256.chain.pem
