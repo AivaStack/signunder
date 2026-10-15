@@ -1,0 +1,46 @@
+# Sign sidecar, staging (ADR 0011). Deploy from the repository root:
+#   fly deploy --config deploy/fly/sidecar-staging.toml
+app = "signunder-staging-sidecar"
+primary_region = "fra"
+
+[env]
+  SIDECAR_ADDR = "[::]:50051"
+  # Makes Fly.io write its identity token to /.fly/oidc_token; nothing calls AWS.
+  AWS_ROLE_ARN = "arn:aws:iam::000000000000:role/fly-oidc-token-only"
+  GOOGLE_APPLICATION_CREDENTIALS = "/etc/signunder/gcp-wif.json"
+  SIDECAR_TLS_CERT = "/etc/signunder/tls/sign-sidecar.pem"
+  SIDECAR_TLS_KEY = "/etc/signunder/tls/sign-sidecar.key"
+  SIDECAR_TLS_CLIENT_CA = "/etc/signunder/tls/ca.pem"
+
+# Not a secret: it says which Google pool and service account Fly.io's token is exchanged for.
+[[files]]
+  guest_path = "/etc/signunder/gcp-wif.json"
+  local_path = "deploy/fly/gcp-wif-staging.json"  # relative to where fly deploy runs: the repository root
+
+[[files]]
+  guest_path = "/etc/signunder/tls/sign-sidecar.pem"
+  secret_name = "TLS_SERVER_CERT"
+
+[[files]]
+  guest_path = "/etc/signunder/tls/sign-sidecar.key"
+  secret_name = "TLS_SERVER_KEY"
+
+[[files]]
+  guest_path = "/etc/signunder/tls/ca.pem"
+  secret_name = "TLS_CA"
+
+# Private only: reached at signunder-staging-sidecar.flycast through Fly.io's proxy, which
+# starts the machine on demand. TLS passes through untouched (no handlers).
+[[services]]
+  internal_port = 50051
+  protocol = "tcp"
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 0
+
+  [[services.ports]]
+    port = 50051
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "512mb"
