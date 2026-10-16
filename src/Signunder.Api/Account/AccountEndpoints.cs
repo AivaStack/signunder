@@ -64,18 +64,27 @@ public static class AccountEndpoints
             .RequireCors(Website.CorsPolicy)
             .RequireRateLimiting(RateLimits.PerKey);
 
-        account.MapGet("", async (ClaimsPrincipal user, RegistryDbContext db, CancellationToken ct) =>
+        account.MapGet("", async (ClaimsPrincipal user, RegistryDbContext db, Signing.Quotas quotas, CancellationToken ct) =>
         {
             var member = await MemberAsync(db, user, ct);
             var tenant = member is null ? null : await db.Tenants.AsNoTracking().SingleAsync(t => t.Id == member.TenantId, ct);
             var keys = member is null
                 ? []
                 : await db.ApiKeys.AsNoTracking().Where(k => k.TenantId == member.TenantId).OrderBy(k => k.CreatedAt).ToListAsync(ct);
+            var usage = tenant is null ? null : await quotas.StateAsync(tenant.Id, ct);
             return Results.Json(new JsonObject
             {
                 ["email"] = Email(user),
                 ["tenant"] = tenant is null ? null : TenantView(tenant),
                 ["api_keys"] = new JsonArray([.. keys.Select(KeyView)]),
+                ["usage"] = usage is null ? null : new JsonObject
+                {
+                    ["signed"] = usage.Used,
+                    // Null when the plan has no monthly limit.
+                    ["limit"] = usage.Limit,
+                    ["period_start"] = usage.PeriodStart,
+                    ["resets_at"] = usage.ResetsAt,
+                },
             });
         });
 

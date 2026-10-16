@@ -67,15 +67,34 @@ public static partial class ProxyEndpoints
 }
 
 /// <summary>A provider output the proxy could not sign; the call fails rather than pass it on unsigned.</summary>
-public sealed class UnsignableOutputException(string message) : Exception(message);
+public sealed class UnsignableOutputException(string message, int status = 502) : Exception(message)
+{
+    /// <summary>502, or 429 when the tenant's monthly allowance is used up.</summary>
+    public int Status { get; } = status;
+}
 
 public sealed class ProxySigner(
     IHttpClientFactory clients,
     IOptions<ProxyOptions> options,
     ImageSigner signer,
+    Quotas quotas,
     RegistryDbContext db)
 {
     private ProxyOptions Options => options.Value;
+
+    /// <summary>
+    /// Refuses a new generation once the month's allowance is used up, before the provider
+    /// makes (and charges for) an image SignUnder would then refuse to sign.
+    /// </summary>
+    private async Task<IResult?> RefusedOverQuotaAsync(Guid tenantId, HttpContext http, string path, CancellationToken ct)
+    {
+        if (http.Request.Method != "POST" || path.EndsWith("/cancel", StringComparison.Ordinal))
+        {
+            return null;
+        }
+        var quota = await quotas.StateAsync(tenantId, ct);
+        return quota.Exhausted ? Results.Problem(quota.Problem, statusCode: 429) : null;
+    }
 
     public async Task<IResult> FalAsync(string path, HttpContext http, CancellationToken ct)
     {
@@ -88,6 +107,10 @@ public sealed class ProxySigner(
             return Json(HttpStatusCode.OK, cached);
         }
 
+        if (await RefusedOverQuotaAsync(tenantId, http, path, ct) is { } refused)
+        {
+            return refused;
+        }
         var upstream = new Uri(Options.Fal.QueueBase, path + http.Request.QueryString);
         using var response = await ForwardAsync(upstream, http, ["Authorization"], ct);
         var body = await ReadJsonAsync(response, ct);
@@ -124,7 +147,7 @@ public sealed class ProxySigner(
             }
             catch (UnsignableOutputException e)
             {
-                return Results.Problem(e.Message, statusCode: 502);
+                return Results.Problem(e.Message, statusCode: e.Status);
             }
             return Json(response.StatusCode, await RememberAsync(tenantId, "fal", result.Groups["id"].Value, body.ToJsonString(), ct));
         }
@@ -136,6 +159,10 @@ public sealed class ProxySigner(
         var tenantId = http.User.TenantId();
         var ours = $"{http.Request.Scheme}://{http.Request.Host}/proxy/replicate/";
 
+        if (await RefusedOverQuotaAsync(tenantId, http, path, ct) is { } refused)
+        {
+            return refused;
+        }
         var upstream = new Uri(Options.Replicate.ApiBase, path + http.Request.QueryString);
         using var response = await ForwardAsync(upstream, http, ["Authorization", "Prefer"], ct);
         var body = await ReadJsonAsync(response, ct);
@@ -159,7 +186,7 @@ public sealed class ProxySigner(
             }
             catch (UnsignableOutputException e)
             {
-                return Results.Problem(e.Message, statusCode: 502);
+                return Results.Problem(e.Message, statusCode: e.Status);
             }
             return Json(response.StatusCode, await RememberAsync(tenantId, "replicate", id, body.ToJsonString(), ct));
         }
@@ -248,7 +275,9 @@ public sealed class ProxySigner(
         var outcome = await signer.SignAsync(
             tenantId, ByteString.CopyFrom(bytes), mime, Path.GetFileName(source.AbsolutePath),
             new SignOrigin(provider, model), keepCopy: true, ct);
-        return outcome.Record ?? throw new UnsignableOutputException($"Signing failed: {outcome.Problem}");
+        return outcome.Record ?? throw (outcome.Status == 429
+            ? new UnsignableOutputException(outcome.Problem!, 429)
+            : new UnsignableOutputException($"Signing failed: {outcome.Problem}"));
     }
 
     private async Task<(byte[] Bytes, string? Mime)> DownloadAsync(Uri source, string? authorization, CancellationToken ct)

@@ -33,6 +33,7 @@ public sealed class ImageSigner(
     IConfiguration config,
     IMediaStore media,
     IServiceProvider services,
+    Quotas quotas,
     ILogger<ImageSigner> logger)
 {
     public static readonly IReadOnlySet<string> SupportedTypes =
@@ -52,6 +53,10 @@ public sealed class ImageSigner(
         if (!SupportedTypes.Contains(mime))
         {
             return SignOutcome.Failed(415, "Only image/jpeg, image/png and image/webp are supported.");
+        }
+        if (await quotas.StateAsync(tenantId, ct) is { Exhausted: true } quota)
+        {
+            return SignOutcome.Failed(429, quota.Problem);
         }
         var key = await db.TenantKeys
             .Where(k => k.TenantId == tenantId && k.Status == TenantKeyStatus.Active)

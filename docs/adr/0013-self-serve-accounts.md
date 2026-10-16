@@ -21,13 +21,13 @@ A prospect should be able to try SignUnder without Eoin making a tenant and an A
 
 ## Consequences
 
-- Anyone with an email address can get a staging key. Signing costs about €0.000013 per signature in Cloud KMS (ADR 0011); the 2,000 outputs a month of the free tier (§3.1) is not enforced yet.
+- Anyone with an email address can get a staging key. Signing costs about €0.000013 per signature in Cloud KMS (ADR 0011). Since 16 Oct 2026 the free tier's 2,000 signed outputs a calendar month (UTC; §3.1) are enforced (`Quotas:MonthlyOutputs:{tier}`; 25,000 for growth): signing answers 429 with the reset date, proxy mode refuses a new generation before the provider makes it, and the dashboard shows the month's count. The count is of registry records, so simultaneous signs can pass the limit by a few.
 - Supabase's built-in mailer sends at most two emails an hour for the project (read in the project's Auth settings, `rate_limit_email_sent`, 16 Oct 2026). Enough for the first prospects; a custom SMTP provider is needed before any launch.
 - The dashboard stores the signed-in person's email (Supabase Auth and `tenant_member`) and keeps the session in local storage. The privacy and cookie pages do not say so yet.
 - The flow was tested with tokens signed by a stand-in key, including forged, foreign-issuer, wrong-audience, expired and anonymous ones, and end to end by Eoin on 16 Oct 2026: email sign-in on signunder.com, company created, key issued, a PNG signed with it and recognised on the company's verify page by its manifest.
 
 ## Open
 
-- Custom SMTP; usage quotas by tier; Stripe.
+- Custom SMTP; Stripe.
 - Several people per company.
 - Whether production keeps one Supabase project for marketing and accounts.

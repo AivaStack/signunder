@@ -94,6 +94,8 @@ builder.Services.AddRateLimiter(o =>
     };
 });
 builder.Services.AddScoped<ImageSigner>();
+builder.Services.AddScoped<Quotas>();
+builder.Services.AddSingleton(TimeProvider.System);
 if (builder.Configuration["Media:ServiceUrl"] is { Length: > 0 } mediaUrl)
 {
     builder.Services.AddSingleton<Amazon.S3.IAmazonS3>(_ => new Amazon.S3.AmazonS3Client(
