@@ -99,6 +99,23 @@ public class PublicVerifyTests(ApiFactory api) : IClassFixture<ApiFactory>
     }
 
     [Fact]
+    public async Task An_empty_or_unreadable_file_gets_a_plain_answer()
+    {
+        var client = api.ClientWithKey(null);
+
+        var empty = await client.PostAsync($"/public/v1/{Tenant}/verify", Image([]));
+        Assert.Equal(HttpStatusCode.BadRequest, empty.StatusCode);
+        Assert.Contains("empty", (string?)(await empty.Content.ReadFromJsonAsync<JsonObject>())!["detail"]);
+
+        // The fake watermarker refuses a one-byte image, as the real one refuses junk.
+        var junk = await client.PostAsync($"/public/v1/{Tenant}/verify", Image([0x42]));
+        Assert.Equal(HttpStatusCode.BadRequest, junk.StatusCode);
+        var detail = (string?)(await junk.Content.ReadFromJsonAsync<JsonObject>())!["detail"];
+        Assert.StartsWith("This file could not be read as a JPEG image", detail);
+        Assert.DoesNotContain("could not read the image", detail);
+    }
+
+    [Fact]
     public async Task The_public_record_leaves_out_marks_and_internal_ids()
     {
         var (_, id) = await SignAsync([10, 6]);

@@ -228,6 +228,10 @@ public sealed class FakeWatermarker : WatermarkService.WatermarkServiceClient
 
     public override AsyncUnaryCall<DecodeResponse> DecodeAsync(DecodeRequest request, CallOptions options)
     {
+        if (request.Asset.Length == 1)
+        {
+            throw new RpcException(new Status(StatusCode.InvalidArgument, "could not read the image"));
+        }
         var image = request.Asset.ToByteArray().AsSpan();
         if (image.EndsWith("[signed]"u8))
         {

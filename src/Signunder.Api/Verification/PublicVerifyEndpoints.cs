@@ -62,6 +62,11 @@ public static class PublicVerifyEndpoints
             return Results.Problem("Only image/jpeg, image/png and image/webp are supported.", statusCode: 415);
         }
 
+        if (file.Length == 0)
+        {
+            return Results.Problem("The file is empty.", statusCode: 400);
+        }
+
         await using var upload = file.OpenReadStream();
         var asset = await ByteString.FromStreamAsync(upload, ct);
         var log = logs.CreateLogger("Signunder.Api.PublicVerify");
@@ -80,7 +85,7 @@ public static class PublicVerifyEndpoints
         }
         catch (RpcException e) when (e.StatusCode == StatusCode.InvalidArgument)
         {
-            return Results.Problem(e.Status.Detail, statusCode: 400);
+            return Unreadable(log, mime, e);
         }
         catch (RpcException e)
         {
@@ -110,7 +115,7 @@ public static class PublicVerifyEndpoints
             }
             catch (RpcException e) when (e.StatusCode == StatusCode.InvalidArgument)
             {
-                return Results.Problem(e.Status.Detail, statusCode: 400);
+                return Unreadable(log, mime, e);
             }
             catch (RpcException e)
             {
@@ -201,6 +206,15 @@ public static class PublicVerifyEndpoints
     private static JsonObject Tenant(Tenant owner) => new() { ["slug"] = owner.Slug, ["name"] = owner.LegalName };
 
     private static string Snake(Core.Verification.ValidationState state) => JsonNamingPolicy.SnakeCaseLower.ConvertName(state.ToString());
+
+    /// <summary>The image could not be read; the libraries' own wording stays in the log.</summary>
+    private static IResult Unreadable(ILogger log, string mime, RpcException e)
+    {
+        log.LogInformation("Unreadable upload ({Mime}): {Detail}", mime, e.Status.Detail);
+        return Results.Problem(
+            $"This file could not be read as {mime switch { "image/png" => "a PNG", "image/webp" => "a WebP", _ => "a JPEG" }} image. Check that it is a complete image of that type.",
+            statusCode: 400);
+    }
 
     private static IResult Failed(ILogger log, string service, RpcException e)
     {
