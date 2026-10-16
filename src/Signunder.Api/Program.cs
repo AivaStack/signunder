@@ -6,6 +6,7 @@ using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Signunder.Api;
+using Signunder.Api.Account;
 using Signunder.Api.Auth;
 using Signunder.Api.Data;
 using Signunder.Api.Proxy;
@@ -114,13 +115,15 @@ else
     builder.Services.AddSingleton<IMediaStore, NoMediaStore>();
 }
 builder.Services.AddProxy(builder.Configuration);
-builder.Services.AddPublicVerify(builder.Configuration);
+builder.Services.AddWebsiteCors(builder.Configuration);
 builder.Services.AddHostedService<MediaSweep>();
 
 builder.Services
     .AddAuthentication(ApiKeyAuthenticationHandler.SchemeName)
-    .AddScheme<AuthenticationSchemeOptions, ApiKeyAuthenticationHandler>(ApiKeyAuthenticationHandler.SchemeName, null);
+    .AddScheme<AuthenticationSchemeOptions, ApiKeyAuthenticationHandler>(ApiKeyAuthenticationHandler.SchemeName, null)
+    .AddSupabaseUsers(builder.Configuration);
 var authorization = builder.Services.AddAuthorizationBuilder();
+authorization.AddAccountPolicy();
 foreach (var scope in ApiScopes.All)
 {
     authorization.AddPolicy(scope, policy => policy.RequireClaim(ApiKeyAuthenticationHandler.ScopeClaim, scope));
@@ -319,6 +322,7 @@ app.MapGet("/media/{id}", async (string id, RegistryDbContext db, IMediaStore me
 
 app.MapProxy();
 app.MapPublicVerify();
+app.MapAccount(app.Configuration);
 
 app.Run();
 

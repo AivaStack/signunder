@@ -1,10 +1,17 @@
 using Google.Protobuf;
 using Grpc.Core;
+using System.Security.Cryptography;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.IdentityModel.JsonWebTokens;
+using Microsoft.IdentityModel.Protocols;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
+using Microsoft.IdentityModel.Tokens;
+using Signunder.Api.Account;
 using Signunder.Api.Data;
 using Signunder.Api.Signing;
 using Signunder.Core.Registry;
@@ -23,6 +30,38 @@ public class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
 
     /// <summary>The one origin allowed to call the public verify endpoints from a browser.</summary>
     public const string AllowedOrigin = "https://signunder.example";
+
+    /// <summary>Stands in for the Supabase project's Auth issuer.</summary>
+    public const string AuthIssuer = "https://auth.signunder.example/auth/v1";
+
+    /// <summary>Stands in for the Supabase project's token signing key (ES256, as Supabase's).</summary>
+    public static readonly ECDsaSecurityKey AuthKey = new(ECDsa.Create(ECCurve.NamedCurves.nistP256)) { KeyId = "test" };
+
+    /// <summary>A Supabase Auth session token for a signed-in person.</summary>
+    public static string UserToken(
+        Guid userId,
+        string email,
+        string role = "authenticated",
+        string audience = "authenticated",
+        string issuer = AuthIssuer,
+        SecurityKey? key = null,
+        DateTime? expires = null) =>
+        new JsonWebTokenHandler().CreateToken(new SecurityTokenDescriptor
+        {
+            Issuer = issuer,
+            Audience = audience,
+            Claims = new Dictionary<string, object> { ["sub"] = userId.ToString(), ["email"] = email, ["role"] = role },
+            NotBefore = (expires ?? DateTime.UtcNow.AddHours(1)).AddHours(-2),
+            Expires = expires ?? DateTime.UtcNow.AddHours(1),
+            SigningCredentials = new SigningCredentials(key ?? AuthKey, SecurityAlgorithms.EcdsaSha256),
+        });
+
+    public HttpClient ClientWithUser(string token)
+    {
+        var client = CreateClient();
+        client.DefaultRequestHeaders.Authorization = new("Bearer", token);
+        return client;
+    }
 
     private readonly PostgreSqlContainer _postgres = new PostgreSqlBuilder("postgres:18").Build();
 
@@ -53,7 +92,8 @@ public class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
         builder.UseSetting("Database:MigrateAndSeedOnStartup", "true");
         builder.UseSetting("Signer:KeyRef", "dev:local");
         builder.UseSetting("Development:ApiKey", DemoKey);
-        builder.UseSetting("PublicVerify:AllowedOrigins", AllowedOrigin);
+        builder.UseSetting("Website:AllowedOrigins", AllowedOrigin);
+        builder.UseSetting("SupabaseAuth:Issuer", AuthIssuer);
         builder.ConfigureTestServices(services =>
         {
             services.RemoveAll<SignService.SignServiceClient>();
@@ -63,6 +103,13 @@ public class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
             services.AddSingleton<IMediaStore>(Media);
             services.AddHttpClient(Signunder.Api.Proxy.ProxyEndpoints.Upstream)
                 .ConfigurePrimaryHttpMessageHandler(() => Upstream);
+            // The issuer's keys come from AuthKey, not a discovery document.
+            services.PostConfigure<JwtBearerOptions>(AccountEndpoints.Scheme, options =>
+            {
+                options.ConfigurationManager = new StaticConfigurationManager<OpenIdConnectConfiguration>(
+                    new OpenIdConnectConfiguration { Issuer = AuthIssuer });
+                options.TokenValidationParameters.IssuerSigningKey = AuthKey;
+            });
         });
     }
 

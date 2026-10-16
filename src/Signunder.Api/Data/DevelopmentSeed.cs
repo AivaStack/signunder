@@ -24,28 +24,15 @@ public static class DevelopmentSeed
             db.Tenants.Add(tenant);
         }
 
-        var keyRef = config["Signer:KeyRef"];
-        if (!string.IsNullOrEmpty(keyRef))
+        if (await SignerConfig.NewTenantKeyAsync(config, tenant.Id, now, ct) is { } configured)
         {
-            var certChainPath = config["Signer:CertChainPath"];
-            var certChainPem = string.IsNullOrEmpty(certChainPath) ? "" : await File.ReadAllTextAsync(certChainPath, ct);
-
             var active = await db.TenantKeys
                 .Where(k => k.TenantId == tenant.Id && k.Status == TenantKeyStatus.Active)
                 .ToListAsync(ct);
-            if (!active.Any(k => k.KmsKeyArn == keyRef && k.CertChainPem == certChainPem))
+            if (!active.Any(k => k.KmsKeyArn == configured.KmsKeyArn && k.CertChainPem == configured.CertChainPem))
             {
                 active.ForEach(k => k.Status = TenantKeyStatus.Retired);
-                db.TenantKeys.Add(new TenantKey
-                {
-                    Id = Guid.CreateVersion7(),
-                    TenantId = tenant.Id,
-                    KmsKeyArn = keyRef,
-                    Algorithm = config["Signer:Algorithm"] ?? "es256",
-                    CertChainPem = certChainPem,
-                    Status = TenantKeyStatus.Active,
-                    CreatedAt = now,
-                });
+                db.TenantKeys.Add(configured);
             }
         }
 

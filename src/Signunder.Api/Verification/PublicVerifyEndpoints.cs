@@ -21,25 +21,10 @@ namespace Signunder.Api.Verification;
 /// </summary>
 public static class PublicVerifyEndpoints
 {
-    public const string CorsPolicy = "public-verify";
-
-    /// <summary>
-    /// Origins allowed to call these endpoints from a browser, such as the website's verify
-    /// page (<c>PublicVerify:AllowedOrigins</c>, comma-separated).
-    /// </summary>
-    public static IServiceCollection AddPublicVerify(this IServiceCollection services, IConfiguration config)
-    {
-        var origins = (config["PublicVerify:AllowedOrigins"] ?? "")
-            .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-        services.AddCors(cors => cors.AddPolicy(CorsPolicy, policy =>
-            policy.WithOrigins(origins).WithMethods("GET", "POST").AllowAnyHeader()));
-        return services;
-    }
-
     public static void MapPublicVerify(this IEndpointRouteBuilder app)
     {
         var routes = app.MapGroup("/public/v1/{tenant}")
-            .RequireCors(CorsPolicy)
+            .RequireCors(Website.CorsPolicy)
             .RequireRateLimiting(RateLimits.Public);
 
         routes.MapGet("/records/{id}", async (string tenant, string id, HttpContext http, RegistryDbContext db, CancellationToken ct) =>

@@ -28,6 +28,12 @@ public sealed class ApiKeyAuthenticationHandler(
 
     protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
     {
+        // The dashboard's routes take a Supabase session token in Authorization, not a key.
+        if (Request.Path.StartsWithSegments("/v1/account"))
+        {
+            return AuthenticateResult.NoResult();
+        }
+
         // In proxy mode Authorization carries the provider's key, so ours comes in
         // X-SignUnder-Key. Otherwise it is the Bearer token.
         string presented;

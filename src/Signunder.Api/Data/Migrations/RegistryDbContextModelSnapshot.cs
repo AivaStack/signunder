@@ -327,6 +327,40 @@ namespace Signunder.Api.Data.Migrations
                     b.ToTable("tenant_key", "registry");
                 });
 
+            modelBuilder.Entity("Signunder.Core.Registry.TenantMember", b =>
+                {
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("email");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("role");
+
+                    b.HasKey("TenantId", "UserId")
+                        .HasName("pk_tenant_member");
+
+                    b.HasIndex("UserId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_tenant_member_user_id");
+
+                    b.ToTable("tenant_member", "registry");
+                });
+
             modelBuilder.Entity("Signunder.Api.Data.ProxyRequest", b =>
                 {
                     b.HasOne("Signunder.Core.Registry.Tenant", null)
@@ -382,6 +416,16 @@ namespace Signunder.Api.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_tenant_key_tenant_tenant_id");
+                });
+
+            modelBuilder.Entity("Signunder.Core.Registry.TenantMember", b =>
+                {
+                    b.HasOne("Signunder.Core.Registry.Tenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_tenant_member_tenant_tenant_id");
                 });
 #pragma warning restore 612, 618
         }

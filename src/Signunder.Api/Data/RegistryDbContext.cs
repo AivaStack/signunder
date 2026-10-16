@@ -9,6 +9,7 @@ public sealed class RegistryDbContext(DbContextOptions<RegistryDbContext> option
     public DbSet<TenantKey> TenantKeys => Set<TenantKey>();
     public DbSet<AssetRecord> AssetRecords => Set<AssetRecord>();
     public DbSet<ApiKey> ApiKeys => Set<ApiKey>();
+    public DbSet<TenantMember> TenantMembers => Set<TenantMember>();
     public DbSet<ProxyResult> ProxyResults => Set<ProxyResult>();
     public DbSet<ProxyRequest> ProxyRequests => Set<ProxyRequest>();
 
@@ -32,6 +33,15 @@ public sealed class RegistryDbContext(DbContextOptions<RegistryDbContext> option
             key.ToTable("tenant_key");
             key.Property(k => k.Status).HasConversion<string>();
             key.HasOne<Tenant>().WithMany().HasForeignKey(k => k.TenantId);
+        });
+
+        model.Entity<TenantMember>(member =>
+        {
+            member.ToTable("tenant_member");
+            member.HasKey(m => new { m.TenantId, m.UserId });
+            // One tenant per person for now.
+            member.HasIndex(m => m.UserId).IsUnique();
+            member.HasOne<Tenant>().WithMany().HasForeignKey(m => m.TenantId);
         });
 
         model.Entity<ApiKey>(key =>
