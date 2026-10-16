@@ -27,6 +27,12 @@ public static class PublicVerifyEndpoints
             .RequireCors(Website.CorsPolicy)
             .RequireRateLimiting(RateLimits.Public);
 
+        // The company's public name, so its verify page can greet visitors by it.
+        routes.MapGet("", async (string tenant, RegistryDbContext db, CancellationToken ct) =>
+            await db.Tenants.AsNoTracking().SingleOrDefaultAsync(t => t.Slug == tenant, ct) is { } owner
+                ? Results.Json(Tenant(owner))
+                : Results.Problem($"No company {tenant}.", statusCode: 404));
+
         routes.MapGet("/records/{id}", async (string tenant, string id, HttpContext http, RegistryDbContext db, CancellationToken ct) =>
         {
             var owner = await db.Tenants.AsNoTracking().SingleOrDefaultAsync(t => t.Slug == tenant, ct);

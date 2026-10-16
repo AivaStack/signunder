@@ -99,6 +99,19 @@ public class PublicVerifyTests(ApiFactory api) : IClassFixture<ApiFactory>
     }
 
     [Fact]
+    public async Task The_company_is_named_by_its_slug()
+    {
+        var client = api.ClientWithKey(null);
+
+        var tenant = await client.GetFromJsonAsync<JsonObject>($"/public/v1/{Tenant}");
+
+        Assert.Equal(Tenant, (string?)tenant!["slug"]);
+        Assert.Equal("Demo Tenant (local development)", (string?)tenant["name"]);
+        Assert.Equal(2, tenant.Count);
+        Assert.Equal(HttpStatusCode.NotFound, (await client.GetAsync("/public/v1/no-such-company")).StatusCode);
+    }
+
+    [Fact]
     public async Task An_empty_or_unreadable_file_gets_a_plain_answer()
     {
         var client = api.ClientWithKey(null);
