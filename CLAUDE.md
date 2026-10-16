@@ -20,7 +20,7 @@ Hosted service that gets a company signing AI-generated content under its own na
 - `tests/`: xUnit projects for Core, Rules and the API (`Signunder.Api.Tests` hosts the API against Postgres in a container with a stand-in sidecar); `tests/conformance` holds the sample generator; `tests/robustness` holds the watermark survival suite, run from the worker's environment; the other folders are placeholders.
 - `tools/security/`: the vulnerability scan (`scan.sh`) and the check that `.trivyignore.yaml` defers nothing beyond 90 days (ADR 0009).
 - `deploy/docker-compose.yml`: local stack.
-- `deploy/fly/`: Fly.io configurations for staging (ADR 0012); deploy from the repository root. `tools/supabase.sh` runs the Supabase CLI with this project's own token from `.env`, leaving the machine's global Supabase login alone.
+- `deploy/fly/`: Fly.io configurations for staging (ADR 0012); deploy from the repository root. The API's browser callers come from `Website:AllowedOrigins`, and dashboard sign-in tokens from `SupabaseAuth:Issuer` (ADR 0013). `tools/supabase.sh` runs the Supabase CLI with this project's own token from `.env`, leaving the machine's global Supabase login alone.
 - `content/`: blog posts and reference pages (law, platforms, labels, guides, compare) as Markdown, with templates in `content/_templates/`. Published by `signunder-web`, never rendered from here.
 - The web front end (Next.js, shadcn/ui, Zippay template) lives in a separate private repo, `signunder-web`. Never copy template code into this repo: it is licensed, and this repo is meant to be opened.
 
