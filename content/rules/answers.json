@@ -2,8 +2,12 @@
   "as_of": "2026-10-18",
   "pack_versions": [
     "ca-ai-transparency-act@2026.10.12",
+    "cn-ai-labelling-measures@2026.10.13",
     "eu-ai-act-art50@2026.10.12",
     "eu-code-of-practice@2026.10.12",
+    "in-it-rules-synthetic@2026.10.13",
+    "kr-ai-basic-act@2026.10.13",
+    "ny-gbl-396b@2026.10.12",
     "platform-labels@2026.10.12"
   ],
   "answers": [
@@ -17,8 +21,12 @@
         "date": "2026-10-18",
         "pack_versions": [
           "ca-ai-transparency-act@2026.10.12",
+          "cn-ai-labelling-measures@2026.10.13",
           "eu-ai-act-art50@2026.10.12",
           "eu-code-of-practice@2026.10.12",
+          "in-it-rules-synthetic@2026.10.13",
+          "kr-ai-basic-act@2026.10.13",
+          "ny-gbl-396b@2026.10.12",
           "platform-labels@2026.10.12"
         ],
         "required": [
@@ -192,8 +200,12 @@
         "date": "2026-10-18",
         "pack_versions": [
           "ca-ai-transparency-act@2026.10.12",
+          "cn-ai-labelling-measures@2026.10.13",
           "eu-ai-act-art50@2026.10.12",
           "eu-code-of-practice@2026.10.12",
+          "in-it-rules-synthetic@2026.10.13",
+          "kr-ai-basic-act@2026.10.13",
+          "ny-gbl-396b@2026.10.12",
           "platform-labels@2026.10.12"
         ],
         "required": [
@@ -367,8 +379,12 @@
         "date": "2026-10-18",
         "pack_versions": [
           "ca-ai-transparency-act@2026.10.12",
+          "cn-ai-labelling-measures@2026.10.13",
           "eu-ai-act-art50@2026.10.12",
           "eu-code-of-practice@2026.10.12",
+          "in-it-rules-synthetic@2026.10.13",
+          "kr-ai-basic-act@2026.10.13",
+          "ny-gbl-396b@2026.10.12",
           "platform-labels@2026.10.12"
         ],
         "required": [
@@ -542,8 +558,12 @@
         "date": "2026-10-18",
         "pack_versions": [
           "ca-ai-transparency-act@2026.10.12",
+          "cn-ai-labelling-measures@2026.10.13",
           "eu-ai-act-art50@2026.10.12",
           "eu-code-of-practice@2026.10.12",
+          "in-it-rules-synthetic@2026.10.13",
+          "kr-ai-basic-act@2026.10.13",
+          "ny-gbl-396b@2026.10.12",
           "platform-labels@2026.10.12"
         ],
         "required": [
@@ -717,8 +737,12 @@
         "date": "2026-10-18",
         "pack_versions": [
           "ca-ai-transparency-act@2026.10.12",
+          "cn-ai-labelling-measures@2026.10.13",
           "eu-ai-act-art50@2026.10.12",
           "eu-code-of-practice@2026.10.12",
+          "in-it-rules-synthetic@2026.10.13",
+          "kr-ai-basic-act@2026.10.13",
+          "ny-gbl-396b@2026.10.12",
           "platform-labels@2026.10.12"
         ],
         "required": [
@@ -892,8 +916,12 @@
         "date": "2026-10-18",
         "pack_versions": [
           "ca-ai-transparency-act@2026.10.12",
+          "cn-ai-labelling-measures@2026.10.13",
           "eu-ai-act-art50@2026.10.12",
           "eu-code-of-practice@2026.10.12",
+          "in-it-rules-synthetic@2026.10.13",
+          "kr-ai-basic-act@2026.10.13",
+          "ny-gbl-396b@2026.10.12",
           "platform-labels@2026.10.12"
         ],
         "required": [
@@ -937,8 +965,12 @@
         "date": "2026-10-18",
         "pack_versions": [
           "ca-ai-transparency-act@2026.10.12",
+          "cn-ai-labelling-measures@2026.10.13",
           "eu-ai-act-art50@2026.10.12",
           "eu-code-of-practice@2026.10.12",
+          "in-it-rules-synthetic@2026.10.13",
+          "kr-ai-basic-act@2026.10.13",
+          "ny-gbl-396b@2026.10.12",
           "platform-labels@2026.10.12"
         ],
         "required": [
@@ -982,8 +1014,12 @@
         "date": "2026-10-18",
         "pack_versions": [
           "ca-ai-transparency-act@2026.10.12",
+          "cn-ai-labelling-measures@2026.10.13",
           "eu-ai-act-art50@2026.10.12",
           "eu-code-of-practice@2026.10.12",
+          "in-it-rules-synthetic@2026.10.13",
+          "kr-ai-basic-act@2026.10.13",
+          "ny-gbl-396b@2026.10.12",
           "platform-labels@2026.10.12"
         ],
         "required": [
@@ -1162,8 +1198,12 @@
         "date": "2026-10-18",
         "pack_versions": [
           "ca-ai-transparency-act@2026.10.12",
+          "cn-ai-labelling-measures@2026.10.13",
           "eu-ai-act-art50@2026.10.12",
           "eu-code-of-practice@2026.10.12",
+          "in-it-rules-synthetic@2026.10.13",
+          "kr-ai-basic-act@2026.10.13",
+          "ny-gbl-396b@2026.10.12",
           "platform-labels@2026.10.12"
         ],
         "required": [
@@ -1262,12 +1302,573 @@
         "date": "2026-10-18",
         "pack_versions": [
           "ca-ai-transparency-act@2026.10.12",
+          "cn-ai-labelling-measures@2026.10.13",
           "eu-ai-act-art50@2026.10.12",
           "eu-code-of-practice@2026.10.12",
+          "in-it-rules-synthetic@2026.10.13",
+          "kr-ai-basic-act@2026.10.13",
+          "ny-gbl-396b@2026.10.12",
           "platform-labels@2026.10.12"
         ],
         "required": [],
         "findings": []
+      }
+    },
+    {
+      "slug": "china-ai-content-labelling",
+      "question": "What labels does China require on AI-generated content?",
+      "description": "Two since 1 September 2025: a visible label and the AIGC metadata field of GB 45438-2025, which a C2PA manifest does not replace. Rules and sources.",
+      "answer": "Two, since 1 September 2025, if your service is offered to users in mainland China: a visible label a person can see or hear, and an implicit label in the file's metadata, the AIGC field fixed by GB 45438-2025. A C2PA manifest does not replace that field. Your user agreement must explain the labels, and removing labels, or supplying tools to, is prohibited.",
+      "checker_query": "m=image&r=provider&w=china&d=2026-10-18",
+      "evaluation": {
+        "date": "2026-10-18",
+        "pack_versions": [
+          "ca-ai-transparency-act@2026.10.12",
+          "cn-ai-labelling-measures@2026.10.13",
+          "eu-ai-act-art50@2026.10.12",
+          "eu-code-of-practice@2026.10.12",
+          "in-it-rules-synthetic@2026.10.13",
+          "kr-ai-basic-act@2026.10.13",
+          "ny-gbl-396b@2026.10.12",
+          "platform-labels@2026.10.12"
+        ],
+        "required": [
+          "aigc_metadata",
+          "visible_label",
+          "labelling_terms",
+          "no_mark_removal"
+        ],
+        "findings": [
+          {
+            "pack": "cn-ai-labelling-measures",
+            "pack_version": "2026.10.13",
+            "rule_id": "cn-aigc-metadata",
+            "title": "The AIGC metadata field in every file",
+            "summary": "Write an implicit label into the file's metadata: a field named AIGC with seven keys (the label value, your name or code as producer, your content number, and the reserved and distributor keys), as Annex E of GB 45438-2025 fixes. A C2PA manifest does not replace it, and it must be written before any manifest is signed. Watermarks are encouraged, not required.",
+            "strength": "law",
+            "binding": true,
+            "status": "in_force",
+            "applies_from": "2025-09-01",
+            "requires": [
+              "aigc_metadata"
+            ],
+            "quote": "production element information such as the attribute of the generated content, the service provider's name or code, and a content number",
+            "page": "/law/china",
+            "unverified": "Where the field goes in each file format is in TC260 practice guides we have not read. That the Measures reach only services offered to the public in mainland China is from memory.",
+            "sources": [
+              {
+                "title": "Measures for the Labelling of AI-Generated and Synthetic Content (人工智能生成合成内容标识办法), notice of 7 March 2025, published by the Cyberspace Administration of China on 14 March 2025; Chinese text, our translation",
+                "url": "https://www.cac.gov.cn/2025-03/14/c_1743654684782215.htm",
+                "read": "2026-10-12"
+              },
+              {
+                "title": "GB 45438-2025, Cybersecurity technology: labelling method for content generated by artificial intelligence (in force 1 September 2025), full Chinese text as hosted by Sidley; our translation",
+                "url": "https://www.sidley.com/en/-/media/resource-pages/ai-monitor/20250314-china-standard-gb-454382025-labeling-method-for-content-generated-by-ai.pdf",
+                "read": "2026-10-13"
+              }
+            ]
+          },
+          {
+            "pack": "cn-ai-labelling-measures",
+            "pack_version": "2026.10.13",
+            "rule_id": "cn-explicit-label",
+            "title": "A visible label on generated content",
+            "summary": "If your generation service is offered to users in mainland China, generated text, images, audio and video carry an explicit label a person can see or hear, containing \"AI\" (or 人工智能) and \"generated\" (生成) or \"synthesised\" (合成). On images and video it is text at an edge or corner at least 5% of the shortest side high; audio gets a spoken notice or the Morse rhythm for \"AI\". Exported files keep the label unless the user asks otherwise under your agreement, and then you keep logs for six months.",
+            "strength": "law",
+            "binding": true,
+            "status": "in_force",
+            "applies_from": "2025-09-01",
+            "requires": [
+              "visible_label"
+            ],
+            "quote": "ensure the file contains an explicit label that meets the requirements",
+            "page": "/law/china",
+            "unverified": "Which services must add the visible label is set by Article 17(1) of the deep synthesis provisions, which we have not re-read; the standard's Annex B lists text-to-image, music and video, cloned voices and face generation as typical. That the Measures reach only services offered to the public in mainland China is from memory.",
+            "sources": [
+              {
+                "title": "Measures for the Labelling of AI-Generated and Synthetic Content (人工智能生成合成内容标识办法), notice of 7 March 2025, published by the Cyberspace Administration of China on 14 March 2025; Chinese text, our translation",
+                "url": "https://www.cac.gov.cn/2025-03/14/c_1743654684782215.htm",
+                "read": "2026-10-12"
+              },
+              {
+                "title": "GB 45438-2025, Cybersecurity technology: labelling method for content generated by artificial intelligence (in force 1 September 2025), full Chinese text as hosted by Sidley; our translation",
+                "url": "https://www.sidley.com/en/-/media/resource-pages/ai-monitor/20250314-china-standard-gb-454382025-labeling-method-for-content-generated-by-ai.pdf",
+                "read": "2026-10-13"
+              }
+            ]
+          },
+          {
+            "pack": "cn-ai-labelling-measures",
+            "pack_version": "2026.10.13",
+            "rule_id": "cn-no-label-removal",
+            "title": "Do not remove or hide labels, or help others to",
+            "summary": "Deleting, altering, forging or hiding an AI label is prohibited, and so is supplying tools to do it.",
+            "strength": "law",
+            "binding": true,
+            "status": "in_force",
+            "applies_from": "2025-09-01",
+            "requires": [
+              "no_mark_removal"
+            ],
+            "quote": null,
+            "page": "/law/china",
+            "unverified": null,
+            "sources": [
+              {
+                "title": "Measures for the Labelling of AI-Generated and Synthetic Content (人工智能生成合成内容标识办法), notice of 7 March 2025, published by the Cyberspace Administration of China on 14 March 2025; Chinese text, our translation",
+                "url": "https://www.cac.gov.cn/2025-03/14/c_1743654684782215.htm",
+                "read": "2026-10-12"
+              }
+            ]
+          },
+          {
+            "pack": "cn-ai-labelling-measures",
+            "pack_version": "2026.10.13",
+            "rule_id": "cn-user-agreement",
+            "title": "Explain the labels in your user agreement",
+            "summary": "Your user agreement states how and in what style content is labelled, and prompts users to read the labelling requirements.",
+            "strength": "law",
+            "binding": true,
+            "status": "in_force",
+            "applies_from": "2025-09-01",
+            "requires": [
+              "labelling_terms"
+            ],
+            "quote": null,
+            "page": "/law/china",
+            "unverified": null,
+            "sources": [
+              {
+                "title": "Measures for the Labelling of AI-Generated and Synthetic Content (人工智能生成合成内容标识办法), notice of 7 March 2025, published by the Cyberspace Administration of China on 14 March 2025; Chinese text, our translation",
+                "url": "https://www.cac.gov.cn/2025-03/14/c_1743654684782215.htm",
+                "read": "2026-10-12"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "south-korea-ai-basic-act",
+      "question": "What does South Korea's AI Basic Act require of generative AI services?",
+      "description": "Since 22 January 2026: tell users in advance that the service runs on AI, and label output visibly or machine-readably. Article 31 with sources.",
+      "answer": "If Korean users can reach your product, since 22 January 2026 you must tell them in advance that it runs on generative AI, and label its output as AI-generated, either visibly or machine-readably; a machine-readable label needs a one-time notice to the user as well. The Act reaches businesses abroad.",
+      "checker_query": "m=image&r=provider&w=south-korea&d=2026-10-18",
+      "evaluation": {
+        "date": "2026-10-18",
+        "pack_versions": [
+          "ca-ai-transparency-act@2026.10.12",
+          "cn-ai-labelling-measures@2026.10.13",
+          "eu-ai-act-art50@2026.10.12",
+          "eu-code-of-practice@2026.10.12",
+          "in-it-rules-synthetic@2026.10.13",
+          "kr-ai-basic-act@2026.10.13",
+          "ny-gbl-396b@2026.10.12",
+          "platform-labels@2026.10.12"
+        ],
+        "required": [
+          "output_label",
+          "prior_notice"
+        ],
+        "findings": [
+          {
+            "pack": "kr-ai-basic-act",
+            "pack_version": "2026.10.13",
+            "rule_id": "kr-31-1-prior-notice",
+            "title": "Tell users in advance that the service runs on AI",
+            "summary": "If Korean users can reach your generative AI product, tell them in advance that it runs on generative AI: in the terms, contract or manual, on the screen, or where the service is provided. This is the Article 31 duty with a direct fine of up to KRW 30 million. The Act applies to businesses abroad whose service affects Korean users.",
+            "strength": "law",
+            "binding": true,
+            "status": "in_force",
+            "applies_from": "2026-01-22",
+            "requires": [
+              "prior_notice"
+            ],
+            "quote": null,
+            "page": "/law/south-korea",
+            "unverified": null,
+            "sources": [
+              {
+                "title": "Framework Act on the Development of Artificial Intelligence and the Establishment of a Foundation for Trust (인공지능 발전과 신뢰 기반 조성 등에 관한 기본법), consolidated text; Korean text, our translation",
+                "url": "https://www.law.go.kr/법령/인공지능발전과신뢰기반조성등에관한기본법",
+                "read": "2026-10-13"
+              },
+              {
+                "title": "Enforcement Decree of the same Act, consolidated text in force 20 August 2026; Korean text, our translation",
+                "url": "https://www.law.go.kr/법령/인공지능발전과신뢰기반조성등에관한기본법시행령",
+                "read": "2026-10-13"
+              }
+            ]
+          },
+          {
+            "pack": "kr-ai-basic-act",
+            "pack_version": "2026.10.13",
+            "rule_id": "kr-31-2-output-label",
+            "title": "Label generated output, visibly or machine-readably",
+            "summary": "Indicate that output was generated by generative AI, either in a way a person can perceive or in a way a machine can read; if you choose machine-readable (a signed manifest or a watermark), also tell the user at least once, in text or voice, that the output is AI-generated. Not needed where AI use is obvious from the product or the output.",
+            "strength": "law",
+            "binding": true,
+            "status": "in_force",
+            "applies_from": "2026-01-22",
+            "requires": [
+              "output_label"
+            ],
+            "quote": "a method a machine can read",
+            "page": "/law/south-korea",
+            "unverified": "A law firm reports a one-year grace before fines, to about 22 January 2027; neither the Act nor the Decree contains it and we have not found the Ministry's statement.",
+            "sources": [
+              {
+                "title": "Framework Act on the Development of Artificial Intelligence and the Establishment of a Foundation for Trust (인공지능 발전과 신뢰 기반 조성 등에 관한 기본법), consolidated text; Korean text, our translation",
+                "url": "https://www.law.go.kr/법령/인공지능발전과신뢰기반조성등에관한기본법",
+                "read": "2026-10-13"
+              },
+              {
+                "title": "Enforcement Decree of the same Act, consolidated text in force 20 August 2026; Korean text, our translation",
+                "url": "https://www.law.go.kr/법령/인공지능발전과신뢰기반조성등에관한기본법시행령",
+                "read": "2026-10-13"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "south-korea-realistic-ai-video",
+      "question": "Does realistic AI video need a visible label in South Korea?",
+      "description": "Yes: under Article 31(3) of the AI Basic Act, output hard to tell from reality must be labelled so users clearly recognise it. The rule and sources.",
+      "answer": "Yes. Where your system produces sound, images or video that are hard to tell from reality, Article 31(3) requires a notice or label the user can clearly recognise, on top of the prior notice and the output label every generative service owes Korean users.",
+      "checker_query": "m=video&r=provider&w=south-korea&real=1&d=2026-10-18",
+      "evaluation": {
+        "date": "2026-10-18",
+        "pack_versions": [
+          "ca-ai-transparency-act@2026.10.12",
+          "cn-ai-labelling-measures@2026.10.13",
+          "eu-ai-act-art50@2026.10.12",
+          "eu-code-of-practice@2026.10.12",
+          "in-it-rules-synthetic@2026.10.13",
+          "kr-ai-basic-act@2026.10.13",
+          "ny-gbl-396b@2026.10.12",
+          "platform-labels@2026.10.12"
+        ],
+        "required": [
+          "visible_label",
+          "output_label",
+          "prior_notice"
+        ],
+        "findings": [
+          {
+            "pack": "kr-ai-basic-act",
+            "pack_version": "2026.10.13",
+            "rule_id": "kr-31-1-prior-notice",
+            "title": "Tell users in advance that the service runs on AI",
+            "summary": "If Korean users can reach your generative AI product, tell them in advance that it runs on generative AI: in the terms, contract or manual, on the screen, or where the service is provided. This is the Article 31 duty with a direct fine of up to KRW 30 million. The Act applies to businesses abroad whose service affects Korean users.",
+            "strength": "law",
+            "binding": true,
+            "status": "in_force",
+            "applies_from": "2026-01-22",
+            "requires": [
+              "prior_notice"
+            ],
+            "quote": null,
+            "page": "/law/south-korea",
+            "unverified": null,
+            "sources": [
+              {
+                "title": "Framework Act on the Development of Artificial Intelligence and the Establishment of a Foundation for Trust (인공지능 발전과 신뢰 기반 조성 등에 관한 기본법), consolidated text; Korean text, our translation",
+                "url": "https://www.law.go.kr/법령/인공지능발전과신뢰기반조성등에관한기본법",
+                "read": "2026-10-13"
+              },
+              {
+                "title": "Enforcement Decree of the same Act, consolidated text in force 20 August 2026; Korean text, our translation",
+                "url": "https://www.law.go.kr/법령/인공지능발전과신뢰기반조성등에관한기본법시행령",
+                "read": "2026-10-13"
+              }
+            ]
+          },
+          {
+            "pack": "kr-ai-basic-act",
+            "pack_version": "2026.10.13",
+            "rule_id": "kr-31-2-output-label",
+            "title": "Label generated output, visibly or machine-readably",
+            "summary": "Indicate that output was generated by generative AI, either in a way a person can perceive or in a way a machine can read; if you choose machine-readable (a signed manifest or a watermark), also tell the user at least once, in text or voice, that the output is AI-generated. Not needed where AI use is obvious from the product or the output.",
+            "strength": "law",
+            "binding": true,
+            "status": "in_force",
+            "applies_from": "2026-01-22",
+            "requires": [
+              "output_label"
+            ],
+            "quote": "a method a machine can read",
+            "page": "/law/south-korea",
+            "unverified": "A law firm reports a one-year grace before fines, to about 22 January 2027; neither the Act nor the Decree contains it and we have not found the Ministry's statement.",
+            "sources": [
+              {
+                "title": "Framework Act on the Development of Artificial Intelligence and the Establishment of a Foundation for Trust (인공지능 발전과 신뢰 기반 조성 등에 관한 기본법), consolidated text; Korean text, our translation",
+                "url": "https://www.law.go.kr/법령/인공지능발전과신뢰기반조성등에관한기본법",
+                "read": "2026-10-13"
+              },
+              {
+                "title": "Enforcement Decree of the same Act, consolidated text in force 20 August 2026; Korean text, our translation",
+                "url": "https://www.law.go.kr/법령/인공지능발전과신뢰기반조성등에관한기본법시행령",
+                "read": "2026-10-13"
+              }
+            ]
+          },
+          {
+            "pack": "kr-ai-basic-act",
+            "pack_version": "2026.10.13",
+            "rule_id": "kr-31-3-realistic",
+            "title": "A clear label on output that could pass as real",
+            "summary": "Where your system produces sound, images or video that are hard to tell from reality, notify or label it so the user can clearly recognise it as generated. Artistic and creative works may be labelled in a way that does not spoil them.",
+            "strength": "law",
+            "binding": true,
+            "status": "in_force",
+            "applies_from": "2026-01-22",
+            "requires": [
+              "visible_label"
+            ],
+            "quote": "in a manner the user can clearly recognise",
+            "page": "/law/south-korea",
+            "unverified": "That only human-perceivable methods count for realistic output comes from a law firm's summary of the Ministry's guidelines, which we have not read.",
+            "sources": [
+              {
+                "title": "Framework Act on the Development of Artificial Intelligence and the Establishment of a Foundation for Trust (인공지능 발전과 신뢰 기반 조성 등에 관한 기본법), consolidated text; Korean text, our translation",
+                "url": "https://www.law.go.kr/법령/인공지능발전과신뢰기반조성등에관한기본법",
+                "read": "2026-10-13"
+              },
+              {
+                "title": "Enforcement Decree of the same Act, consolidated text in force 20 August 2026; Korean text, our translation",
+                "url": "https://www.law.go.kr/법령/인공지능발전과신뢰기반조성등에관한기본법시행령",
+                "read": "2026-10-13"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "india-ai-image-labelling",
+      "question": "Do realistic AI images need a label in India?",
+      "description": "Yes, since 20 February 2026: a prominent label, permanent metadata with a unique identifier, and no way to remove either. India's IT Rules with sources.",
+      "answer": "Yes. Since 20 February 2026 a service that can create realistic AI audio, images or video of people or events must label the output prominently, embed permanent metadata with a unique identifier for the service, let no one remove either, block unlawful synthetic content and remind users of the rules every three months.",
+      "checker_query": "m=image&r=provider&w=india&real=1&d=2026-10-18",
+      "evaluation": {
+        "date": "2026-10-18",
+        "pack_versions": [
+          "ca-ai-transparency-act@2026.10.12",
+          "cn-ai-labelling-measures@2026.10.13",
+          "eu-ai-act-art50@2026.10.12",
+          "eu-code-of-practice@2026.10.12",
+          "in-it-rules-synthetic@2026.10.13",
+          "kr-ai-basic-act@2026.10.13",
+          "ny-gbl-396b@2026.10.12",
+          "platform-labels@2026.10.12"
+        ],
+        "required": [
+          "provenance_metadata",
+          "visible_label",
+          "no_mark_removal",
+          "unlawful_content_safeguards",
+          "user_reminders"
+        ],
+        "findings": [
+          {
+            "pack": "in-it-rules-synthetic",
+            "pack_version": "2026.10.13",
+            "rule_id": "in-no-removal",
+            "title": "No way to remove the label or metadata",
+            "summary": "Your service must not let users modify, suppress or remove the label or the metadata, including the unique identifier.",
+            "strength": "law",
+            "binding": true,
+            "status": "in_force",
+            "applies_from": "2026-02-20",
+            "requires": [
+              "no_mark_removal"
+            ],
+            "quote": "the intermediary shall not enable the modification, suppression or removal of the label, permanent metadata, including the unique identifier",
+            "page": "/law/india",
+            "unverified": null,
+            "sources": [
+              {
+                "title": "Information Technology (Intermediary Guidelines and Digital Media Ethics Code) Amendment Rules, 2026, notification G.S.R. 120(E) of 10 February 2026, Gazette of India, as published by the Ministry of Electronics and Information Technology",
+                "url": "https://www.meity.gov.in/static/uploads/2026/02/f55fe52418b03f58b0669f6a8bc03b6d.pdf",
+                "read": "2026-10-13"
+              }
+            ]
+          },
+          {
+            "pack": "in-it-rules-synthetic",
+            "pack_version": "2026.10.13",
+            "rule_id": "in-permanent-metadata",
+            "title": "Permanent metadata with a unique identifier",
+            "summary": "Embed permanent metadata or another provenance mechanism, as far as technically feasible, including a unique identifier for the service that made the content.",
+            "strength": "law",
+            "binding": true,
+            "status": "in_force",
+            "applies_from": "2026-02-20",
+            "requires": [
+              "provenance_metadata"
+            ],
+            "quote": "shall be embedded with a permanent metadata or other appropriate technical provenance mechanisms, to the extent technically feasible, including a unique identifier",
+            "page": "/law/india",
+            "unverified": null,
+            "sources": [
+              {
+                "title": "Information Technology (Intermediary Guidelines and Digital Media Ethics Code) Amendment Rules, 2026, notification G.S.R. 120(E) of 10 February 2026, Gazette of India, as published by the Ministry of Electronics and Information Technology",
+                "url": "https://www.meity.gov.in/static/uploads/2026/02/f55fe52418b03f58b0669f6a8bc03b6d.pdf",
+                "read": "2026-10-13"
+              }
+            ]
+          },
+          {
+            "pack": "in-it-rules-synthetic",
+            "pack_version": "2026.10.13",
+            "rule_id": "in-prominent-label",
+            "title": "A prominent label on realistic synthetic media",
+            "summary": "If your service can create realistic AI audio, images or video of people or events that could pass as real, label the output prominently, or for audio with a prefixed audio disclosure. Text and content that is plainly not realistic are outside the definition; routine editing, accessibility and translation are excluded.",
+            "strength": "law",
+            "binding": true,
+            "status": "in_force",
+            "applies_from": "2026-02-20",
+            "requires": [
+              "visible_label"
+            ],
+            "quote": "prominently labelled in a manner that ensures prominent visibility in the visual display that is easily noticeable and adequately perceivable",
+            "page": "/law/india",
+            "unverified": null,
+            "sources": [
+              {
+                "title": "Information Technology (Intermediary Guidelines and Digital Media Ethics Code) Amendment Rules, 2026, notification G.S.R. 120(E) of 10 February 2026, Gazette of India, as published by the Ministry of Electronics and Information Technology",
+                "url": "https://www.meity.gov.in/static/uploads/2026/02/f55fe52418b03f58b0669f6a8bc03b6d.pdf",
+                "read": "2026-10-13"
+              }
+            ]
+          },
+          {
+            "pack": "in-it-rules-synthetic",
+            "pack_version": "2026.10.13",
+            "rule_id": "in-unlawful-content",
+            "title": "Stop unlawful synthetic content being made",
+            "summary": "Take reasonable technical measures, including automated tools, so users cannot create or share unlawful synthetic content: child sexual abuse material, non-consensual intimate imagery, false documents, weapons instructions, or content that falsely depicts a real person or event to deceive.",
+            "strength": "law",
+            "binding": true,
+            "status": "in_force",
+            "applies_from": "2026-02-20",
+            "requires": [
+              "unlawful_content_safeguards"
+            ],
+            "quote": null,
+            "page": "/law/india",
+            "unverified": null,
+            "sources": [
+              {
+                "title": "Information Technology (Intermediary Guidelines and Digital Media Ethics Code) Amendment Rules, 2026, notification G.S.R. 120(E) of 10 February 2026, Gazette of India, as published by the Ministry of Electronics and Information Technology",
+                "url": "https://www.meity.gov.in/static/uploads/2026/02/f55fe52418b03f58b0669f6a8bc03b6d.pdf",
+                "read": "2026-10-13"
+              }
+            ]
+          },
+          {
+            "pack": "in-it-rules-synthetic",
+            "pack_version": "2026.10.13",
+            "rule_id": "in-user-reminders",
+            "title": "Remind users of the rules every three months",
+            "summary": "Remind users of your rules at least once every three months, and tell them that misusing synthetic-content tools may lead to penalties, removal, account suspension and, where the law allows, disclosure of their identity to a victim.",
+            "strength": "law",
+            "binding": true,
+            "status": "in_force",
+            "applies_from": "2026-02-20",
+            "requires": [
+              "user_reminders"
+            ],
+            "quote": null,
+            "page": "/law/india",
+            "unverified": null,
+            "sources": [
+              {
+                "title": "Information Technology (Intermediary Guidelines and Digital Media Ethics Code) Amendment Rules, 2026, notification G.S.R. 120(E) of 10 February 2026, Gazette of India, as published by the Ministry of Electronics and Information Technology",
+                "url": "https://www.meity.gov.in/static/uploads/2026/02/f55fe52418b03f58b0669f6a8bc03b6d.pdf",
+                "read": "2026-10-13"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "india-ai-text",
+      "question": "Do India's AI labelling rules cover AI-generated text?",
+      "description": "No: India's rules on synthetically generated information cover realistic audio, images and video, not text. What the definition reaches, with sources.",
+      "answer": "No. India's rules define synthetically generated information as audio, visual or audio-visual content that appears real, so text is outside them, as is content that plainly does not look real.",
+      "checker_query": "m=text&r=provider&w=india&real=1&d=2026-10-18",
+      "evaluation": {
+        "date": "2026-10-18",
+        "pack_versions": [
+          "ca-ai-transparency-act@2026.10.12",
+          "cn-ai-labelling-measures@2026.10.13",
+          "eu-ai-act-art50@2026.10.12",
+          "eu-code-of-practice@2026.10.12",
+          "in-it-rules-synthetic@2026.10.13",
+          "kr-ai-basic-act@2026.10.13",
+          "ny-gbl-396b@2026.10.12",
+          "platform-labels@2026.10.12"
+        ],
+        "required": [],
+        "findings": []
+      }
+    },
+    {
+      "slug": "new-york-synthetic-performer-ads",
+      "question": "Do New York ads with AI-generated people need a disclosure?",
+      "description": "Yes, since 9 June 2026: an ad featuring a synthetic performer must say so conspicuously. Who it binds, the exemptions and the penalty, with sources.",
+      "answer": "Yes, if the person in the ad is AI-generated, looks human and is not an identifiable real person: since 9 June 2026, whoever produces the ad, knowing this, must disclose conspicuously in it that a synthetic performer is in it. Audio ads and translation of a real performer are exempt.",
+      "checker_query": "m=video&r=deployer&w=new-york&ad=1&d=2026-10-18",
+      "evaluation": {
+        "date": "2026-10-18",
+        "pack_versions": [
+          "ca-ai-transparency-act@2026.10.12",
+          "cn-ai-labelling-measures@2026.10.13",
+          "eu-ai-act-art50@2026.10.12",
+          "eu-code-of-practice@2026.10.12",
+          "in-it-rules-synthetic@2026.10.13",
+          "kr-ai-basic-act@2026.10.13",
+          "ny-gbl-396b@2026.10.12",
+          "platform-labels@2026.10.12"
+        ],
+        "required": [
+          "visible_disclosure"
+        ],
+        "findings": [
+          {
+            "pack": "ny-gbl-396b",
+            "pack_version": "2026.10.12",
+            "rule_id": "ny-synthetic-performer-ad",
+            "title": "Disclose a synthetic performer in your ad",
+            "summary": "If you produce an advertisement for New York featuring an AI-generated person who looks human but is not an identifiable real person, and you know it, disclose conspicuously in the ad that a synthetic performer is in it. Audio ads, AI used only to translate a human performer, and promotions of expressive works that use the performer the same way are exempt. $1,000 for a first violation, $5,000 after.",
+            "strength": "law",
+            "binding": true,
+            "status": "in_force",
+            "applies_from": "2026-06-09",
+            "requires": [
+              "visible_disclosure"
+            ],
+            "quote": "shall conspicuously disclose in such advertisement that a synthetic performer is in such advertisement",
+            "page": "/law/new-york",
+            "unverified": null,
+            "sources": [
+              {
+                "title": "New York General Business Law section 396-b, Advertisements, on the New York State Senate's site",
+                "url": "https://www.nysenate.gov/legislation/laws/GBS/396-B",
+                "read": "2026-10-12"
+              },
+              {
+                "title": "Senate Bill S8420-A (2025), signed 11 December 2025 as Chapter 617 of the Laws of 2025",
+                "url": "https://www.nysenate.gov/legislation/bills/2025/S8420/amendment/A",
+                "read": "2026-10-12"
+              }
+            ]
+          }
+        ]
       }
     },
     {
@@ -1280,8 +1881,12 @@
         "date": "2026-10-18",
         "pack_versions": [
           "ca-ai-transparency-act@2026.10.12",
+          "cn-ai-labelling-measures@2026.10.13",
           "eu-ai-act-art50@2026.10.12",
           "eu-code-of-practice@2026.10.12",
+          "in-it-rules-synthetic@2026.10.13",
+          "kr-ai-basic-act@2026.10.13",
+          "ny-gbl-396b@2026.10.12",
           "platform-labels@2026.10.12"
         ],
         "required": [
@@ -1347,8 +1952,12 @@
         "date": "2026-10-18",
         "pack_versions": [
           "ca-ai-transparency-act@2026.10.12",
+          "cn-ai-labelling-measures@2026.10.13",
           "eu-ai-act-art50@2026.10.12",
           "eu-code-of-practice@2026.10.12",
+          "in-it-rules-synthetic@2026.10.13",
+          "kr-ai-basic-act@2026.10.13",
+          "ny-gbl-396b@2026.10.12",
           "platform-labels@2026.10.12"
         ],
         "required": [],
@@ -1393,8 +2002,12 @@
         "date": "2026-10-18",
         "pack_versions": [
           "ca-ai-transparency-act@2026.10.12",
+          "cn-ai-labelling-measures@2026.10.13",
           "eu-ai-act-art50@2026.10.12",
           "eu-code-of-practice@2026.10.12",
+          "in-it-rules-synthetic@2026.10.13",
+          "kr-ai-basic-act@2026.10.13",
+          "ny-gbl-396b@2026.10.12",
           "platform-labels@2026.10.12"
         ],
         "required": [
@@ -1460,8 +2073,12 @@
         "date": "2026-10-18",
         "pack_versions": [
           "ca-ai-transparency-act@2026.10.12",
+          "cn-ai-labelling-measures@2026.10.13",
           "eu-ai-act-art50@2026.10.12",
           "eu-code-of-practice@2026.10.12",
+          "in-it-rules-synthetic@2026.10.13",
+          "kr-ai-basic-act@2026.10.13",
+          "ny-gbl-396b@2026.10.12",
           "platform-labels@2026.10.12"
         ],
         "required": [],

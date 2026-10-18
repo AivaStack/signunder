@@ -63,7 +63,9 @@ public sealed record EvaluationContext(
     bool Realistic,
     bool PublicInterestText,
     bool CodeSignatory,
-    DateOnly Date);
+    DateOnly Date,
+    // An advertisement featuring an AI-generated person who is not an identifiable real one.
+    bool SyntheticPerformerAd = false);
 
 public enum FindingStatus
 {

@@ -31,7 +31,8 @@ public static class Export
         bool MonthlyUsersOver1M,
         bool Realistic,
         bool PublicInterestText,
-        bool CodeSignatory);
+        bool CodeSignatory,
+        bool SyntheticPerformerAd = false);
 
     public sealed record Scenarios(DateOnly AsOf, IReadOnlyList<Scenario> Items);
 
@@ -64,7 +65,8 @@ public static class Export
         context.Realistic,
         context.PublicInterestText,
         context.CodeSignatory,
-        date);
+        date,
+        context.SyntheticPerformerAd);
 
     /// <summary>The checker's query string for a situation, so its page can open the checker with the same answers.</summary>
     public static string CheckerQuery(ScenarioContext context, DateOnly date)
@@ -93,6 +95,7 @@ public static class Export
         Flag("real", context.Realistic);
         Flag("pit", context.PublicInterestText);
         Flag("code", context.CodeSignatory);
+        Flag("ad", context.SyntheticPerformerAd);
         parts.Add($"d={RulesJson.Day(date)}");
         return string.Join("&", parts);
     }

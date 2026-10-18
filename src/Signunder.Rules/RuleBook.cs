@@ -15,13 +15,14 @@ public sealed class RuleBook
     public static readonly IReadOnlySet<string> YesNoFacts = new HashSet<string>
     {
         "on_market_before_2026_08_02", "monthly_users_over_1m", "realistic", "public_interest_text", "code_signatory",
+        "synthetic_performer_ad",
     };
 
     public static readonly IReadOnlyDictionary<string, IReadOnlySet<string>> Values = new Dictionary<string, IReadOnlySet<string>>
     {
         ["modalities"] = new HashSet<string> { "image", "video", "audio", "text" },
         ["roles"] = new HashSet<string> { "provider", "deployer" },
-        ["markets"] = new HashSet<string> { "eu", "california" },
+        ["markets"] = new HashSet<string> { "eu", "california", "china", "south-korea", "india", "new-york" },
         ["platforms"] = new HashSet<string> { "tiktok", "meta", "youtube", "google-search", "google-ads", "linkedin" },
     };
 
@@ -32,10 +33,19 @@ public sealed class RuleBook
         "signed_metadata",
         "watermark",
         "latent_disclosure",
+        "provenance_metadata",
+        "aigc_metadata",
         "manifest_disclosure_option",
+        "visible_label",
+        "output_label",
+        "prior_notice",
+        "labelling_terms",
         "detection_tool",
         "interoperable_detection",
         "preserve_marks",
+        "no_mark_removal",
+        "unlawful_content_safeguards",
+        "user_reminders",
         "visible_disclosure",
         "platform_label",
     ];

@@ -86,6 +86,54 @@
       "expect": []
     },
     {
+      "slug": "china-ai-content-labelling",
+      "question": "What labels does China require on AI-generated content?",
+      "description": "Two since 1 September 2025: a visible label and the AIGC metadata field of GB 45438-2025, which a C2PA manifest does not replace. Rules and sources.",
+      "answer": "Two, since 1 September 2025, if your service is offered to users in mainland China: a visible label a person can see or hear, and an implicit label in the file's metadata, the AIGC field fixed by GB 45438-2025. A C2PA manifest does not replace that field. Your user agreement must explain the labels, and removing labels, or supplying tools to, is prohibited.",
+      "context": { "modalities": ["image"], "roles": ["provider"], "markets": ["china"] },
+      "expect": ["cn-aigc-metadata", "cn-explicit-label", "cn-no-label-removal", "cn-user-agreement"]
+    },
+    {
+      "slug": "south-korea-ai-basic-act",
+      "question": "What does South Korea's AI Basic Act require of generative AI services?",
+      "description": "Since 22 January 2026: tell users in advance that the service runs on AI, and label output visibly or machine-readably. Article 31 with sources.",
+      "answer": "If Korean users can reach your product, since 22 January 2026 you must tell them in advance that it runs on generative AI, and label its output as AI-generated, either visibly or machine-readably; a machine-readable label needs a one-time notice to the user as well. The Act reaches businesses abroad.",
+      "context": { "modalities": ["image"], "roles": ["provider"], "markets": ["south-korea"] },
+      "expect": ["kr-31-1-prior-notice", "kr-31-2-output-label"]
+    },
+    {
+      "slug": "south-korea-realistic-ai-video",
+      "question": "Does realistic AI video need a visible label in South Korea?",
+      "description": "Yes: under Article 31(3) of the AI Basic Act, output hard to tell from reality must be labelled so users clearly recognise it. The rule and sources.",
+      "answer": "Yes. Where your system produces sound, images or video that are hard to tell from reality, Article 31(3) requires a notice or label the user can clearly recognise, on top of the prior notice and the output label every generative service owes Korean users.",
+      "context": { "modalities": ["video"], "roles": ["provider"], "markets": ["south-korea"], "realistic": true },
+      "expect": ["kr-31-1-prior-notice", "kr-31-2-output-label", "kr-31-3-realistic"]
+    },
+    {
+      "slug": "india-ai-image-labelling",
+      "question": "Do realistic AI images need a label in India?",
+      "description": "Yes, since 20 February 2026: a prominent label, permanent metadata with a unique identifier, and no way to remove either. India's IT Rules with sources.",
+      "answer": "Yes. Since 20 February 2026 a service that can create realistic AI audio, images or video of people or events must label the output prominently, embed permanent metadata with a unique identifier for the service, let no one remove either, block unlawful synthetic content and remind users of the rules every three months.",
+      "context": { "modalities": ["image"], "roles": ["provider"], "markets": ["india"], "realistic": true },
+      "expect": ["in-no-removal", "in-permanent-metadata", "in-prominent-label", "in-unlawful-content", "in-user-reminders"]
+    },
+    {
+      "slug": "india-ai-text",
+      "question": "Do India's AI labelling rules cover AI-generated text?",
+      "description": "No: India's rules on synthetically generated information cover realistic audio, images and video, not text. What the definition reaches, with sources.",
+      "answer": "No. India's rules define synthetically generated information as audio, visual or audio-visual content that appears real, so text is outside them, as is content that plainly does not look real.",
+      "context": { "modalities": ["text"], "roles": ["provider"], "markets": ["india"], "realistic": true },
+      "expect": []
+    },
+    {
+      "slug": "new-york-synthetic-performer-ads",
+      "question": "Do New York ads with AI-generated people need a disclosure?",
+      "description": "Yes, since 9 June 2026: an ad featuring a synthetic performer must say so conspicuously. Who it binds, the exemptions and the penalty, with sources.",
+      "answer": "Yes, if the person in the ad is AI-generated, looks human and is not an identifiable real person: since 9 June 2026, whoever produces the ad, knowing this, must disclose conspicuously in it that a synthetic performer is in it. Audio ads and translation of a real performer are exempt.",
+      "context": { "modalities": ["video"], "roles": ["deployer"], "markets": ["new-york"], "synthetic_performer_ad": true },
+      "expect": ["ny-synthetic-performer-ad"]
+    },
+    {
       "slug": "tiktok-ai-video-label",
       "question": "Do I have to label AI-generated videos on TikTok?",
       "description": "Yes, if they show realistic scenes or people: TikTok requires creators to label them, and labels content carrying Content Credentials itself.",

@@ -15,7 +15,7 @@ public class RulesApiTests(ApiFactory api) : IClassFixture<ApiFactory>
         var body = await api.ClientWithKey(null).GetFromJsonAsync<JsonObject>("/public/v1/rules/packs");
 
         var packs = body!["packs"]!.AsArray();
-        Assert.Equal(4, packs.Count);
+        Assert.Equal(8, packs.Count);
         var eu = packs.Single(p => (string?)p!["pack"] == "eu-ai-act-art50")!;
         Assert.Equal("2026.10.12", (string?)eu["version"]);
         Assert.Equal("2026-10-12", (string?)eu["sources"]![0]!["read"]);
@@ -37,7 +37,7 @@ public class RulesApiTests(ApiFactory api) : IClassFixture<ApiFactory>
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var body = (await response.Content.ReadFromJsonAsync<JsonObject>())!;
         Assert.Equal("2026-10-18", (string?)body["date"]);
-        Assert.Equal(4, body["pack_versions"]!.AsArray().Count);
+        Assert.Equal(8, body["pack_versions"]!.AsArray().Count);
         Assert.Equal(["machine_readable_marking"], body["required"]!.AsArray().Select(r => (string)r!));
         var marking = body["findings"]!.AsArray().Single(f => (string?)f!["rule_id"] == "eu-50-2-marking")!;
         Assert.Equal("upcoming", (string?)marking["status"]);

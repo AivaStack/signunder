@@ -49,7 +49,8 @@ public static class RulesEndpoints
                 request.Realistic,
                 request.PublicInterestText,
                 request.CodeSignatory,
-                request.Date ?? DateOnly.FromDateTime(time.GetUtcNow().UtcDateTime));
+                request.Date ?? DateOnly.FromDateTime(time.GetUtcNow().UtcDateTime),
+                request.SyntheticPerformerAd);
             if (context.Modalities.Count == 0)
             {
                 problems.Add("modalities: choose at least one of image, video, audio, text.");
@@ -74,6 +75,7 @@ public static class RulesEndpoints
         [property: JsonPropertyName("realistic")] bool Realistic,
         [property: JsonPropertyName("public_interest_text")] bool PublicInterestText,
         [property: JsonPropertyName("code_signatory")] bool CodeSignatory,
-        [property: JsonPropertyName("date")] DateOnly? Date);
+        [property: JsonPropertyName("date")] DateOnly? Date,
+        [property: JsonPropertyName("synthetic_performer_ad")] bool SyntheticPerformerAd = false);
 
 }

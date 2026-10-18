@@ -1,0 +1,32 @@
+{
+  "pack": "ny-gbl-396b",
+  "version": "2026.10.12",
+  "title": "New York General Business Law section 396-b, synthetic performers in advertisements",
+  "kind": "law",
+  "sources": [
+    { "id": "gbl", "title": "New York General Business Law section 396-b, Advertisements, on the New York State Senate's site", "url": "https://www.nysenate.gov/legislation/laws/GBS/396-B", "read": "2026-10-12" },
+    { "id": "s8420a", "title": "Senate Bill S8420-A (2025), signed 11 December 2025 as Chapter 617 of the Laws of 2025", "url": "https://www.nysenate.gov/legislation/bills/2025/S8420/amendment/A", "read": "2026-10-12" }
+  ],
+  "rules": [
+    {
+      "id": "ny-synthetic-performer-ad",
+      "title": "Disclose a synthetic performer in your ad",
+      "summary": "If you produce an advertisement for New York featuring an AI-generated person who looks human but is not an identifiable real person, and you know it, disclose conspicuously in the ad that a synthetic performer is in it. Audio ads, AI used only to translate a human performer, and promotions of expressive works that use the performer the same way are exempt. $1,000 for a first violation, $5,000 after.",
+      "strength": "law",
+      "when": [
+        { "fact": "roles", "any_of": ["deployer"] },
+        { "fact": "markets", "any_of": ["new-york"] },
+        { "fact": "synthetic_performer_ad", "is": true },
+        { "fact": "modalities", "any_of": ["image", "video"] }
+      ],
+      "effective_from": "2026-06-09",
+      "grace": null,
+      "requires": ["visible_disclosure"],
+      "quote": "shall conspicuously disclose in such advertisement that a synthetic performer is in such advertisement",
+      "source_ids": ["gbl", "s8420a"],
+      "page": "/law/new-york",
+      "unverified": null
+    }
+  ],
+  "changelog": "2026.10.12: first version, from /law/new-york as read 12 October 2026."
+}

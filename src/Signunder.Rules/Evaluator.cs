@@ -52,6 +52,7 @@ public static class Evaluator
         "realistic" => context.Realistic == condition.Is,
         "public_interest_text" => context.PublicInterestText == condition.Is,
         "code_signatory" => context.CodeSignatory == condition.Is,
+        "synthetic_performer_ad" => context.SyntheticPerformerAd == condition.Is,
         _ => throw new InvalidOperationException($"Unknown fact {condition.Fact}."),
     };
 }

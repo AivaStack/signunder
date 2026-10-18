@@ -1,0 +1,107 @@
+{
+  "pack": "in-it-rules-synthetic",
+  "version": "2026.10.13",
+  "title": "India, IT Rules as amended for synthetically generated information (G.S.R. 120(E))",
+  "kind": "law",
+  "sources": [
+    { "id": "rules", "title": "Information Technology (Intermediary Guidelines and Digital Media Ethics Code) Amendment Rules, 2026, notification G.S.R. 120(E) of 10 February 2026, Gazette of India, as published by the Ministry of Electronics and Information Technology", "url": "https://www.meity.gov.in/static/uploads/2026/02/f55fe52418b03f58b0669f6a8bc03b6d.pdf", "read": "2026-10-13" }
+  ],
+  "rules": [
+    {
+      "id": "in-prominent-label",
+      "title": "A prominent label on realistic synthetic media",
+      "summary": "If your service can create realistic AI audio, images or video of people or events that could pass as real, label the output prominently, or for audio with a prefixed audio disclosure. Text and content that is plainly not realistic are outside the definition; routine editing, accessibility and translation are excluded.",
+      "strength": "law",
+      "when": [
+        { "fact": "roles", "any_of": ["provider"] },
+        { "fact": "markets", "any_of": ["india"] },
+        { "fact": "realistic", "is": true },
+        { "fact": "modalities", "any_of": ["image", "video", "audio"] }
+      ],
+      "effective_from": "2026-02-20",
+      "grace": null,
+      "requires": ["visible_label"],
+      "quote": "prominently labelled in a manner that ensures prominent visibility in the visual display that is easily noticeable and adequately perceivable",
+      "source_ids": ["rules"],
+      "page": "/law/india",
+      "unverified": null
+    },
+    {
+      "id": "in-permanent-metadata",
+      "title": "Permanent metadata with a unique identifier",
+      "summary": "Embed permanent metadata or another provenance mechanism, as far as technically feasible, including a unique identifier for the service that made the content.",
+      "strength": "law",
+      "when": [
+        { "fact": "roles", "any_of": ["provider"] },
+        { "fact": "markets", "any_of": ["india"] },
+        { "fact": "realistic", "is": true },
+        { "fact": "modalities", "any_of": ["image", "video", "audio"] }
+      ],
+      "effective_from": "2026-02-20",
+      "grace": null,
+      "requires": ["provenance_metadata"],
+      "quote": "shall be embedded with a permanent metadata or other appropriate technical provenance mechanisms, to the extent technically feasible, including a unique identifier",
+      "source_ids": ["rules"],
+      "page": "/law/india",
+      "unverified": null
+    },
+    {
+      "id": "in-no-removal",
+      "title": "No way to remove the label or metadata",
+      "summary": "Your service must not let users modify, suppress or remove the label or the metadata, including the unique identifier.",
+      "strength": "law",
+      "when": [
+        { "fact": "roles", "any_of": ["provider"] },
+        { "fact": "markets", "any_of": ["india"] },
+        { "fact": "realistic", "is": true },
+        { "fact": "modalities", "any_of": ["image", "video", "audio"] }
+      ],
+      "effective_from": "2026-02-20",
+      "grace": null,
+      "requires": ["no_mark_removal"],
+      "quote": "the intermediary shall not enable the modification, suppression or removal of the label, permanent metadata, including the unique identifier",
+      "source_ids": ["rules"],
+      "page": "/law/india",
+      "unverified": null
+    },
+    {
+      "id": "in-unlawful-content",
+      "title": "Stop unlawful synthetic content being made",
+      "summary": "Take reasonable technical measures, including automated tools, so users cannot create or share unlawful synthetic content: child sexual abuse material, non-consensual intimate imagery, false documents, weapons instructions, or content that falsely depicts a real person or event to deceive.",
+      "strength": "law",
+      "when": [
+        { "fact": "roles", "any_of": ["provider"] },
+        { "fact": "markets", "any_of": ["india"] },
+        { "fact": "realistic", "is": true },
+        { "fact": "modalities", "any_of": ["image", "video", "audio"] }
+      ],
+      "effective_from": "2026-02-20",
+      "grace": null,
+      "requires": ["unlawful_content_safeguards"],
+      "quote": null,
+      "source_ids": ["rules"],
+      "page": "/law/india",
+      "unverified": null
+    },
+    {
+      "id": "in-user-reminders",
+      "title": "Remind users of the rules every three months",
+      "summary": "Remind users of your rules at least once every three months, and tell them that misusing synthetic-content tools may lead to penalties, removal, account suspension and, where the law allows, disclosure of their identity to a victim.",
+      "strength": "law",
+      "when": [
+        { "fact": "roles", "any_of": ["provider"] },
+        { "fact": "markets", "any_of": ["india"] },
+        { "fact": "realistic", "is": true },
+        { "fact": "modalities", "any_of": ["image", "video", "audio"] }
+      ],
+      "effective_from": "2026-02-20",
+      "grace": null,
+      "requires": ["user_reminders"],
+      "quote": null,
+      "source_ids": ["rules"],
+      "page": "/law/india",
+      "unverified": null
+    }
+  ],
+  "changelog": "2026.10.13: first version, from /law/india as read 13 October 2026. The declaration and verification duties of significant social media intermediaries bind large platforms, not the checker's users, and are left out; the pending Second Amendment is not in force."
+}

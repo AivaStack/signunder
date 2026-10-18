@@ -14,7 +14,8 @@ public class EvaluatorTests
         bool realistic = false,
         bool publicInterestText = false,
         bool signatory = false,
-        string date = "2026-10-18") =>
+        string date = "2026-10-18",
+        bool syntheticPerformerAd = false) =>
         new(
             new HashSet<string>(modalities ?? ["image"]),
             new HashSet<string>(roles ?? ["provider"]),
@@ -25,7 +26,8 @@ public class EvaluatorTests
             realistic,
             publicInterestText,
             signatory,
-            DateOnly.Parse(date, System.Globalization.CultureInfo.InvariantCulture));
+            DateOnly.Parse(date, System.Globalization.CultureInfo.InvariantCulture),
+            syntheticPerformerAd);
 
     private static Finding? Rule(Evaluation evaluation, string id) =>
         evaluation.Findings.SingleOrDefault(f => f.Rule.Id == id);
@@ -34,7 +36,8 @@ public class EvaluatorTests
     public void Every_embedded_pack_loads_and_names_its_version()
     {
         Assert.Equal(
-            ["ca-ai-transparency-act", "eu-ai-act-art50", "eu-code-of-practice", "platform-labels"],
+            ["ca-ai-transparency-act", "cn-ai-labelling-measures", "eu-ai-act-art50", "eu-code-of-practice",
+             "in-it-rules-synthetic", "kr-ai-basic-act", "ny-gbl-396b", "platform-labels"],
             Book.Packs.Select(p => p.Pack));
         var evaluation = Evaluator.Evaluate(Book, Context());
         Assert.Contains("eu-ai-act-art50@2026.10.12", evaluation.PackVersions);
@@ -125,6 +128,64 @@ public class EvaluatorTests
         var tiktok = Evaluator.Evaluate(Book, Context(markets: [], platforms: ["tiktok"], realistic: true));
         Assert.NotNull(Rule(tiktok, "tiktok-label-realistic"));
         Assert.NotNull(Rule(tiktok, "tiktok-reads-credentials")!.Rule.Unverified);
+    }
+
+    [Fact]
+    public void China_wants_both_labels_from_providers_and_a_declaration_from_publishers()
+    {
+        var provider = Evaluator.Evaluate(Book, Context(markets: ["china"], modalities: ["text"]));
+        Assert.Equal(["aigc_metadata", "visible_label", "labelling_terms", "no_mark_removal"], provider.Required);
+        Assert.All(provider.Findings, f => Assert.Equal(new DateOnly(2025, 9, 1), f.AppliesFrom));
+
+        var publisher = Evaluator.Evaluate(Book, Context(markets: ["china"], roles: ["deployer"]));
+        Assert.NotNull(Rule(publisher, "cn-declare-when-publishing"));
+        Assert.Null(Rule(publisher, "cn-aigc-metadata"));
+    }
+
+    [Theory]
+    [InlineData(false, new[] { "kr-31-1-prior-notice", "kr-31-2-output-label" })]
+    [InlineData(true, new[] { "kr-31-1-prior-notice", "kr-31-2-output-label", "kr-31-3-realistic" })]
+    public void Korea_asks_every_provider_for_notice_and_a_label_and_realistic_output_for_more(bool realistic, string[] rules)
+    {
+        var evaluation = Evaluator.Evaluate(Book, Context(markets: ["south-korea"], realistic: realistic));
+
+        Assert.Equal(rules, evaluation.Findings.Select(f => f.Rule.Id).Order(StringComparer.Ordinal));
+    }
+
+    [Theory]
+    [InlineData("2026-01-21", FindingStatus.Upcoming)]
+    [InlineData("2026-01-22", FindingStatus.InForce)]
+    public void Korea_applies_from_22_january_2026(string date, FindingStatus status)
+    {
+        Assert.Equal(status, Rule(Evaluator.Evaluate(Book, Context(markets: ["south-korea"], date: date)), "kr-31-1-prior-notice")!.Status);
+    }
+
+    [Theory]
+    [InlineData(true, new[] { "image" }, 5)]
+    [InlineData(false, new[] { "image" }, 0)]
+    [InlineData(true, new[] { "text" }, 0)]
+    public void India_reaches_realistic_audio_images_and_video_only(bool realistic, string[] modalities, int rules)
+    {
+        var evaluation = Evaluator.Evaluate(Book, Context(markets: ["india"], modalities: modalities, realistic: realistic));
+
+        Assert.Equal(rules, evaluation.Findings.Count);
+        if (rules > 0)
+        {
+            Assert.Equal(
+                ["provenance_metadata", "visible_label", "no_mark_removal", "unlawful_content_safeguards", "user_reminders"],
+                evaluation.Required);
+        }
+    }
+
+    [Theory]
+    [InlineData(true, new[] { "video" }, true)]
+    [InlineData(true, new[] { "audio" }, false)]
+    [InlineData(false, new[] { "video" }, false)]
+    public void New_york_wants_a_disclosure_on_visual_ads_with_a_synthetic_performer(bool ad, string[] modalities, bool applies)
+    {
+        var evaluation = Evaluator.Evaluate(Book, Context(markets: ["new-york"], roles: ["deployer"], modalities: modalities, syntheticPerformerAd: ad));
+
+        Assert.Equal(applies, Rule(evaluation, "ny-synthetic-performer-ad") is not null);
     }
 
     [Fact]

@@ -9,6 +9,14 @@
       "file": "ca-ai-transparency-act.json"
     },
     {
+      "pack": "cn-ai-labelling-measures",
+      "version": "2026.10.13",
+      "title": "China, Measures for the Labelling of AI-Generated and Synthetic Content, with GB 45438-2025",
+      "kind": "law",
+      "rules": 5,
+      "file": "cn-ai-labelling-measures.json"
+    },
+    {
       "pack": "eu-ai-act-art50",
       "version": "2026.10.12",
       "title": "EU AI Act, Article 50",
@@ -23,6 +31,30 @@
       "kind": "code",
       "rules": 5,
       "file": "eu-code-of-practice.json"
+    },
+    {
+      "pack": "in-it-rules-synthetic",
+      "version": "2026.10.13",
+      "title": "India, IT Rules as amended for synthetically generated information (G.S.R. 120(E))",
+      "kind": "law",
+      "rules": 5,
+      "file": "in-it-rules-synthetic.json"
+    },
+    {
+      "pack": "kr-ai-basic-act",
+      "version": "2026.10.13",
+      "title": "South Korea, AI Basic Act, Article 31, and its Enforcement Decree",
+      "kind": "law",
+      "rules": 3,
+      "file": "kr-ai-basic-act.json"
+    },
+    {
+      "pack": "ny-gbl-396b",
+      "version": "2026.10.12",
+      "title": "New York General Business Law section 396-b, synthetic performers in advertisements",
+      "kind": "law",
+      "rules": 1,
+      "file": "ny-gbl-396b.json"
     },
     {
       "pack": "platform-labels",
