@@ -118,6 +118,7 @@ else
 }
 builder.Services.AddProxy(builder.Configuration);
 builder.Services.AddWebsiteCors(builder.Configuration);
+builder.Services.AddRules();
 builder.Services.AddHostedService<MediaSweep>();
 
 builder.Services
@@ -324,6 +325,7 @@ app.MapGet("/media/{id}", async (string id, RegistryDbContext db, IMediaStore me
 
 app.MapProxy();
 app.MapPublicVerify();
+app.MapRules();
 app.MapAccount(app.Configuration);
 
 app.Run();

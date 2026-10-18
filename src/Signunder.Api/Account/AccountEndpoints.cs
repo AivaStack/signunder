@@ -25,7 +25,7 @@ public static class AccountEndpoints
 
     /// <summary>Slugs that would read as SignUnder's own pages or hosts.</summary>
     private static readonly HashSet<string> Reserved =
-        ["demo", "signunder", "www", "api", "app", "admin", "dashboard", "verify", "public", "proxy", "media", "status", "docs", "test"];
+        ["demo", "signunder", "www", "api", "app", "admin", "dashboard", "verify", "public", "proxy", "media", "status", "docs", "test", "rules", "checker"];
 
     /// <summary>
     /// Trusts tokens issued by <c>SupabaseAuth:Issuer</c> (the project's
