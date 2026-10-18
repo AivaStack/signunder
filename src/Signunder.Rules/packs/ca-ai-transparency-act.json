@@ -1,0 +1,70 @@
+{
+  "pack": "ca-ai-transparency-act",
+  "version": "2026.10.12",
+  "title": "California AI Transparency Act (SB 942, as amended by AB 853)",
+  "kind": "law",
+  "sources": [
+    { "id": "code", "title": "California Business and Professions Code, sections 22757.1 to 22757.6 (FindLaw's copy, current as of 1 January 2026)", "url": "https://codes.findlaw.com/ca/business-and-professions-code/bpc-sect-22757-3/", "read": "2026-10-12" },
+    { "id": "ab853", "title": "AB 853 (2025), Chapter 674, Statutes of 2025: bill page and digest", "url": "https://calmatters.digitaldemocracy.org/bills/ca_202520260ab853", "read": "2026-10-12" }
+  ],
+  "rules": [
+    {
+      "id": "ca-latent-disclosure",
+      "title": "A latent disclosure in every image, video and audio output",
+      "summary": "If your generative system has over 1,000,000 monthly users and is publicly accessible in California, embed a latent disclosure in every AI-generated image, video and audio file: where feasible, your name, the system's name and version, the time and date, and a unique identifier. It must be detectable by your own detection tool, follow widely accepted industry standards, and be extraordinarily difficult to remove. Text is not covered.",
+      "strength": "law",
+      "when": [
+        { "fact": "roles", "any_of": ["provider"] },
+        { "fact": "markets", "any_of": ["california"] },
+        { "fact": "monthly_users_over_1m", "is": true },
+        { "fact": "modalities", "any_of": ["image", "video", "audio"] }
+      ],
+      "effective_from": "2026-08-02",
+      "grace": null,
+      "requires": ["latent_disclosure"],
+      "quote": "This chapter shall become operative on August 2, 2026.",
+      "source_ids": ["code", "ab853"],
+      "page": "/law/california-sb-942-ab-853",
+      "unverified": null
+    },
+    {
+      "id": "ca-manifest-option",
+      "title": "Offer users a visible disclosure",
+      "summary": "Offer your users the option to include a visible disclosure that identifies the content as AI-generated, appropriate to the medium and as hard to remove as is technically feasible.",
+      "strength": "law",
+      "when": [
+        { "fact": "roles", "any_of": ["provider"] },
+        { "fact": "markets", "any_of": ["california"] },
+        { "fact": "monthly_users_over_1m", "is": true },
+        { "fact": "modalities", "any_of": ["image", "video", "audio"] }
+      ],
+      "effective_from": "2026-08-02",
+      "grace": null,
+      "requires": ["manifest_disclosure_option"],
+      "quote": "clear, conspicuous, appropriate for the medium of the content",
+      "source_ids": ["code"],
+      "page": "/law/california-sb-942-ab-853",
+      "unverified": null
+    },
+    {
+      "id": "ca-detection-tool",
+      "title": "A free public detection tool with an API",
+      "summary": "Run a free, publicly accessible tool that checks uploads or URLs for your system's provenance data, with an API so it can be used without visiting your site, and that collects no personal information beyond optional feedback contact details.",
+      "strength": "law",
+      "when": [
+        { "fact": "roles", "any_of": ["provider"] },
+        { "fact": "markets", "any_of": ["california"] },
+        { "fact": "monthly_users_over_1m", "is": true },
+        { "fact": "modalities", "any_of": ["image", "video", "audio"] }
+      ],
+      "effective_from": "2026-08-02",
+      "grace": null,
+      "requires": ["detection_tool"],
+      "quote": "at no cost to the user",
+      "source_ids": ["code"],
+      "page": "/law/california-sb-942-ab-853",
+      "unverified": null
+    }
+  ],
+  "changelog": "2026.10.12: first version, from /law/california-sb-942-ab-853 as read 12 October 2026. The 2027 duties of large online platforms and hosting platforms, and the 2028 duty of capture-device makers, are not rules for the checker's users and are left out."
+}

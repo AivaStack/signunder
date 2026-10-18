@@ -1,0 +1,70 @@
+{
+  "pack": "eu-ai-act-art50",
+  "version": "2026.10.12",
+  "title": "EU AI Act, Article 50",
+  "kind": "law",
+  "sources": [
+    { "id": "act", "title": "Regulation (EU) 2024/1689 (the AI Act), Articles 50, 99 and 113, Official Journal text", "url": "https://eur-lex.europa.eu/eli/reg/2024/1689/oj", "read": "2026-10-12" },
+    { "id": "omnibus", "title": "Regulation (EU) 2026/1744 of 8 July 2026 (the Digital Omnibus on AI), recital 38 and the new Article 111(4)", "url": "https://eur-lex.europa.eu/eli/reg/2026/1744/oj", "read": "2026-10-12" },
+    { "id": "guidelines", "title": "European Commission, Guidelines on the transparency obligations under Article 50 of the AI Act (20 July 2026)", "url": "https://ec.europa.eu/newsroom/dae/redirection/document/131215", "read": "2026-10-12" }
+  ],
+  "rules": [
+    {
+      "id": "eu-50-2-marking",
+      "title": "Mark every output in a machine-readable, detectable way",
+      "summary": "If you offer generation to users in the EU under your own name, you are the provider, whoever's model produces the output, and every image, video, audio or text output must be marked so that machines can detect it as AI-generated. The Act names no technology; the Code of Practice says what counts as adequate. Standard editing assistance is excluded.",
+      "strength": "law",
+      "when": [
+        { "fact": "roles", "any_of": ["provider"] },
+        { "fact": "markets", "any_of": ["eu"] },
+        { "fact": "modalities", "any_of": ["image", "video", "audio", "text"] }
+      ],
+      "effective_from": "2026-08-02",
+      "grace": { "if": { "fact": "on_market_before_2026_08_02", "is": true }, "until": "2026-12-02" },
+      "requires": ["machine_readable_marking"],
+      "quote": "outputs ... are marked in a machine-readable format and detectable as artificially generated or manipulated",
+      "source_ids": ["act", "omnibus", "guidelines"],
+      "page": "/law/eu-ai-act-article-50",
+      "unverified": null
+    },
+    {
+      "id": "eu-50-4-deepfake",
+      "title": "Disclose realistic AI images, video and audio you publish",
+      "summary": "If you publish AI-generated or manipulated images, video or audio that realistically show people, places or events (deepfakes), you must disclose that they are artificially generated or manipulated, clearly and at the latest when people first see them. This checker does not assess the Act's exceptions; the law page sets out the article.",
+      "strength": "law",
+      "when": [
+        { "fact": "roles", "any_of": ["deployer"] },
+        { "fact": "markets", "any_of": ["eu"] },
+        { "fact": "realistic", "is": true },
+        { "fact": "modalities", "any_of": ["image", "video", "audio"] }
+      ],
+      "effective_from": "2026-08-02",
+      "grace": null,
+      "requires": ["visible_disclosure"],
+      "quote": null,
+      "source_ids": ["act"],
+      "page": "/law/eu-ai-act-article-50",
+      "unverified": null
+    },
+    {
+      "id": "eu-50-4-text",
+      "title": "Disclose AI text published on matters of public interest",
+      "summary": "AI-generated text published to inform the public on matters of public interest must be disclosed as AI-generated, unless a person has taken editorial responsibility for it.",
+      "strength": "law",
+      "when": [
+        { "fact": "roles", "any_of": ["deployer"] },
+        { "fact": "markets", "any_of": ["eu"] },
+        { "fact": "modalities", "any_of": ["text"] },
+        { "fact": "public_interest_text", "is": true }
+      ],
+      "effective_from": "2026-08-02",
+      "grace": null,
+      "requires": ["visible_disclosure"],
+      "quote": null,
+      "source_ids": ["act"],
+      "page": "/law/eu-ai-act-article-50",
+      "unverified": null
+    }
+  ],
+  "changelog": "2026.10.12: first version, from /law/eu-ai-act-article-50 as read 12 October 2026."
+}
