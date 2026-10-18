@@ -3,7 +3,7 @@ SIDECAR := src/sign-sidecar/Cargo.toml
 
 WORKER := src/wm-worker
 
-.PHONY: up down logs build test test-kms test-gcp robustness fmt sample conformance scan
+.PHONY: up down logs build test test-kms test-gcp robustness fmt sample conformance scan rules
 
 up: ## Build and start the local stack
 	$(COMPOSE) up --build -d --wait
@@ -22,6 +22,9 @@ test:
 	dotnet test Signunder.sln
 	cargo test --manifest-path $(SIDECAR)
 	cd $(WORKER) && uv run ./genproto.sh && uv run pytest -q
+
+rules: ## Publish the rule packs and the checker's common answers into content/rules
+	dotnet run --project tools/rules-export -- content/rules
 
 robustness: ## Watermark and fingerprint survival table, then its assertions
 	cd $(WORKER) && uv run python ../../tests/robustness/robustness.py

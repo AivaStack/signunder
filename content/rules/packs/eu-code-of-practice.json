@@ -1,0 +1,238 @@
+{
+  "pack": "eu-code-of-practice",
+  "version": "2026.10.12",
+  "title": "EU Code of Practice on Transparency of AI-Generated Content",
+  "kind": "code",
+  "sources": [
+    {
+      "id": "code",
+      "title": "Code of Practice on Transparency of AI-Generated Content, final version (10 June 2026)",
+      "url": "https://ec.europa.eu/newsroom/dae/redirection/document/129555",
+      "read": "2026-10-12"
+    },
+    {
+      "id": "faq",
+      "title": "European Commission, FAQ: Signing the Code of Practice on Transparency of AI-generated Content",
+      "url": "https://digital-strategy.ec.europa.eu/en/faqs/signing-code-practice-transparency-ai-generated-content",
+      "read": "2026-10-12"
+    }
+  ],
+  "rules": [
+    {
+      "id": "code-1-1-1-signed-metadata",
+      "title": "Digitally signed, time-stamped metadata on every output",
+      "summary": "Record in the file's metadata that the content is AI-generated, digitally signed and time-stamped, wherever the format carries metadata (images, video, audio, containerised text). The Code names no standard; C2PA Content Credentials are the established one. Binding if you signed the Code; otherwise it is what an authority will regard as adequate.",
+      "strength": "code",
+      "when": [
+        {
+          "fact": "roles",
+          "is": null,
+          "any_of": [
+            "provider"
+          ]
+        },
+        {
+          "fact": "markets",
+          "is": null,
+          "any_of": [
+            "eu"
+          ]
+        },
+        {
+          "fact": "modalities",
+          "is": null,
+          "any_of": [
+            "image",
+            "video",
+            "audio",
+            "text"
+          ]
+        }
+      ],
+      "effective_from": "2026-08-02",
+      "grace": null,
+      "requires": [
+        "signed_metadata"
+      ],
+      "quote": "All recorded information will be digitally signed and time-stamped",
+      "source_ids": [
+        "code"
+      ],
+      "page": "/law/eu-code-of-practice",
+      "unverified": null
+    },
+    {
+      "id": "code-1-1-2-watermark",
+      "title": "An imperceptible watermark as well",
+      "summary": "Mark AI-generated content with an imperceptible watermark too, because no single technique suffices. Text needs one only when it is free-form and longer than 200 tokens.",
+      "strength": "code",
+      "when": [
+        {
+          "fact": "roles",
+          "is": null,
+          "any_of": [
+            "provider"
+          ]
+        },
+        {
+          "fact": "markets",
+          "is": null,
+          "any_of": [
+            "eu"
+          ]
+        },
+        {
+          "fact": "modalities",
+          "is": null,
+          "any_of": [
+            "image",
+            "video",
+            "audio",
+            "text"
+          ]
+        }
+      ],
+      "effective_from": "2026-08-02",
+      "grace": null,
+      "requires": [
+        "watermark"
+      ],
+      "quote": "Signatories will ensure that AI-generated or manipulated content is marked with an imperceptible watermark, with the exception of very short text",
+      "source_ids": [
+        "code"
+      ],
+      "page": "/law/eu-code-of-practice",
+      "unverified": null
+    },
+    {
+      "id": "code-1-2-preserve",
+      "title": "Keep the marks already on your inputs",
+      "summary": "Make best efforts to preserve metadata marks on input data and on content your system generates or edits.",
+      "strength": "code",
+      "when": [
+        {
+          "fact": "roles",
+          "is": null,
+          "any_of": [
+            "provider"
+          ]
+        },
+        {
+          "fact": "markets",
+          "is": null,
+          "any_of": [
+            "eu"
+          ]
+        },
+        {
+          "fact": "modalities",
+          "is": null,
+          "any_of": [
+            "image",
+            "video",
+            "audio",
+            "text"
+          ]
+        }
+      ],
+      "effective_from": "2026-08-02",
+      "grace": null,
+      "requires": [
+        "preserve_marks"
+      ],
+      "quote": "Signatories will make best efforts to preserve metadata markings on input data and content generated or manipulated by their AI system",
+      "source_ids": [
+        "code"
+      ],
+      "page": "/law/eu-code-of-practice",
+      "unverified": null
+    },
+    {
+      "id": "code-2-1-detection",
+      "title": "A detection solution for your own outputs",
+      "summary": "Make a way available for others to check whether content came from your system: a public specification, software, or an API. It is first-party: it detects your outputs, not anyone else's.",
+      "strength": "code",
+      "when": [
+        {
+          "fact": "roles",
+          "is": null,
+          "any_of": [
+            "provider"
+          ]
+        },
+        {
+          "fact": "markets",
+          "is": null,
+          "any_of": [
+            "eu"
+          ]
+        },
+        {
+          "fact": "modalities",
+          "is": null,
+          "any_of": [
+            "image",
+            "video",
+            "audio",
+            "text"
+          ]
+        }
+      ],
+      "effective_from": "2026-08-02",
+      "grace": null,
+      "requires": [
+        "detection_tool"
+      ],
+      "quote": "Signatories will make available a detection solution, composed of one or more detection mechanisms",
+      "source_ids": [
+        "code"
+      ],
+      "page": "/law/eu-code-of-practice",
+      "unverified": null
+    },
+    {
+      "id": "code-3-4-interoperable-detection",
+      "title": "Interoperable detection by 2 February 2027",
+      "summary": "Make your detection reachable in an interoperable way: either a public industry-standard access method that routes detection queries to it, or a publicly readable signpost in the content saying which detection solution to use.",
+      "strength": "code",
+      "when": [
+        {
+          "fact": "roles",
+          "is": null,
+          "any_of": [
+            "provider"
+          ]
+        },
+        {
+          "fact": "markets",
+          "is": null,
+          "any_of": [
+            "eu"
+          ]
+        },
+        {
+          "fact": "modalities",
+          "is": null,
+          "any_of": [
+            "image",
+            "video",
+            "audio",
+            "text"
+          ]
+        }
+      ],
+      "effective_from": "2027-02-02",
+      "grace": null,
+      "requires": [
+        "interoperable_detection"
+      ],
+      "quote": "Signatories will implement an interoperability solution for their detection mechanisms by 2 February 2027",
+      "source_ids": [
+        "code"
+      ],
+      "page": "/law/eu-code-of-practice",
+      "unverified": null
+    }
+  ],
+  "changelog": "2026.10.12: first version, from /law/eu-code-of-practice as read 12 October 2026. Rules bind signatories; for everyone else they describe what the Commission found adequate."
+}

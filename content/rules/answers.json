@@ -1,0 +1,1495 @@
+{
+  "as_of": "2026-10-18",
+  "pack_versions": [
+    "ca-ai-transparency-act@2026.10.12",
+    "eu-ai-act-art50@2026.10.12",
+    "eu-code-of-practice@2026.10.12",
+    "platform-labels@2026.10.12"
+  ],
+  "answers": [
+    {
+      "slug": "eu-ai-image-generator",
+      "question": "Do AI images my app generates for EU users have to be marked?",
+      "description": "Yes: since 2 August 2026 under EU AI Act Article 50(2), whoever's model makes them. What the rule says, what the Code expects, and the sources.",
+      "answer": "Yes. If your product lets people generate images under your name for users in the EU, you are the provider, whoever's model makes the image, and since 2 August 2026 every output has to be marked in a machine-readable, detectable way.",
+      "checker_query": "m=image&r=provider&w=eu&d=2026-10-18",
+      "evaluation": {
+        "date": "2026-10-18",
+        "pack_versions": [
+          "ca-ai-transparency-act@2026.10.12",
+          "eu-ai-act-art50@2026.10.12",
+          "eu-code-of-practice@2026.10.12",
+          "platform-labels@2026.10.12"
+        ],
+        "required": [
+          "machine_readable_marking"
+        ],
+        "findings": [
+          {
+            "pack": "eu-ai-act-art50",
+            "pack_version": "2026.10.12",
+            "rule_id": "eu-50-2-marking",
+            "title": "Mark every output in a machine-readable, detectable way",
+            "summary": "If you offer generation to users in the EU under your own name, you are the provider, whoever's model produces the output, and every image, video, audio or text output must be marked so that machines can detect it as AI-generated. The Act names no technology; the Code of Practice says what counts as adequate. Standard editing assistance is excluded.",
+            "strength": "law",
+            "binding": true,
+            "status": "in_force",
+            "applies_from": "2026-08-02",
+            "requires": [
+              "machine_readable_marking"
+            ],
+            "quote": "outputs ... are marked in a machine-readable format and detectable as artificially generated or manipulated",
+            "page": "/law/eu-ai-act-article-50",
+            "unverified": null,
+            "sources": [
+              {
+                "title": "Regulation (EU) 2024/1689 (the AI Act), Articles 50, 99 and 113, Official Journal text",
+                "url": "https://eur-lex.europa.eu/eli/reg/2024/1689/oj",
+                "read": "2026-10-12"
+              },
+              {
+                "title": "Regulation (EU) 2026/1744 of 8 July 2026 (the Digital Omnibus on AI), recital 38 and the new Article 111(4)",
+                "url": "https://eur-lex.europa.eu/eli/reg/2026/1744/oj",
+                "read": "2026-10-12"
+              },
+              {
+                "title": "European Commission, Guidelines on the transparency obligations under Article 50 of the AI Act (20 July 2026)",
+                "url": "https://ec.europa.eu/newsroom/dae/redirection/document/131215",
+                "read": "2026-10-12"
+              }
+            ]
+          },
+          {
+            "pack": "eu-code-of-practice",
+            "pack_version": "2026.10.12",
+            "rule_id": "code-1-1-1-signed-metadata",
+            "title": "Digitally signed, time-stamped metadata on every output",
+            "summary": "Record in the file's metadata that the content is AI-generated, digitally signed and time-stamped, wherever the format carries metadata (images, video, audio, containerised text). The Code names no standard; C2PA Content Credentials are the established one. Binding if you signed the Code; otherwise it is what an authority will regard as adequate.",
+            "strength": "code",
+            "binding": false,
+            "status": "in_force",
+            "applies_from": "2026-08-02",
+            "requires": [
+              "signed_metadata"
+            ],
+            "quote": "All recorded information will be digitally signed and time-stamped",
+            "page": "/law/eu-code-of-practice",
+            "unverified": null,
+            "sources": [
+              {
+                "title": "Code of Practice on Transparency of AI-Generated Content, final version (10 June 2026)",
+                "url": "https://ec.europa.eu/newsroom/dae/redirection/document/129555",
+                "read": "2026-10-12"
+              }
+            ]
+          },
+          {
+            "pack": "eu-code-of-practice",
+            "pack_version": "2026.10.12",
+            "rule_id": "code-1-1-2-watermark",
+            "title": "An imperceptible watermark as well",
+            "summary": "Mark AI-generated content with an imperceptible watermark too, because no single technique suffices. Text needs one only when it is free-form and longer than 200 tokens.",
+            "strength": "code",
+            "binding": false,
+            "status": "in_force",
+            "applies_from": "2026-08-02",
+            "requires": [
+              "watermark"
+            ],
+            "quote": "Signatories will ensure that AI-generated or manipulated content is marked with an imperceptible watermark, with the exception of very short text",
+            "page": "/law/eu-code-of-practice",
+            "unverified": null,
+            "sources": [
+              {
+                "title": "Code of Practice on Transparency of AI-Generated Content, final version (10 June 2026)",
+                "url": "https://ec.europa.eu/newsroom/dae/redirection/document/129555",
+                "read": "2026-10-12"
+              }
+            ]
+          },
+          {
+            "pack": "eu-code-of-practice",
+            "pack_version": "2026.10.12",
+            "rule_id": "code-1-2-preserve",
+            "title": "Keep the marks already on your inputs",
+            "summary": "Make best efforts to preserve metadata marks on input data and on content your system generates or edits.",
+            "strength": "code",
+            "binding": false,
+            "status": "in_force",
+            "applies_from": "2026-08-02",
+            "requires": [
+              "preserve_marks"
+            ],
+            "quote": "Signatories will make best efforts to preserve metadata markings on input data and content generated or manipulated by their AI system",
+            "page": "/law/eu-code-of-practice",
+            "unverified": null,
+            "sources": [
+              {
+                "title": "Code of Practice on Transparency of AI-Generated Content, final version (10 June 2026)",
+                "url": "https://ec.europa.eu/newsroom/dae/redirection/document/129555",
+                "read": "2026-10-12"
+              }
+            ]
+          },
+          {
+            "pack": "eu-code-of-practice",
+            "pack_version": "2026.10.12",
+            "rule_id": "code-2-1-detection",
+            "title": "A detection solution for your own outputs",
+            "summary": "Make a way available for others to check whether content came from your system: a public specification, software, or an API. It is first-party: it detects your outputs, not anyone else's.",
+            "strength": "code",
+            "binding": false,
+            "status": "in_force",
+            "applies_from": "2026-08-02",
+            "requires": [
+              "detection_tool"
+            ],
+            "quote": "Signatories will make available a detection solution, composed of one or more detection mechanisms",
+            "page": "/law/eu-code-of-practice",
+            "unverified": null,
+            "sources": [
+              {
+                "title": "Code of Practice on Transparency of AI-Generated Content, final version (10 June 2026)",
+                "url": "https://ec.europa.eu/newsroom/dae/redirection/document/129555",
+                "read": "2026-10-12"
+              }
+            ]
+          },
+          {
+            "pack": "eu-code-of-practice",
+            "pack_version": "2026.10.12",
+            "rule_id": "code-3-4-interoperable-detection",
+            "title": "Interoperable detection by 2 February 2027",
+            "summary": "Make your detection reachable in an interoperable way: either a public industry-standard access method that routes detection queries to it, or a publicly readable signpost in the content saying which detection solution to use.",
+            "strength": "code",
+            "binding": false,
+            "status": "upcoming",
+            "applies_from": "2027-02-02",
+            "requires": [
+              "interoperable_detection"
+            ],
+            "quote": "Signatories will implement an interoperability solution for their detection mechanisms by 2 February 2027",
+            "page": "/law/eu-code-of-practice",
+            "unverified": null,
+            "sources": [
+              {
+                "title": "Code of Practice on Transparency of AI-Generated Content, final version (10 June 2026)",
+                "url": "https://ec.europa.eu/newsroom/dae/redirection/document/129555",
+                "read": "2026-10-12"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "eu-generator-launched-before-august-2026",
+      "question": "My AI generator was on the market before 2 August 2026. When must I mark?",
+      "description": "By 2 December 2026: the EU's only grace on Article 50(2) marking, for systems already on the market. The deadline, what it covers and the sources.",
+      "answer": "By 2 December 2026. A generative system placed on the EU market before 2 August 2026 has until then to meet the Article 50(2) marking duty; a system launched on or after 2 August had to mark from day one.",
+      "checker_query": "m=image,video&r=provider&w=eu&pre=1&d=2026-10-18",
+      "evaluation": {
+        "date": "2026-10-18",
+        "pack_versions": [
+          "ca-ai-transparency-act@2026.10.12",
+          "eu-ai-act-art50@2026.10.12",
+          "eu-code-of-practice@2026.10.12",
+          "platform-labels@2026.10.12"
+        ],
+        "required": [
+          "machine_readable_marking"
+        ],
+        "findings": [
+          {
+            "pack": "eu-code-of-practice",
+            "pack_version": "2026.10.12",
+            "rule_id": "code-1-1-1-signed-metadata",
+            "title": "Digitally signed, time-stamped metadata on every output",
+            "summary": "Record in the file's metadata that the content is AI-generated, digitally signed and time-stamped, wherever the format carries metadata (images, video, audio, containerised text). The Code names no standard; C2PA Content Credentials are the established one. Binding if you signed the Code; otherwise it is what an authority will regard as adequate.",
+            "strength": "code",
+            "binding": false,
+            "status": "in_force",
+            "applies_from": "2026-08-02",
+            "requires": [
+              "signed_metadata"
+            ],
+            "quote": "All recorded information will be digitally signed and time-stamped",
+            "page": "/law/eu-code-of-practice",
+            "unverified": null,
+            "sources": [
+              {
+                "title": "Code of Practice on Transparency of AI-Generated Content, final version (10 June 2026)",
+                "url": "https://ec.europa.eu/newsroom/dae/redirection/document/129555",
+                "read": "2026-10-12"
+              }
+            ]
+          },
+          {
+            "pack": "eu-code-of-practice",
+            "pack_version": "2026.10.12",
+            "rule_id": "code-1-1-2-watermark",
+            "title": "An imperceptible watermark as well",
+            "summary": "Mark AI-generated content with an imperceptible watermark too, because no single technique suffices. Text needs one only when it is free-form and longer than 200 tokens.",
+            "strength": "code",
+            "binding": false,
+            "status": "in_force",
+            "applies_from": "2026-08-02",
+            "requires": [
+              "watermark"
+            ],
+            "quote": "Signatories will ensure that AI-generated or manipulated content is marked with an imperceptible watermark, with the exception of very short text",
+            "page": "/law/eu-code-of-practice",
+            "unverified": null,
+            "sources": [
+              {
+                "title": "Code of Practice on Transparency of AI-Generated Content, final version (10 June 2026)",
+                "url": "https://ec.europa.eu/newsroom/dae/redirection/document/129555",
+                "read": "2026-10-12"
+              }
+            ]
+          },
+          {
+            "pack": "eu-code-of-practice",
+            "pack_version": "2026.10.12",
+            "rule_id": "code-1-2-preserve",
+            "title": "Keep the marks already on your inputs",
+            "summary": "Make best efforts to preserve metadata marks on input data and on content your system generates or edits.",
+            "strength": "code",
+            "binding": false,
+            "status": "in_force",
+            "applies_from": "2026-08-02",
+            "requires": [
+              "preserve_marks"
+            ],
+            "quote": "Signatories will make best efforts to preserve metadata markings on input data and content generated or manipulated by their AI system",
+            "page": "/law/eu-code-of-practice",
+            "unverified": null,
+            "sources": [
+              {
+                "title": "Code of Practice on Transparency of AI-Generated Content, final version (10 June 2026)",
+                "url": "https://ec.europa.eu/newsroom/dae/redirection/document/129555",
+                "read": "2026-10-12"
+              }
+            ]
+          },
+          {
+            "pack": "eu-code-of-practice",
+            "pack_version": "2026.10.12",
+            "rule_id": "code-2-1-detection",
+            "title": "A detection solution for your own outputs",
+            "summary": "Make a way available for others to check whether content came from your system: a public specification, software, or an API. It is first-party: it detects your outputs, not anyone else's.",
+            "strength": "code",
+            "binding": false,
+            "status": "in_force",
+            "applies_from": "2026-08-02",
+            "requires": [
+              "detection_tool"
+            ],
+            "quote": "Signatories will make available a detection solution, composed of one or more detection mechanisms",
+            "page": "/law/eu-code-of-practice",
+            "unverified": null,
+            "sources": [
+              {
+                "title": "Code of Practice on Transparency of AI-Generated Content, final version (10 June 2026)",
+                "url": "https://ec.europa.eu/newsroom/dae/redirection/document/129555",
+                "read": "2026-10-12"
+              }
+            ]
+          },
+          {
+            "pack": "eu-ai-act-art50",
+            "pack_version": "2026.10.12",
+            "rule_id": "eu-50-2-marking",
+            "title": "Mark every output in a machine-readable, detectable way",
+            "summary": "If you offer generation to users in the EU under your own name, you are the provider, whoever's model produces the output, and every image, video, audio or text output must be marked so that machines can detect it as AI-generated. The Act names no technology; the Code of Practice says what counts as adequate. Standard editing assistance is excluded.",
+            "strength": "law",
+            "binding": true,
+            "status": "upcoming",
+            "applies_from": "2026-12-02",
+            "requires": [
+              "machine_readable_marking"
+            ],
+            "quote": "outputs ... are marked in a machine-readable format and detectable as artificially generated or manipulated",
+            "page": "/law/eu-ai-act-article-50",
+            "unverified": null,
+            "sources": [
+              {
+                "title": "Regulation (EU) 2024/1689 (the AI Act), Articles 50, 99 and 113, Official Journal text",
+                "url": "https://eur-lex.europa.eu/eli/reg/2024/1689/oj",
+                "read": "2026-10-12"
+              },
+              {
+                "title": "Regulation (EU) 2026/1744 of 8 July 2026 (the Digital Omnibus on AI), recital 38 and the new Article 111(4)",
+                "url": "https://eur-lex.europa.eu/eli/reg/2026/1744/oj",
+                "read": "2026-10-12"
+              },
+              {
+                "title": "European Commission, Guidelines on the transparency obligations under Article 50 of the AI Act (20 July 2026)",
+                "url": "https://ec.europa.eu/newsroom/dae/redirection/document/131215",
+                "read": "2026-10-12"
+              }
+            ]
+          },
+          {
+            "pack": "eu-code-of-practice",
+            "pack_version": "2026.10.12",
+            "rule_id": "code-3-4-interoperable-detection",
+            "title": "Interoperable detection by 2 February 2027",
+            "summary": "Make your detection reachable in an interoperable way: either a public industry-standard access method that routes detection queries to it, or a publicly readable signpost in the content saying which detection solution to use.",
+            "strength": "code",
+            "binding": false,
+            "status": "upcoming",
+            "applies_from": "2027-02-02",
+            "requires": [
+              "interoperable_detection"
+            ],
+            "quote": "Signatories will implement an interoperability solution for their detection mechanisms by 2 February 2027",
+            "page": "/law/eu-code-of-practice",
+            "unverified": null,
+            "sources": [
+              {
+                "title": "Code of Practice on Transparency of AI-Generated Content, final version (10 June 2026)",
+                "url": "https://ec.europa.eu/newsroom/dae/redirection/document/129555",
+                "read": "2026-10-12"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "eu-ai-video-generator",
+      "question": "Does AI video my product generates for EU users need marking?",
+      "description": "Yes: EU AI Act Article 50(2) covers video as well as images, audio and text. The rule, the Code's two marking layers and the sources.",
+      "answer": "Yes. Article 50(2) covers generated video just as it covers images, audio and text: if you offer video generation under your name to users in the EU, every output has to be marked in a machine-readable, detectable way.",
+      "checker_query": "m=video&r=provider&w=eu&d=2026-10-18",
+      "evaluation": {
+        "date": "2026-10-18",
+        "pack_versions": [
+          "ca-ai-transparency-act@2026.10.12",
+          "eu-ai-act-art50@2026.10.12",
+          "eu-code-of-practice@2026.10.12",
+          "platform-labels@2026.10.12"
+        ],
+        "required": [
+          "machine_readable_marking"
+        ],
+        "findings": [
+          {
+            "pack": "eu-ai-act-art50",
+            "pack_version": "2026.10.12",
+            "rule_id": "eu-50-2-marking",
+            "title": "Mark every output in a machine-readable, detectable way",
+            "summary": "If you offer generation to users in the EU under your own name, you are the provider, whoever's model produces the output, and every image, video, audio or text output must be marked so that machines can detect it as AI-generated. The Act names no technology; the Code of Practice says what counts as adequate. Standard editing assistance is excluded.",
+            "strength": "law",
+            "binding": true,
+            "status": "in_force",
+            "applies_from": "2026-08-02",
+            "requires": [
+              "machine_readable_marking"
+            ],
+            "quote": "outputs ... are marked in a machine-readable format and detectable as artificially generated or manipulated",
+            "page": "/law/eu-ai-act-article-50",
+            "unverified": null,
+            "sources": [
+              {
+                "title": "Regulation (EU) 2024/1689 (the AI Act), Articles 50, 99 and 113, Official Journal text",
+                "url": "https://eur-lex.europa.eu/eli/reg/2024/1689/oj",
+                "read": "2026-10-12"
+              },
+              {
+                "title": "Regulation (EU) 2026/1744 of 8 July 2026 (the Digital Omnibus on AI), recital 38 and the new Article 111(4)",
+                "url": "https://eur-lex.europa.eu/eli/reg/2026/1744/oj",
+                "read": "2026-10-12"
+              },
+              {
+                "title": "European Commission, Guidelines on the transparency obligations under Article 50 of the AI Act (20 July 2026)",
+                "url": "https://ec.europa.eu/newsroom/dae/redirection/document/131215",
+                "read": "2026-10-12"
+              }
+            ]
+          },
+          {
+            "pack": "eu-code-of-practice",
+            "pack_version": "2026.10.12",
+            "rule_id": "code-1-1-1-signed-metadata",
+            "title": "Digitally signed, time-stamped metadata on every output",
+            "summary": "Record in the file's metadata that the content is AI-generated, digitally signed and time-stamped, wherever the format carries metadata (images, video, audio, containerised text). The Code names no standard; C2PA Content Credentials are the established one. Binding if you signed the Code; otherwise it is what an authority will regard as adequate.",
+            "strength": "code",
+            "binding": false,
+            "status": "in_force",
+            "applies_from": "2026-08-02",
+            "requires": [
+              "signed_metadata"
+            ],
+            "quote": "All recorded information will be digitally signed and time-stamped",
+            "page": "/law/eu-code-of-practice",
+            "unverified": null,
+            "sources": [
+              {
+                "title": "Code of Practice on Transparency of AI-Generated Content, final version (10 June 2026)",
+                "url": "https://ec.europa.eu/newsroom/dae/redirection/document/129555",
+                "read": "2026-10-12"
+              }
+            ]
+          },
+          {
+            "pack": "eu-code-of-practice",
+            "pack_version": "2026.10.12",
+            "rule_id": "code-1-1-2-watermark",
+            "title": "An imperceptible watermark as well",
+            "summary": "Mark AI-generated content with an imperceptible watermark too, because no single technique suffices. Text needs one only when it is free-form and longer than 200 tokens.",
+            "strength": "code",
+            "binding": false,
+            "status": "in_force",
+            "applies_from": "2026-08-02",
+            "requires": [
+              "watermark"
+            ],
+            "quote": "Signatories will ensure that AI-generated or manipulated content is marked with an imperceptible watermark, with the exception of very short text",
+            "page": "/law/eu-code-of-practice",
+            "unverified": null,
+            "sources": [
+              {
+                "title": "Code of Practice on Transparency of AI-Generated Content, final version (10 June 2026)",
+                "url": "https://ec.europa.eu/newsroom/dae/redirection/document/129555",
+                "read": "2026-10-12"
+              }
+            ]
+          },
+          {
+            "pack": "eu-code-of-practice",
+            "pack_version": "2026.10.12",
+            "rule_id": "code-1-2-preserve",
+            "title": "Keep the marks already on your inputs",
+            "summary": "Make best efforts to preserve metadata marks on input data and on content your system generates or edits.",
+            "strength": "code",
+            "binding": false,
+            "status": "in_force",
+            "applies_from": "2026-08-02",
+            "requires": [
+              "preserve_marks"
+            ],
+            "quote": "Signatories will make best efforts to preserve metadata markings on input data and content generated or manipulated by their AI system",
+            "page": "/law/eu-code-of-practice",
+            "unverified": null,
+            "sources": [
+              {
+                "title": "Code of Practice on Transparency of AI-Generated Content, final version (10 June 2026)",
+                "url": "https://ec.europa.eu/newsroom/dae/redirection/document/129555",
+                "read": "2026-10-12"
+              }
+            ]
+          },
+          {
+            "pack": "eu-code-of-practice",
+            "pack_version": "2026.10.12",
+            "rule_id": "code-2-1-detection",
+            "title": "A detection solution for your own outputs",
+            "summary": "Make a way available for others to check whether content came from your system: a public specification, software, or an API. It is first-party: it detects your outputs, not anyone else's.",
+            "strength": "code",
+            "binding": false,
+            "status": "in_force",
+            "applies_from": "2026-08-02",
+            "requires": [
+              "detection_tool"
+            ],
+            "quote": "Signatories will make available a detection solution, composed of one or more detection mechanisms",
+            "page": "/law/eu-code-of-practice",
+            "unverified": null,
+            "sources": [
+              {
+                "title": "Code of Practice on Transparency of AI-Generated Content, final version (10 June 2026)",
+                "url": "https://ec.europa.eu/newsroom/dae/redirection/document/129555",
+                "read": "2026-10-12"
+              }
+            ]
+          },
+          {
+            "pack": "eu-code-of-practice",
+            "pack_version": "2026.10.12",
+            "rule_id": "code-3-4-interoperable-detection",
+            "title": "Interoperable detection by 2 February 2027",
+            "summary": "Make your detection reachable in an interoperable way: either a public industry-standard access method that routes detection queries to it, or a publicly readable signpost in the content saying which detection solution to use.",
+            "strength": "code",
+            "binding": false,
+            "status": "upcoming",
+            "applies_from": "2027-02-02",
+            "requires": [
+              "interoperable_detection"
+            ],
+            "quote": "Signatories will implement an interoperability solution for their detection mechanisms by 2 February 2027",
+            "page": "/law/eu-code-of-practice",
+            "unverified": null,
+            "sources": [
+              {
+                "title": "Code of Practice on Transparency of AI-Generated Content, final version (10 June 2026)",
+                "url": "https://ec.europa.eu/newsroom/dae/redirection/document/129555",
+                "read": "2026-10-12"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "eu-ai-voice-and-audio",
+      "question": "Do AI voices and audio my product generates need marking in the EU?",
+      "description": "Yes: synthetic audio is covered by EU AI Act Article 50(2). The rule for voice and audio generators, the Code's layers and the sources.",
+      "answer": "Yes. Article 50(2) names synthetic audio explicitly, so a product that generates voices or other audio for users in the EU has to mark every output in a machine-readable, detectable way.",
+      "checker_query": "m=audio&r=provider&w=eu&d=2026-10-18",
+      "evaluation": {
+        "date": "2026-10-18",
+        "pack_versions": [
+          "ca-ai-transparency-act@2026.10.12",
+          "eu-ai-act-art50@2026.10.12",
+          "eu-code-of-practice@2026.10.12",
+          "platform-labels@2026.10.12"
+        ],
+        "required": [
+          "machine_readable_marking"
+        ],
+        "findings": [
+          {
+            "pack": "eu-ai-act-art50",
+            "pack_version": "2026.10.12",
+            "rule_id": "eu-50-2-marking",
+            "title": "Mark every output in a machine-readable, detectable way",
+            "summary": "If you offer generation to users in the EU under your own name, you are the provider, whoever's model produces the output, and every image, video, audio or text output must be marked so that machines can detect it as AI-generated. The Act names no technology; the Code of Practice says what counts as adequate. Standard editing assistance is excluded.",
+            "strength": "law",
+            "binding": true,
+            "status": "in_force",
+            "applies_from": "2026-08-02",
+            "requires": [
+              "machine_readable_marking"
+            ],
+            "quote": "outputs ... are marked in a machine-readable format and detectable as artificially generated or manipulated",
+            "page": "/law/eu-ai-act-article-50",
+            "unverified": null,
+            "sources": [
+              {
+                "title": "Regulation (EU) 2024/1689 (the AI Act), Articles 50, 99 and 113, Official Journal text",
+                "url": "https://eur-lex.europa.eu/eli/reg/2024/1689/oj",
+                "read": "2026-10-12"
+              },
+              {
+                "title": "Regulation (EU) 2026/1744 of 8 July 2026 (the Digital Omnibus on AI), recital 38 and the new Article 111(4)",
+                "url": "https://eur-lex.europa.eu/eli/reg/2026/1744/oj",
+                "read": "2026-10-12"
+              },
+              {
+                "title": "European Commission, Guidelines on the transparency obligations under Article 50 of the AI Act (20 July 2026)",
+                "url": "https://ec.europa.eu/newsroom/dae/redirection/document/131215",
+                "read": "2026-10-12"
+              }
+            ]
+          },
+          {
+            "pack": "eu-code-of-practice",
+            "pack_version": "2026.10.12",
+            "rule_id": "code-1-1-1-signed-metadata",
+            "title": "Digitally signed, time-stamped metadata on every output",
+            "summary": "Record in the file's metadata that the content is AI-generated, digitally signed and time-stamped, wherever the format carries metadata (images, video, audio, containerised text). The Code names no standard; C2PA Content Credentials are the established one. Binding if you signed the Code; otherwise it is what an authority will regard as adequate.",
+            "strength": "code",
+            "binding": false,
+            "status": "in_force",
+            "applies_from": "2026-08-02",
+            "requires": [
+              "signed_metadata"
+            ],
+            "quote": "All recorded information will be digitally signed and time-stamped",
+            "page": "/law/eu-code-of-practice",
+            "unverified": null,
+            "sources": [
+              {
+                "title": "Code of Practice on Transparency of AI-Generated Content, final version (10 June 2026)",
+                "url": "https://ec.europa.eu/newsroom/dae/redirection/document/129555",
+                "read": "2026-10-12"
+              }
+            ]
+          },
+          {
+            "pack": "eu-code-of-practice",
+            "pack_version": "2026.10.12",
+            "rule_id": "code-1-1-2-watermark",
+            "title": "An imperceptible watermark as well",
+            "summary": "Mark AI-generated content with an imperceptible watermark too, because no single technique suffices. Text needs one only when it is free-form and longer than 200 tokens.",
+            "strength": "code",
+            "binding": false,
+            "status": "in_force",
+            "applies_from": "2026-08-02",
+            "requires": [
+              "watermark"
+            ],
+            "quote": "Signatories will ensure that AI-generated or manipulated content is marked with an imperceptible watermark, with the exception of very short text",
+            "page": "/law/eu-code-of-practice",
+            "unverified": null,
+            "sources": [
+              {
+                "title": "Code of Practice on Transparency of AI-Generated Content, final version (10 June 2026)",
+                "url": "https://ec.europa.eu/newsroom/dae/redirection/document/129555",
+                "read": "2026-10-12"
+              }
+            ]
+          },
+          {
+            "pack": "eu-code-of-practice",
+            "pack_version": "2026.10.12",
+            "rule_id": "code-1-2-preserve",
+            "title": "Keep the marks already on your inputs",
+            "summary": "Make best efforts to preserve metadata marks on input data and on content your system generates or edits.",
+            "strength": "code",
+            "binding": false,
+            "status": "in_force",
+            "applies_from": "2026-08-02",
+            "requires": [
+              "preserve_marks"
+            ],
+            "quote": "Signatories will make best efforts to preserve metadata markings on input data and content generated or manipulated by their AI system",
+            "page": "/law/eu-code-of-practice",
+            "unverified": null,
+            "sources": [
+              {
+                "title": "Code of Practice on Transparency of AI-Generated Content, final version (10 June 2026)",
+                "url": "https://ec.europa.eu/newsroom/dae/redirection/document/129555",
+                "read": "2026-10-12"
+              }
+            ]
+          },
+          {
+            "pack": "eu-code-of-practice",
+            "pack_version": "2026.10.12",
+            "rule_id": "code-2-1-detection",
+            "title": "A detection solution for your own outputs",
+            "summary": "Make a way available for others to check whether content came from your system: a public specification, software, or an API. It is first-party: it detects your outputs, not anyone else's.",
+            "strength": "code",
+            "binding": false,
+            "status": "in_force",
+            "applies_from": "2026-08-02",
+            "requires": [
+              "detection_tool"
+            ],
+            "quote": "Signatories will make available a detection solution, composed of one or more detection mechanisms",
+            "page": "/law/eu-code-of-practice",
+            "unverified": null,
+            "sources": [
+              {
+                "title": "Code of Practice on Transparency of AI-Generated Content, final version (10 June 2026)",
+                "url": "https://ec.europa.eu/newsroom/dae/redirection/document/129555",
+                "read": "2026-10-12"
+              }
+            ]
+          },
+          {
+            "pack": "eu-code-of-practice",
+            "pack_version": "2026.10.12",
+            "rule_id": "code-3-4-interoperable-detection",
+            "title": "Interoperable detection by 2 February 2027",
+            "summary": "Make your detection reachable in an interoperable way: either a public industry-standard access method that routes detection queries to it, or a publicly readable signpost in the content saying which detection solution to use.",
+            "strength": "code",
+            "binding": false,
+            "status": "upcoming",
+            "applies_from": "2027-02-02",
+            "requires": [
+              "interoperable_detection"
+            ],
+            "quote": "Signatories will implement an interoperability solution for their detection mechanisms by 2 February 2027",
+            "page": "/law/eu-code-of-practice",
+            "unverified": null,
+            "sources": [
+              {
+                "title": "Code of Practice on Transparency of AI-Generated Content, final version (10 June 2026)",
+                "url": "https://ec.europa.eu/newsroom/dae/redirection/document/129555",
+                "read": "2026-10-12"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "eu-ai-text-watermark",
+      "question": "Does AI-generated text need a watermark in the EU?",
+      "description": "The AI Act requires machine-readable marking of AI text; the Code of Practice expects a watermark only above 200 tokens. Both rules with sources.",
+      "answer": "The AI Act requires AI-generated text you offer to EU users to be marked in a machine-readable way, but names no technique. The Code of Practice is where a watermark comes in: it expects one on free-form text longer than 200 tokens.",
+      "checker_query": "m=text&r=provider&w=eu&d=2026-10-18",
+      "evaluation": {
+        "date": "2026-10-18",
+        "pack_versions": [
+          "ca-ai-transparency-act@2026.10.12",
+          "eu-ai-act-art50@2026.10.12",
+          "eu-code-of-practice@2026.10.12",
+          "platform-labels@2026.10.12"
+        ],
+        "required": [
+          "machine_readable_marking"
+        ],
+        "findings": [
+          {
+            "pack": "eu-ai-act-art50",
+            "pack_version": "2026.10.12",
+            "rule_id": "eu-50-2-marking",
+            "title": "Mark every output in a machine-readable, detectable way",
+            "summary": "If you offer generation to users in the EU under your own name, you are the provider, whoever's model produces the output, and every image, video, audio or text output must be marked so that machines can detect it as AI-generated. The Act names no technology; the Code of Practice says what counts as adequate. Standard editing assistance is excluded.",
+            "strength": "law",
+            "binding": true,
+            "status": "in_force",
+            "applies_from": "2026-08-02",
+            "requires": [
+              "machine_readable_marking"
+            ],
+            "quote": "outputs ... are marked in a machine-readable format and detectable as artificially generated or manipulated",
+            "page": "/law/eu-ai-act-article-50",
+            "unverified": null,
+            "sources": [
+              {
+                "title": "Regulation (EU) 2024/1689 (the AI Act), Articles 50, 99 and 113, Official Journal text",
+                "url": "https://eur-lex.europa.eu/eli/reg/2024/1689/oj",
+                "read": "2026-10-12"
+              },
+              {
+                "title": "Regulation (EU) 2026/1744 of 8 July 2026 (the Digital Omnibus on AI), recital 38 and the new Article 111(4)",
+                "url": "https://eur-lex.europa.eu/eli/reg/2026/1744/oj",
+                "read": "2026-10-12"
+              },
+              {
+                "title": "European Commission, Guidelines on the transparency obligations under Article 50 of the AI Act (20 July 2026)",
+                "url": "https://ec.europa.eu/newsroom/dae/redirection/document/131215",
+                "read": "2026-10-12"
+              }
+            ]
+          },
+          {
+            "pack": "eu-code-of-practice",
+            "pack_version": "2026.10.12",
+            "rule_id": "code-1-1-1-signed-metadata",
+            "title": "Digitally signed, time-stamped metadata on every output",
+            "summary": "Record in the file's metadata that the content is AI-generated, digitally signed and time-stamped, wherever the format carries metadata (images, video, audio, containerised text). The Code names no standard; C2PA Content Credentials are the established one. Binding if you signed the Code; otherwise it is what an authority will regard as adequate.",
+            "strength": "code",
+            "binding": false,
+            "status": "in_force",
+            "applies_from": "2026-08-02",
+            "requires": [
+              "signed_metadata"
+            ],
+            "quote": "All recorded information will be digitally signed and time-stamped",
+            "page": "/law/eu-code-of-practice",
+            "unverified": null,
+            "sources": [
+              {
+                "title": "Code of Practice on Transparency of AI-Generated Content, final version (10 June 2026)",
+                "url": "https://ec.europa.eu/newsroom/dae/redirection/document/129555",
+                "read": "2026-10-12"
+              }
+            ]
+          },
+          {
+            "pack": "eu-code-of-practice",
+            "pack_version": "2026.10.12",
+            "rule_id": "code-1-1-2-watermark",
+            "title": "An imperceptible watermark as well",
+            "summary": "Mark AI-generated content with an imperceptible watermark too, because no single technique suffices. Text needs one only when it is free-form and longer than 200 tokens.",
+            "strength": "code",
+            "binding": false,
+            "status": "in_force",
+            "applies_from": "2026-08-02",
+            "requires": [
+              "watermark"
+            ],
+            "quote": "Signatories will ensure that AI-generated or manipulated content is marked with an imperceptible watermark, with the exception of very short text",
+            "page": "/law/eu-code-of-practice",
+            "unverified": null,
+            "sources": [
+              {
+                "title": "Code of Practice on Transparency of AI-Generated Content, final version (10 June 2026)",
+                "url": "https://ec.europa.eu/newsroom/dae/redirection/document/129555",
+                "read": "2026-10-12"
+              }
+            ]
+          },
+          {
+            "pack": "eu-code-of-practice",
+            "pack_version": "2026.10.12",
+            "rule_id": "code-1-2-preserve",
+            "title": "Keep the marks already on your inputs",
+            "summary": "Make best efforts to preserve metadata marks on input data and on content your system generates or edits.",
+            "strength": "code",
+            "binding": false,
+            "status": "in_force",
+            "applies_from": "2026-08-02",
+            "requires": [
+              "preserve_marks"
+            ],
+            "quote": "Signatories will make best efforts to preserve metadata markings on input data and content generated or manipulated by their AI system",
+            "page": "/law/eu-code-of-practice",
+            "unverified": null,
+            "sources": [
+              {
+                "title": "Code of Practice on Transparency of AI-Generated Content, final version (10 June 2026)",
+                "url": "https://ec.europa.eu/newsroom/dae/redirection/document/129555",
+                "read": "2026-10-12"
+              }
+            ]
+          },
+          {
+            "pack": "eu-code-of-practice",
+            "pack_version": "2026.10.12",
+            "rule_id": "code-2-1-detection",
+            "title": "A detection solution for your own outputs",
+            "summary": "Make a way available for others to check whether content came from your system: a public specification, software, or an API. It is first-party: it detects your outputs, not anyone else's.",
+            "strength": "code",
+            "binding": false,
+            "status": "in_force",
+            "applies_from": "2026-08-02",
+            "requires": [
+              "detection_tool"
+            ],
+            "quote": "Signatories will make available a detection solution, composed of one or more detection mechanisms",
+            "page": "/law/eu-code-of-practice",
+            "unverified": null,
+            "sources": [
+              {
+                "title": "Code of Practice on Transparency of AI-Generated Content, final version (10 June 2026)",
+                "url": "https://ec.europa.eu/newsroom/dae/redirection/document/129555",
+                "read": "2026-10-12"
+              }
+            ]
+          },
+          {
+            "pack": "eu-code-of-practice",
+            "pack_version": "2026.10.12",
+            "rule_id": "code-3-4-interoperable-detection",
+            "title": "Interoperable detection by 2 February 2027",
+            "summary": "Make your detection reachable in an interoperable way: either a public industry-standard access method that routes detection queries to it, or a publicly readable signpost in the content saying which detection solution to use.",
+            "strength": "code",
+            "binding": false,
+            "status": "upcoming",
+            "applies_from": "2027-02-02",
+            "requires": [
+              "interoperable_detection"
+            ],
+            "quote": "Signatories will implement an interoperability solution for their detection mechanisms by 2 February 2027",
+            "page": "/law/eu-code-of-practice",
+            "unverified": null,
+            "sources": [
+              {
+                "title": "Code of Practice on Transparency of AI-Generated Content, final version (10 June 2026)",
+                "url": "https://ec.europa.eu/newsroom/dae/redirection/document/129555",
+                "read": "2026-10-12"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "eu-deepfake-disclosure",
+      "question": "Do I have to label realistic AI images and videos I publish in the EU?",
+      "description": "Yes: Article 50(4) of the EU AI Act requires disclosure of deepfakes, realistic AI content of people, places or events. The rule and sources.",
+      "answer": "Yes. If you publish AI-generated or manipulated images or video that realistically show people, places or events, Article 50(4) requires you to disclose that they are artificial, clearly and at the latest when people first see them.",
+      "checker_query": "m=image,video&r=deployer&w=eu&real=1&d=2026-10-18",
+      "evaluation": {
+        "date": "2026-10-18",
+        "pack_versions": [
+          "ca-ai-transparency-act@2026.10.12",
+          "eu-ai-act-art50@2026.10.12",
+          "eu-code-of-practice@2026.10.12",
+          "platform-labels@2026.10.12"
+        ],
+        "required": [
+          "visible_disclosure"
+        ],
+        "findings": [
+          {
+            "pack": "eu-ai-act-art50",
+            "pack_version": "2026.10.12",
+            "rule_id": "eu-50-4-deepfake",
+            "title": "Disclose realistic AI images, video and audio you publish",
+            "summary": "If you publish AI-generated or manipulated images, video or audio that realistically show people, places or events (deepfakes), you must disclose that they are artificially generated or manipulated, clearly and at the latest when people first see them. This checker does not assess the Act's exceptions; the law page sets out the article.",
+            "strength": "law",
+            "binding": true,
+            "status": "in_force",
+            "applies_from": "2026-08-02",
+            "requires": [
+              "visible_disclosure"
+            ],
+            "quote": null,
+            "page": "/law/eu-ai-act-article-50",
+            "unverified": null,
+            "sources": [
+              {
+                "title": "Regulation (EU) 2024/1689 (the AI Act), Articles 50, 99 and 113, Official Journal text",
+                "url": "https://eur-lex.europa.eu/eli/reg/2024/1689/oj",
+                "read": "2026-10-12"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "eu-ai-written-articles",
+      "question": "Do AI-written articles need an AI label in the EU?",
+      "description": "AI text published to inform the public on matters of public interest must be disclosed under EU AI Act Article 50(4), unless a person edits it.",
+      "answer": "Yes, if they inform the public on matters of public interest and no person has taken editorial responsibility for them: Article 50(4) requires such AI-generated text to be disclosed as AI-generated.",
+      "checker_query": "m=text&r=deployer&w=eu&pit=1&d=2026-10-18",
+      "evaluation": {
+        "date": "2026-10-18",
+        "pack_versions": [
+          "ca-ai-transparency-act@2026.10.12",
+          "eu-ai-act-art50@2026.10.12",
+          "eu-code-of-practice@2026.10.12",
+          "platform-labels@2026.10.12"
+        ],
+        "required": [
+          "visible_disclosure"
+        ],
+        "findings": [
+          {
+            "pack": "eu-ai-act-art50",
+            "pack_version": "2026.10.12",
+            "rule_id": "eu-50-4-text",
+            "title": "Disclose AI text published on matters of public interest",
+            "summary": "AI-generated text published to inform the public on matters of public interest must be disclosed as AI-generated, unless a person has taken editorial responsibility for it.",
+            "strength": "law",
+            "binding": true,
+            "status": "in_force",
+            "applies_from": "2026-08-02",
+            "requires": [
+              "visible_disclosure"
+            ],
+            "quote": null,
+            "page": "/law/eu-ai-act-article-50",
+            "unverified": null,
+            "sources": [
+              {
+                "title": "Regulation (EU) 2024/1689 (the AI Act), Articles 50, 99 and 113, Official Journal text",
+                "url": "https://eur-lex.europa.eu/eli/reg/2024/1689/oj",
+                "read": "2026-10-12"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "eu-code-of-practice-signatory",
+      "question": "What does signing the EU Code of Practice on AI content commit me to?",
+      "description": "Signed metadata, a watermark, preserved marks, a detection solution, and interoperable detection by 2 February 2027. Each measure with its source.",
+      "answer": "On top of the Article 50(2) marking duty: digitally signed, time-stamped metadata and an imperceptible watermark on every output, best efforts to keep the marks already on your inputs, a detection solution for your own outputs, and interoperable detection by 2 February 2027.",
+      "checker_query": "m=image&r=provider&w=eu&code=1&d=2026-10-18",
+      "evaluation": {
+        "date": "2026-10-18",
+        "pack_versions": [
+          "ca-ai-transparency-act@2026.10.12",
+          "eu-ai-act-art50@2026.10.12",
+          "eu-code-of-practice@2026.10.12",
+          "platform-labels@2026.10.12"
+        ],
+        "required": [
+          "machine_readable_marking",
+          "signed_metadata",
+          "watermark",
+          "detection_tool",
+          "interoperable_detection",
+          "preserve_marks"
+        ],
+        "findings": [
+          {
+            "pack": "eu-ai-act-art50",
+            "pack_version": "2026.10.12",
+            "rule_id": "eu-50-2-marking",
+            "title": "Mark every output in a machine-readable, detectable way",
+            "summary": "If you offer generation to users in the EU under your own name, you are the provider, whoever's model produces the output, and every image, video, audio or text output must be marked so that machines can detect it as AI-generated. The Act names no technology; the Code of Practice says what counts as adequate. Standard editing assistance is excluded.",
+            "strength": "law",
+            "binding": true,
+            "status": "in_force",
+            "applies_from": "2026-08-02",
+            "requires": [
+              "machine_readable_marking"
+            ],
+            "quote": "outputs ... are marked in a machine-readable format and detectable as artificially generated or manipulated",
+            "page": "/law/eu-ai-act-article-50",
+            "unverified": null,
+            "sources": [
+              {
+                "title": "Regulation (EU) 2024/1689 (the AI Act), Articles 50, 99 and 113, Official Journal text",
+                "url": "https://eur-lex.europa.eu/eli/reg/2024/1689/oj",
+                "read": "2026-10-12"
+              },
+              {
+                "title": "Regulation (EU) 2026/1744 of 8 July 2026 (the Digital Omnibus on AI), recital 38 and the new Article 111(4)",
+                "url": "https://eur-lex.europa.eu/eli/reg/2026/1744/oj",
+                "read": "2026-10-12"
+              },
+              {
+                "title": "European Commission, Guidelines on the transparency obligations under Article 50 of the AI Act (20 July 2026)",
+                "url": "https://ec.europa.eu/newsroom/dae/redirection/document/131215",
+                "read": "2026-10-12"
+              }
+            ]
+          },
+          {
+            "pack": "eu-code-of-practice",
+            "pack_version": "2026.10.12",
+            "rule_id": "code-1-1-1-signed-metadata",
+            "title": "Digitally signed, time-stamped metadata on every output",
+            "summary": "Record in the file's metadata that the content is AI-generated, digitally signed and time-stamped, wherever the format carries metadata (images, video, audio, containerised text). The Code names no standard; C2PA Content Credentials are the established one. Binding if you signed the Code; otherwise it is what an authority will regard as adequate.",
+            "strength": "code",
+            "binding": true,
+            "status": "in_force",
+            "applies_from": "2026-08-02",
+            "requires": [
+              "signed_metadata"
+            ],
+            "quote": "All recorded information will be digitally signed and time-stamped",
+            "page": "/law/eu-code-of-practice",
+            "unverified": null,
+            "sources": [
+              {
+                "title": "Code of Practice on Transparency of AI-Generated Content, final version (10 June 2026)",
+                "url": "https://ec.europa.eu/newsroom/dae/redirection/document/129555",
+                "read": "2026-10-12"
+              }
+            ]
+          },
+          {
+            "pack": "eu-code-of-practice",
+            "pack_version": "2026.10.12",
+            "rule_id": "code-1-1-2-watermark",
+            "title": "An imperceptible watermark as well",
+            "summary": "Mark AI-generated content with an imperceptible watermark too, because no single technique suffices. Text needs one only when it is free-form and longer than 200 tokens.",
+            "strength": "code",
+            "binding": true,
+            "status": "in_force",
+            "applies_from": "2026-08-02",
+            "requires": [
+              "watermark"
+            ],
+            "quote": "Signatories will ensure that AI-generated or manipulated content is marked with an imperceptible watermark, with the exception of very short text",
+            "page": "/law/eu-code-of-practice",
+            "unverified": null,
+            "sources": [
+              {
+                "title": "Code of Practice on Transparency of AI-Generated Content, final version (10 June 2026)",
+                "url": "https://ec.europa.eu/newsroom/dae/redirection/document/129555",
+                "read": "2026-10-12"
+              }
+            ]
+          },
+          {
+            "pack": "eu-code-of-practice",
+            "pack_version": "2026.10.12",
+            "rule_id": "code-1-2-preserve",
+            "title": "Keep the marks already on your inputs",
+            "summary": "Make best efforts to preserve metadata marks on input data and on content your system generates or edits.",
+            "strength": "code",
+            "binding": true,
+            "status": "in_force",
+            "applies_from": "2026-08-02",
+            "requires": [
+              "preserve_marks"
+            ],
+            "quote": "Signatories will make best efforts to preserve metadata markings on input data and content generated or manipulated by their AI system",
+            "page": "/law/eu-code-of-practice",
+            "unverified": null,
+            "sources": [
+              {
+                "title": "Code of Practice on Transparency of AI-Generated Content, final version (10 June 2026)",
+                "url": "https://ec.europa.eu/newsroom/dae/redirection/document/129555",
+                "read": "2026-10-12"
+              }
+            ]
+          },
+          {
+            "pack": "eu-code-of-practice",
+            "pack_version": "2026.10.12",
+            "rule_id": "code-2-1-detection",
+            "title": "A detection solution for your own outputs",
+            "summary": "Make a way available for others to check whether content came from your system: a public specification, software, or an API. It is first-party: it detects your outputs, not anyone else's.",
+            "strength": "code",
+            "binding": true,
+            "status": "in_force",
+            "applies_from": "2026-08-02",
+            "requires": [
+              "detection_tool"
+            ],
+            "quote": "Signatories will make available a detection solution, composed of one or more detection mechanisms",
+            "page": "/law/eu-code-of-practice",
+            "unverified": null,
+            "sources": [
+              {
+                "title": "Code of Practice on Transparency of AI-Generated Content, final version (10 June 2026)",
+                "url": "https://ec.europa.eu/newsroom/dae/redirection/document/129555",
+                "read": "2026-10-12"
+              }
+            ]
+          },
+          {
+            "pack": "eu-code-of-practice",
+            "pack_version": "2026.10.12",
+            "rule_id": "code-3-4-interoperable-detection",
+            "title": "Interoperable detection by 2 February 2027",
+            "summary": "Make your detection reachable in an interoperable way: either a public industry-standard access method that routes detection queries to it, or a publicly readable signpost in the content saying which detection solution to use.",
+            "strength": "code",
+            "binding": true,
+            "status": "upcoming",
+            "applies_from": "2027-02-02",
+            "requires": [
+              "interoperable_detection"
+            ],
+            "quote": "Signatories will implement an interoperability solution for their detection mechanisms by 2 February 2027",
+            "page": "/law/eu-code-of-practice",
+            "unverified": null,
+            "sources": [
+              {
+                "title": "Code of Practice on Transparency of AI-Generated Content, final version (10 June 2026)",
+                "url": "https://ec.europa.eu/newsroom/dae/redirection/document/129555",
+                "read": "2026-10-12"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "california-ai-transparency-act",
+      "question": "Does California's AI Transparency Act apply to my AI image generator?",
+      "description": "If it has over 1,000,000 monthly users and is publicly accessible in California: latent disclosure, a visible option and a free detection tool.",
+      "answer": "Yes, if your generator has more than 1,000,000 monthly users and is publicly accessible in California. Since 2 August 2026 every AI image, video and audio output needs a latent disclosure, users must be offered a visible one, and you must run a free public detection tool with an API.",
+      "checker_query": "m=image&r=provider&w=california&big=1&d=2026-10-18",
+      "evaluation": {
+        "date": "2026-10-18",
+        "pack_versions": [
+          "ca-ai-transparency-act@2026.10.12",
+          "eu-ai-act-art50@2026.10.12",
+          "eu-code-of-practice@2026.10.12",
+          "platform-labels@2026.10.12"
+        ],
+        "required": [
+          "latent_disclosure",
+          "manifest_disclosure_option",
+          "detection_tool"
+        ],
+        "findings": [
+          {
+            "pack": "ca-ai-transparency-act",
+            "pack_version": "2026.10.12",
+            "rule_id": "ca-detection-tool",
+            "title": "A free public detection tool with an API",
+            "summary": "Run a free, publicly accessible tool that checks uploads or URLs for your system's provenance data, with an API so it can be used without visiting your site, and that collects no personal information beyond optional feedback contact details.",
+            "strength": "law",
+            "binding": true,
+            "status": "in_force",
+            "applies_from": "2026-08-02",
+            "requires": [
+              "detection_tool"
+            ],
+            "quote": "at no cost to the user",
+            "page": "/law/california-sb-942-ab-853",
+            "unverified": null,
+            "sources": [
+              {
+                "title": "California Business and Professions Code, sections 22757.1 to 22757.6 (FindLaw's copy, current as of 1 January 2026)",
+                "url": "https://codes.findlaw.com/ca/business-and-professions-code/bpc-sect-22757-3/",
+                "read": "2026-10-12"
+              }
+            ]
+          },
+          {
+            "pack": "ca-ai-transparency-act",
+            "pack_version": "2026.10.12",
+            "rule_id": "ca-latent-disclosure",
+            "title": "A latent disclosure in every image, video and audio output",
+            "summary": "If your generative system has over 1,000,000 monthly users and is publicly accessible in California, embed a latent disclosure in every AI-generated image, video and audio file: where feasible, your name, the system's name and version, the time and date, and a unique identifier. It must be detectable by your own detection tool, follow widely accepted industry standards, and be extraordinarily difficult to remove. Text is not covered.",
+            "strength": "law",
+            "binding": true,
+            "status": "in_force",
+            "applies_from": "2026-08-02",
+            "requires": [
+              "latent_disclosure"
+            ],
+            "quote": "This chapter shall become operative on August 2, 2026.",
+            "page": "/law/california-sb-942-ab-853",
+            "unverified": null,
+            "sources": [
+              {
+                "title": "California Business and Professions Code, sections 22757.1 to 22757.6 (FindLaw's copy, current as of 1 January 2026)",
+                "url": "https://codes.findlaw.com/ca/business-and-professions-code/bpc-sect-22757-3/",
+                "read": "2026-10-12"
+              },
+              {
+                "title": "AB 853 (2025), Chapter 674, Statutes of 2025: bill page and digest",
+                "url": "https://calmatters.digitaldemocracy.org/bills/ca_202520260ab853",
+                "read": "2026-10-12"
+              }
+            ]
+          },
+          {
+            "pack": "ca-ai-transparency-act",
+            "pack_version": "2026.10.12",
+            "rule_id": "ca-manifest-option",
+            "title": "Offer users a visible disclosure",
+            "summary": "Offer your users the option to include a visible disclosure that identifies the content as AI-generated, appropriate to the medium and as hard to remove as is technically feasible.",
+            "strength": "law",
+            "binding": true,
+            "status": "in_force",
+            "applies_from": "2026-08-02",
+            "requires": [
+              "manifest_disclosure_option"
+            ],
+            "quote": "clear, conspicuous, appropriate for the medium of the content",
+            "page": "/law/california-sb-942-ab-853",
+            "unverified": null,
+            "sources": [
+              {
+                "title": "California Business and Professions Code, sections 22757.1 to 22757.6 (FindLaw's copy, current as of 1 January 2026)",
+                "url": "https://codes.findlaw.com/ca/business-and-professions-code/bpc-sect-22757-3/",
+                "read": "2026-10-12"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "california-small-ai-app",
+      "question": "Does California's AI law apply to a small AI app?",
+      "description": "Not directly: the AI Transparency Act binds generative AI providers with over 1,000,000 monthly users. What applies below that, with sources.",
+      "answer": "Not directly. California's AI Transparency Act binds providers whose system has more than 1,000,000 monthly users; below that its disclosure and detection duties do not apply to you, though the platforms and hosts you use take on their own duties from 2027.",
+      "checker_query": "m=image&r=provider&w=california&d=2026-10-18",
+      "evaluation": {
+        "date": "2026-10-18",
+        "pack_versions": [
+          "ca-ai-transparency-act@2026.10.12",
+          "eu-ai-act-art50@2026.10.12",
+          "eu-code-of-practice@2026.10.12",
+          "platform-labels@2026.10.12"
+        ],
+        "required": [],
+        "findings": []
+      }
+    },
+    {
+      "slug": "tiktok-ai-video-label",
+      "question": "Do I have to label AI-generated videos on TikTok?",
+      "description": "Yes, if they show realistic scenes or people: TikTok requires creators to label them, and labels content carrying Content Credentials itself.",
+      "answer": "Yes, if they show realistic-looking scenes or people: TikTok requires creators to label AI-generated or significantly edited content of that kind, and may remove, restrict or label what is not. Content that carries Content Credentials is labelled automatically.",
+      "checker_query": "m=video&p=tiktok&real=1&d=2026-10-18",
+      "evaluation": {
+        "date": "2026-10-18",
+        "pack_versions": [
+          "ca-ai-transparency-act@2026.10.12",
+          "eu-ai-act-art50@2026.10.12",
+          "eu-code-of-practice@2026.10.12",
+          "platform-labels@2026.10.12"
+        ],
+        "required": [
+          "platform_label"
+        ],
+        "findings": [
+          {
+            "pack": "platform-labels",
+            "pack_version": "2026.10.12",
+            "rule_id": "tiktok-label-realistic",
+            "title": "TikTok: label realistic AI content when you post it",
+            "summary": "TikTok requires creators to label AI-generated or significantly edited content that shows realistic-looking scenes or people. Unlabelled content may be removed, restricted or labelled by TikTok.",
+            "strength": "platform-policy",
+            "binding": true,
+            "status": "in_force",
+            "applies_from": "2026-10-12",
+            "requires": [
+              "platform_label"
+            ],
+            "quote": "we require creators to label AI-generated or significantly edited content that shows realistic-looking scenes or people",
+            "page": "/labels/tiktok",
+            "unverified": null,
+            "sources": [
+              {
+                "title": "TikTok Community Guidelines, Integrity and Authenticity: Edited Media and AI-Generated Content",
+                "url": "https://www.tiktok.com/community-guidelines/en/integrity-authenticity",
+                "read": "2026-10-12"
+              }
+            ]
+          },
+          {
+            "pack": "platform-labels",
+            "pack_version": "2026.10.12",
+            "rule_id": "tiktok-reads-credentials",
+            "title": "TikTok labels content that carries Content Credentials",
+            "summary": "TikTok reads Content Credentials on upload and labels images and videos that carry them as AI-generated automatically.",
+            "strength": "platform-behaviour",
+            "binding": false,
+            "status": "in_force",
+            "applies_from": "2026-10-12",
+            "requires": [],
+            "quote": "TikTok is starting to automatically label AI-generated content (AIGC) when it's uploaded from certain other platforms",
+            "page": "/labels/tiktok",
+            "unverified": "What TikTok shows for a signer that is not on the C2PA trust list, and whether marks survive its re-encode, is not stated; we are measuring it.",
+            "sources": [
+              {
+                "title": "TikTok Newsroom, Partnering with our industry to advance AI transparency and literacy (9 May 2024)",
+                "url": "https://newsroom.tiktok.com/en-us/partnering-with-our-industry-to-advance-ai-transparency-and-literacy",
+                "read": "2026-10-12"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "instagram-facebook-ai-image-label",
+      "question": "Do AI images need a label on Instagram and Facebook?",
+      "description": "Meta requires labels on photorealistic video and realistic audio, not images, but labels images 'AI Info' when they carry C2PA or IPTC metadata.",
+      "answer": "Not from you: Meta's labelling duty covers photorealistic video and realistic-sounding audio, not images. Meta labels images \"AI Info\" itself when it detects industry-standard indicators such as the C2PA and IPTC metadata in a signed manifest.",
+      "checker_query": "m=image&p=meta&real=1&d=2026-10-18",
+      "evaluation": {
+        "date": "2026-10-18",
+        "pack_versions": [
+          "ca-ai-transparency-act@2026.10.12",
+          "eu-ai-act-art50@2026.10.12",
+          "eu-code-of-practice@2026.10.12",
+          "platform-labels@2026.10.12"
+        ],
+        "required": [],
+        "findings": [
+          {
+            "pack": "platform-labels",
+            "pack_version": "2026.10.12",
+            "rule_id": "meta-reads-credentials",
+            "title": "Meta labels marked content \"AI Info\"",
+            "summary": "Meta labels images \"AI Info\" when it detects industry-standard indicators, including the C2PA and IPTC metadata that a signed manifest carries.",
+            "strength": "platform-behaviour",
+            "binding": false,
+            "status": "in_force",
+            "applies_from": "2026-10-12",
+            "requires": [],
+            "quote": "These labels are now displayed as 'AI Info'",
+            "page": "/labels/meta",
+            "unverified": "Whether the manifest and watermark survive in the file after upload, and what Meta shows for an untrusted signer, are not stated; we are measuring them.",
+            "sources": [
+              {
+                "title": "Meta Newsroom, Labeling AI-Generated Images on Facebook, Instagram and Threads (6 February 2024)",
+                "url": "https://about.fb.com/news/2024/02/labeling-ai-generated-images-on-facebook-instagram-and-threads/",
+                "read": "2026-10-12"
+              },
+              {
+                "title": "Meta Transparency Center, Labeling AI Content",
+                "url": "https://transparency.meta.com/governance/tracking-impact/labeling-ai-content",
+                "read": "2026-10-12"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "youtube-ai-video-disclosure",
+      "question": "Do I have to disclose AI-generated video on YouTube?",
+      "description": "Yes, for realistic content: YouTube asks creators to disclose it in Studio, and labels uploads carrying C2PA metadata itself. The policy and sources.",
+      "answer": "Yes, when AI meaningfully alters or generates photorealistic content: YouTube requires you to say so in YouTube Studio's \"AI use\" question. An upload carrying C2PA metadata is labelled automatically, and you cannot remove that label.",
+      "checker_query": "m=video&p=youtube&real=1&d=2026-10-18",
+      "evaluation": {
+        "date": "2026-10-18",
+        "pack_versions": [
+          "ca-ai-transparency-act@2026.10.12",
+          "eu-ai-act-art50@2026.10.12",
+          "eu-code-of-practice@2026.10.12",
+          "platform-labels@2026.10.12"
+        ],
+        "required": [
+          "platform_label"
+        ],
+        "findings": [
+          {
+            "pack": "platform-labels",
+            "pack_version": "2026.10.12",
+            "rule_id": "youtube-disclose",
+            "title": "YouTube: disclose realistic AI content in the upload flow",
+            "summary": "YouTube requires creators to disclose when AI meaningfully alters or generates photorealistic content, by answering the \"AI use\" question in YouTube Studio. Disclosing does not limit reach or earnings; repeatedly not disclosing can lead to a label, removal or Partner Program suspension.",
+            "strength": "platform-policy",
+            "binding": true,
+            "status": "in_force",
+            "applies_from": "2026-10-12",
+            "requires": [
+              "platform_label"
+            ],
+            "quote": "we require creators to disclose when they use AI to meaningfully alter or generate photorealistic content",
+            "page": "/labels/youtube",
+            "unverified": null,
+            "sources": [
+              {
+                "title": "YouTube Help, Disclosing use of altered or synthetic content",
+                "url": "https://support.google.com/youtube/answer/14328491",
+                "read": "2026-10-12"
+              }
+            ]
+          },
+          {
+            "pack": "platform-labels",
+            "pack_version": "2026.10.12",
+            "rule_id": "youtube-reads-credentials",
+            "title": "YouTube labels uploads that carry C2PA metadata",
+            "summary": "YouTube may label content containing C2PA metadata automatically, and a creator cannot remove a label that C2PA metadata triggered.",
+            "strength": "platform-behaviour",
+            "binding": false,
+            "status": "in_force",
+            "applies_from": "2026-10-12",
+            "requires": [],
+            "quote": "content made with YouTube's AI tools, content with C2PA metadata, or content labeled after manual review cannot be adjusted",
+            "page": "/labels/youtube",
+            "unverified": null,
+            "sources": [
+              {
+                "title": "YouTube Help, Disclosing use of altered or synthetic content",
+                "url": "https://support.google.com/youtube/answer/14328491",
+                "read": "2026-10-12"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "slug": "linkedin-content-credentials",
+      "question": "Does LinkedIn show who made an AI image?",
+      "description": "Yes: LinkedIn shows a C2PA icon on images and video with Content Credentials, and the panel names the issuer, whoever signed the manifest.",
+      "answer": "It shows who signed it. Images and video with Content Credentials get a C2PA icon on LinkedIn, and the panel behind it shows whether AI was used, the app, the creator, the issuer and the date. The issuer is whoever signed the manifest: your supplier, unless you sign under your own name.",
+      "checker_query": "m=image&p=linkedin&d=2026-10-18",
+      "evaluation": {
+        "date": "2026-10-18",
+        "pack_versions": [
+          "ca-ai-transparency-act@2026.10.12",
+          "eu-ai-act-art50@2026.10.12",
+          "eu-code-of-practice@2026.10.12",
+          "platform-labels@2026.10.12"
+        ],
+        "required": [],
+        "findings": [
+          {
+            "pack": "platform-labels",
+            "pack_version": "2026.10.12",
+            "rule_id": "linkedin-shows-credentials",
+            "title": "LinkedIn shows Content Credentials, including who issued them",
+            "summary": "Images and videos with Content Credentials get a C2PA icon on LinkedIn; clicking it shows whether AI was used, the app or device, the creator, the issuer and the date. The issuer is whoever signed the manifest.",
+            "strength": "platform-behaviour",
+            "binding": false,
+            "status": "in_force",
+            "applies_from": "2026-10-12",
+            "requires": [],
+            "quote": "The icon will be visible to all viewers of your content.",
+            "page": "/labels/linkedin",
+            "unverified": "Which trust list LinkedIn checks, and what it shows for a signer that is not on the C2PA trust list, are not stated.",
+            "sources": [
+              {
+                "title": "LinkedIn Help, Content Credentials",
+                "url": "https://www.linkedin.com/help/linkedin/answer/a6282984",
+                "read": "2026-10-12"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

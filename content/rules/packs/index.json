@@ -1,0 +1,36 @@
+{
+  "packs": [
+    {
+      "pack": "ca-ai-transparency-act",
+      "version": "2026.10.12",
+      "title": "California AI Transparency Act (SB 942, as amended by AB 853)",
+      "kind": "law",
+      "rules": 3,
+      "file": "ca-ai-transparency-act.json"
+    },
+    {
+      "pack": "eu-ai-act-art50",
+      "version": "2026.10.12",
+      "title": "EU AI Act, Article 50",
+      "kind": "law",
+      "rules": 3,
+      "file": "eu-ai-act-art50.json"
+    },
+    {
+      "pack": "eu-code-of-practice",
+      "version": "2026.10.12",
+      "title": "EU Code of Practice on Transparency of AI-Generated Content",
+      "kind": "code",
+      "rules": 5,
+      "file": "eu-code-of-practice.json"
+    },
+    {
+      "pack": "platform-labels",
+      "version": "2026.10.12",
+      "title": "Publishing platforms' labelling policies",
+      "kind": "platform",
+      "rules": 9,
+      "file": "platform-labels.json"
+    }
+  ]
+}

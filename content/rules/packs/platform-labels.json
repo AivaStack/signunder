@@ -1,0 +1,371 @@
+{
+  "pack": "platform-labels",
+  "version": "2026.10.12",
+  "title": "Publishing platforms' labelling policies",
+  "kind": "platform",
+  "sources": [
+    {
+      "id": "tiktok-newsroom",
+      "title": "TikTok Newsroom, Partnering with our industry to advance AI transparency and literacy (9 May 2024)",
+      "url": "https://newsroom.tiktok.com/en-us/partnering-with-our-industry-to-advance-ai-transparency-and-literacy",
+      "read": "2026-10-12"
+    },
+    {
+      "id": "tiktok-guidelines",
+      "title": "TikTok Community Guidelines, Integrity and Authenticity: Edited Media and AI-Generated Content",
+      "url": "https://www.tiktok.com/community-guidelines/en/integrity-authenticity",
+      "read": "2026-10-12"
+    },
+    {
+      "id": "meta-newsroom",
+      "title": "Meta Newsroom, Labeling AI-Generated Images on Facebook, Instagram and Threads (6 February 2024)",
+      "url": "https://about.fb.com/news/2024/02/labeling-ai-generated-images-on-facebook-instagram-and-threads/",
+      "read": "2026-10-12"
+    },
+    {
+      "id": "meta-transparency",
+      "title": "Meta Transparency Center, Labeling AI Content",
+      "url": "https://transparency.meta.com/governance/tracking-impact/labeling-ai-content",
+      "read": "2026-10-12"
+    },
+    {
+      "id": "meta-help",
+      "title": "Meta Help Center, How to identify AI content on Meta products",
+      "url": "https://www.meta.com/help/artificial-intelligence/1783222608822690/",
+      "read": "2026-10-12"
+    },
+    {
+      "id": "youtube-help",
+      "title": "YouTube Help, Disclosing use of altered or synthetic content",
+      "url": "https://support.google.com/youtube/answer/14328491",
+      "read": "2026-10-12"
+    },
+    {
+      "id": "google-c2pa",
+      "title": "Google, How we're increasing transparency for gen AI content with the C2PA (17 September 2024)",
+      "url": "https://blog.google/technology/ai/google-gen-ai-content-transparency-c2pa/",
+      "read": "2026-10-12"
+    },
+    {
+      "id": "google-ads-help",
+      "title": "Google My Ad Center Help, AI transparency in ads",
+      "url": "https://support.google.com/My-Ad-Center-Help/answer/17196133",
+      "read": "2026-10-12"
+    },
+    {
+      "id": "linkedin-help",
+      "title": "LinkedIn Help, Content Credentials",
+      "url": "https://www.linkedin.com/help/linkedin/answer/a6282984",
+      "read": "2026-10-12"
+    }
+  ],
+  "rules": [
+    {
+      "id": "tiktok-label-realistic",
+      "title": "TikTok: label realistic AI content when you post it",
+      "summary": "TikTok requires creators to label AI-generated or significantly edited content that shows realistic-looking scenes or people. Unlabelled content may be removed, restricted or labelled by TikTok.",
+      "strength": "platform-policy",
+      "when": [
+        {
+          "fact": "platforms",
+          "is": null,
+          "any_of": [
+            "tiktok"
+          ]
+        },
+        {
+          "fact": "realistic",
+          "is": true,
+          "any_of": null
+        },
+        {
+          "fact": "modalities",
+          "is": null,
+          "any_of": [
+            "image",
+            "video"
+          ]
+        }
+      ],
+      "effective_from": "2026-10-12",
+      "grace": null,
+      "requires": [
+        "platform_label"
+      ],
+      "quote": "we require creators to label AI-generated or significantly edited content that shows realistic-looking scenes or people",
+      "source_ids": [
+        "tiktok-guidelines"
+      ],
+      "page": "/labels/tiktok",
+      "unverified": null
+    },
+    {
+      "id": "tiktok-reads-credentials",
+      "title": "TikTok labels content that carries Content Credentials",
+      "summary": "TikTok reads Content Credentials on upload and labels images and videos that carry them as AI-generated automatically.",
+      "strength": "platform-behaviour",
+      "when": [
+        {
+          "fact": "platforms",
+          "is": null,
+          "any_of": [
+            "tiktok"
+          ]
+        },
+        {
+          "fact": "modalities",
+          "is": null,
+          "any_of": [
+            "image",
+            "video"
+          ]
+        }
+      ],
+      "effective_from": "2026-10-12",
+      "grace": null,
+      "requires": [],
+      "quote": "TikTok is starting to automatically label AI-generated content (AIGC) when it's uploaded from certain other platforms",
+      "source_ids": [
+        "tiktok-newsroom"
+      ],
+      "page": "/labels/tiktok",
+      "unverified": "What TikTok shows for a signer that is not on the C2PA trust list, and whether marks survive its re-encode, is not stated; we are measuring it."
+    },
+    {
+      "id": "meta-label-video-audio",
+      "title": "Meta: label photorealistic video and realistic audio",
+      "summary": "On Facebook, Instagram and Threads, Meta may require an AI label on photorealistic video and realistic-sounding audio that was digitally created or altered, and may penalise content shared without one. Images are exempt from the duty, though Meta may label them anyway.",
+      "strength": "platform-policy",
+      "when": [
+        {
+          "fact": "platforms",
+          "is": null,
+          "any_of": [
+            "meta"
+          ]
+        },
+        {
+          "fact": "realistic",
+          "is": true,
+          "any_of": null
+        },
+        {
+          "fact": "modalities",
+          "is": null,
+          "any_of": [
+            "video",
+            "audio"
+          ]
+        }
+      ],
+      "effective_from": "2026-10-12",
+      "grace": null,
+      "requires": [
+        "platform_label"
+      ],
+      "quote": "Meta may require an AI label when content has photorealistic video or realistic-sounding audio that was digitally created, modified or altered, including with AI.",
+      "source_ids": [
+        "meta-help"
+      ],
+      "page": "/labels/meta",
+      "unverified": null
+    },
+    {
+      "id": "meta-reads-credentials",
+      "title": "Meta labels marked content \"AI Info\"",
+      "summary": "Meta labels images \"AI Info\" when it detects industry-standard indicators, including the C2PA and IPTC metadata that a signed manifest carries.",
+      "strength": "platform-behaviour",
+      "when": [
+        {
+          "fact": "platforms",
+          "is": null,
+          "any_of": [
+            "meta"
+          ]
+        },
+        {
+          "fact": "modalities",
+          "is": null,
+          "any_of": [
+            "image"
+          ]
+        }
+      ],
+      "effective_from": "2026-10-12",
+      "grace": null,
+      "requires": [],
+      "quote": "These labels are now displayed as 'AI Info'",
+      "source_ids": [
+        "meta-newsroom",
+        "meta-transparency"
+      ],
+      "page": "/labels/meta",
+      "unverified": "Whether the manifest and watermark survive in the file after upload, and what Meta shows for an untrusted signer, are not stated; we are measuring them."
+    },
+    {
+      "id": "youtube-disclose",
+      "title": "YouTube: disclose realistic AI content in the upload flow",
+      "summary": "YouTube requires creators to disclose when AI meaningfully alters or generates photorealistic content, by answering the \"AI use\" question in YouTube Studio. Disclosing does not limit reach or earnings; repeatedly not disclosing can lead to a label, removal or Partner Program suspension.",
+      "strength": "platform-policy",
+      "when": [
+        {
+          "fact": "platforms",
+          "is": null,
+          "any_of": [
+            "youtube"
+          ]
+        },
+        {
+          "fact": "realistic",
+          "is": true,
+          "any_of": null
+        },
+        {
+          "fact": "modalities",
+          "is": null,
+          "any_of": [
+            "video"
+          ]
+        }
+      ],
+      "effective_from": "2026-10-12",
+      "grace": null,
+      "requires": [
+        "platform_label"
+      ],
+      "quote": "we require creators to disclose when they use AI to meaningfully alter or generate photorealistic content",
+      "source_ids": [
+        "youtube-help"
+      ],
+      "page": "/labels/youtube",
+      "unverified": null
+    },
+    {
+      "id": "youtube-reads-credentials",
+      "title": "YouTube labels uploads that carry C2PA metadata",
+      "summary": "YouTube may label content containing C2PA metadata automatically, and a creator cannot remove a label that C2PA metadata triggered.",
+      "strength": "platform-behaviour",
+      "when": [
+        {
+          "fact": "platforms",
+          "is": null,
+          "any_of": [
+            "youtube"
+          ]
+        },
+        {
+          "fact": "modalities",
+          "is": null,
+          "any_of": [
+            "video"
+          ]
+        }
+      ],
+      "effective_from": "2026-10-12",
+      "grace": null,
+      "requires": [],
+      "quote": "content made with YouTube's AI tools, content with C2PA metadata, or content labeled after manual review cannot be adjusted",
+      "source_ids": [
+        "youtube-help"
+      ],
+      "page": "/labels/youtube",
+      "unverified": null
+    },
+    {
+      "id": "google-search-about-this-image",
+      "title": "Google Search shows AI origin in \"About this image\"",
+      "summary": "If an image carries C2PA metadata, searchers can see in \"About this image\" (Google Images, Lens and Circle to Search) whether it was created or edited with AI.",
+      "strength": "platform-behaviour",
+      "when": [
+        {
+          "fact": "platforms",
+          "is": null,
+          "any_of": [
+            "google-search"
+          ]
+        },
+        {
+          "fact": "modalities",
+          "is": null,
+          "any_of": [
+            "image"
+          ]
+        }
+      ],
+      "effective_from": "2026-10-12",
+      "grace": null,
+      "requires": [],
+      "quote": "If an image contains C2PA metadata, people will be able to use our 'About this image' feature to see if it was created or edited with AI tools",
+      "source_ids": [
+        "google-c2pa"
+      ],
+      "page": "/labels/google",
+      "unverified": null
+    },
+    {
+      "id": "google-ads-disclosure",
+      "title": "Google Ads: declare AI-generated creatives",
+      "summary": "For ad creatives made outside Google's own tools, the \"How this ad was made\" disclosure is the advertiser's own declaration: label AI-generated or edited assets when you upload them.",
+      "strength": "platform-behaviour",
+      "when": [
+        {
+          "fact": "platforms",
+          "is": null,
+          "any_of": [
+            "google-ads"
+          ]
+        },
+        {
+          "fact": "modalities",
+          "is": null,
+          "any_of": [
+            "image",
+            "video"
+          ]
+        }
+      ],
+      "effective_from": "2026-10-12",
+      "grace": null,
+      "requires": [],
+      "quote": "An advertiser can choose to label and disclose an asset as AI generated or edited",
+      "source_ids": [
+        "google-ads-help"
+      ],
+      "page": "/labels/google",
+      "unverified": "Trade press reports visible on-ad labels as mandatory in the EU, India and New York; Google's own page does not say so."
+    },
+    {
+      "id": "linkedin-shows-credentials",
+      "title": "LinkedIn shows Content Credentials, including who issued them",
+      "summary": "Images and videos with Content Credentials get a C2PA icon on LinkedIn; clicking it shows whether AI was used, the app or device, the creator, the issuer and the date. The issuer is whoever signed the manifest.",
+      "strength": "platform-behaviour",
+      "when": [
+        {
+          "fact": "platforms",
+          "is": null,
+          "any_of": [
+            "linkedin"
+          ]
+        },
+        {
+          "fact": "modalities",
+          "is": null,
+          "any_of": [
+            "image",
+            "video"
+          ]
+        }
+      ],
+      "effective_from": "2026-10-12",
+      "grace": null,
+      "requires": [],
+      "quote": "The icon will be visible to all viewers of your content.",
+      "source_ids": [
+        "linkedin-help"
+      ],
+      "page": "/labels/linkedin",
+      "unverified": "Which trust list LinkedIn checks, and what it shows for a signer that is not on the C2PA trust list, are not stated."
+    }
+  ],
+  "changelog": "2026.10.12: first version, from the /labels pages as read 12 October 2026. A platform rule's effective_from is the date we read the policy: it is in force at least since then; the pages do not give start dates."
+}

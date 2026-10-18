@@ -1,0 +1,121 @@
+{
+  // Common situations, each published as a page at /checker/{slug} with its answer
+  // evaluated from the rule packs on as_of. "expect" lists the binding rules the
+  // hand-written answer describes; a test fails if the packs stop agreeing with it.
+  // After editing this file or a pack, run `make rules` and review the diff.
+  "as_of": "2026-10-18",
+  "scenarios": [
+    {
+      "slug": "eu-ai-image-generator",
+      "question": "Do AI images my app generates for EU users have to be marked?",
+      "description": "Yes: since 2 August 2026 under EU AI Act Article 50(2), whoever's model makes them. What the rule says, what the Code expects, and the sources.",
+      "answer": "Yes. If your product lets people generate images under your name for users in the EU, you are the provider, whoever's model makes the image, and since 2 August 2026 every output has to be marked in a machine-readable, detectable way.",
+      "context": { "modalities": ["image"], "roles": ["provider"], "markets": ["eu"] },
+      "expect": ["eu-50-2-marking"]
+    },
+    {
+      "slug": "eu-generator-launched-before-august-2026",
+      "question": "My AI generator was on the market before 2 August 2026. When must I mark?",
+      "description": "By 2 December 2026: the EU's only grace on Article 50(2) marking, for systems already on the market. The deadline, what it covers and the sources.",
+      "answer": "By 2 December 2026. A generative system placed on the EU market before 2 August 2026 has until then to meet the Article 50(2) marking duty; a system launched on or after 2 August had to mark from day one.",
+      "context": { "modalities": ["image", "video"], "roles": ["provider"], "markets": ["eu"], "on_market_before_2026_08_02": true },
+      "expect": ["eu-50-2-marking"]
+    },
+    {
+      "slug": "eu-ai-video-generator",
+      "question": "Does AI video my product generates for EU users need marking?",
+      "description": "Yes: EU AI Act Article 50(2) covers video as well as images, audio and text. The rule, the Code's two marking layers and the sources.",
+      "answer": "Yes. Article 50(2) covers generated video just as it covers images, audio and text: if you offer video generation under your name to users in the EU, every output has to be marked in a machine-readable, detectable way.",
+      "context": { "modalities": ["video"], "roles": ["provider"], "markets": ["eu"] },
+      "expect": ["eu-50-2-marking"]
+    },
+    {
+      "slug": "eu-ai-voice-and-audio",
+      "question": "Do AI voices and audio my product generates need marking in the EU?",
+      "description": "Yes: synthetic audio is covered by EU AI Act Article 50(2). The rule for voice and audio generators, the Code's layers and the sources.",
+      "answer": "Yes. Article 50(2) names synthetic audio explicitly, so a product that generates voices or other audio for users in the EU has to mark every output in a machine-readable, detectable way.",
+      "context": { "modalities": ["audio"], "roles": ["provider"], "markets": ["eu"] },
+      "expect": ["eu-50-2-marking"]
+    },
+    {
+      "slug": "eu-ai-text-watermark",
+      "question": "Does AI-generated text need a watermark in the EU?",
+      "description": "The AI Act requires machine-readable marking of AI text; the Code of Practice expects a watermark only above 200 tokens. Both rules with sources.",
+      "answer": "The AI Act requires AI-generated text you offer to EU users to be marked in a machine-readable way, but names no technique. The Code of Practice is where a watermark comes in: it expects one on free-form text longer than 200 tokens.",
+      "context": { "modalities": ["text"], "roles": ["provider"], "markets": ["eu"] },
+      "expect": ["eu-50-2-marking"]
+    },
+    {
+      "slug": "eu-deepfake-disclosure",
+      "question": "Do I have to label realistic AI images and videos I publish in the EU?",
+      "description": "Yes: Article 50(4) of the EU AI Act requires disclosure of deepfakes, realistic AI content of people, places or events. The rule and sources.",
+      "answer": "Yes. If you publish AI-generated or manipulated images or video that realistically show people, places or events, Article 50(4) requires you to disclose that they are artificial, clearly and at the latest when people first see them.",
+      "context": { "modalities": ["image", "video"], "roles": ["deployer"], "markets": ["eu"], "realistic": true },
+      "expect": ["eu-50-4-deepfake"]
+    },
+    {
+      "slug": "eu-ai-written-articles",
+      "question": "Do AI-written articles need an AI label in the EU?",
+      "description": "AI text published to inform the public on matters of public interest must be disclosed under EU AI Act Article 50(4), unless a person edits it.",
+      "answer": "Yes, if they inform the public on matters of public interest and no person has taken editorial responsibility for them: Article 50(4) requires such AI-generated text to be disclosed as AI-generated.",
+      "context": { "modalities": ["text"], "roles": ["deployer"], "markets": ["eu"], "public_interest_text": true },
+      "expect": ["eu-50-4-text"]
+    },
+    {
+      "slug": "eu-code-of-practice-signatory",
+      "question": "What does signing the EU Code of Practice on AI content commit me to?",
+      "description": "Signed metadata, a watermark, preserved marks, a detection solution, and interoperable detection by 2 February 2027. Each measure with its source.",
+      "answer": "On top of the Article 50(2) marking duty: digitally signed, time-stamped metadata and an imperceptible watermark on every output, best efforts to keep the marks already on your inputs, a detection solution for your own outputs, and interoperable detection by 2 February 2027.",
+      "context": { "modalities": ["image"], "roles": ["provider"], "markets": ["eu"], "code_signatory": true },
+      "expect": ["code-1-1-1-signed-metadata", "code-1-1-2-watermark", "code-1-2-preserve", "code-2-1-detection", "code-3-4-interoperable-detection", "eu-50-2-marking"]
+    },
+    {
+      "slug": "california-ai-transparency-act",
+      "question": "Does California's AI Transparency Act apply to my AI image generator?",
+      "description": "If it has over 1,000,000 monthly users and is publicly accessible in California: latent disclosure, a visible option and a free detection tool.",
+      "answer": "Yes, if your generator has more than 1,000,000 monthly users and is publicly accessible in California. Since 2 August 2026 every AI image, video and audio output needs a latent disclosure, users must be offered a visible one, and you must run a free public detection tool with an API.",
+      "context": { "modalities": ["image"], "roles": ["provider"], "markets": ["california"], "monthly_users_over_1m": true },
+      "expect": ["ca-detection-tool", "ca-latent-disclosure", "ca-manifest-option"]
+    },
+    {
+      "slug": "california-small-ai-app",
+      "question": "Does California's AI law apply to a small AI app?",
+      "description": "Not directly: the AI Transparency Act binds generative AI providers with over 1,000,000 monthly users. What applies below that, with sources.",
+      "answer": "Not directly. California's AI Transparency Act binds providers whose system has more than 1,000,000 monthly users; below that its disclosure and detection duties do not apply to you, though the platforms and hosts you use take on their own duties from 2027.",
+      "context": { "modalities": ["image"], "roles": ["provider"], "markets": ["california"] },
+      "expect": []
+    },
+    {
+      "slug": "tiktok-ai-video-label",
+      "question": "Do I have to label AI-generated videos on TikTok?",
+      "description": "Yes, if they show realistic scenes or people: TikTok requires creators to label them, and labels content carrying Content Credentials itself.",
+      "answer": "Yes, if they show realistic-looking scenes or people: TikTok requires creators to label AI-generated or significantly edited content of that kind, and may remove, restrict or label what is not. Content that carries Content Credentials is labelled automatically.",
+      "context": { "modalities": ["video"], "platforms": ["tiktok"], "realistic": true },
+      "expect": ["tiktok-label-realistic"]
+    },
+    {
+      "slug": "instagram-facebook-ai-image-label",
+      "question": "Do AI images need a label on Instagram and Facebook?",
+      "description": "Meta requires labels on photorealistic video and realistic audio, not images, but labels images 'AI Info' when they carry C2PA or IPTC metadata.",
+      "answer": "Not from you: Meta's labelling duty covers photorealistic video and realistic-sounding audio, not images. Meta labels images \"AI Info\" itself when it detects industry-standard indicators such as the C2PA and IPTC metadata in a signed manifest.",
+      "context": { "modalities": ["image"], "platforms": ["meta"], "realistic": true },
+      "expect": []
+    },
+    {
+      "slug": "youtube-ai-video-disclosure",
+      "question": "Do I have to disclose AI-generated video on YouTube?",
+      "description": "Yes, for realistic content: YouTube asks creators to disclose it in Studio, and labels uploads carrying C2PA metadata itself. The policy and sources.",
+      "answer": "Yes, when AI meaningfully alters or generates photorealistic content: YouTube requires you to say so in YouTube Studio's \"AI use\" question. An upload carrying C2PA metadata is labelled automatically, and you cannot remove that label.",
+      "context": { "modalities": ["video"], "platforms": ["youtube"], "realistic": true },
+      "expect": ["youtube-disclose"]
+    },
+    {
+      "slug": "linkedin-content-credentials",
+      "question": "Does LinkedIn show who made an AI image?",
+      "description": "Yes: LinkedIn shows a C2PA icon on images and video with Content Credentials, and the panel names the issuer, whoever signed the manifest.",
+      "answer": "It shows who signed it. Images and video with Content Credentials get a C2PA icon on LinkedIn, and the panel behind it shows whether AI was used, the app, the creator, the issuer and the date. The issuer is whoever signed the manifest: your supplier, unless you sign under your own name.",
+      "context": { "modalities": ["image"], "platforms": ["linkedin"] },
+      "expect": []
+    }
+  ]
+}

@@ -23,7 +23,7 @@ public static class RulesEndpoints
             .RequireRateLimiting(RateLimits.Public);
 
         rules.MapGet("/packs", (RuleBook book) =>
-            Results.Json(new JsonObject { ["packs"] = new JsonArray([.. book.Packs.Select(p => JsonSerializer.SerializeToNode(p, Json))]) }, Json));
+            Results.Json(new JsonObject { ["packs"] = new JsonArray([.. book.Packs.Select(RulesJson.Pack)]) }));
 
         rules.MapPost("/evaluate", (EvaluateRequest request, RuleBook book, TimeProvider time) =>
         {
@@ -59,14 +59,7 @@ public static class RulesEndpoints
                 return Results.Problem(string.Join(" ", problems), statusCode: 400);
             }
 
-            var evaluation = Evaluator.Evaluate(book, context);
-            return Results.Json(new JsonObject
-            {
-                ["date"] = evaluation.Date.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture),
-                ["pack_versions"] = new JsonArray([.. evaluation.PackVersions.Select(v => JsonValue.Create(v))]),
-                ["required"] = new JsonArray([.. evaluation.Required.Select(r => JsonValue.Create(r))]),
-                ["findings"] = new JsonArray([.. evaluation.Findings.Select(FindingView)]),
-            });
+            return Results.Json(RulesJson.Evaluation(Evaluator.Evaluate(book, context)));
         });
     }
 
@@ -83,28 +76,4 @@ public static class RulesEndpoints
         [property: JsonPropertyName("code_signatory")] bool CodeSignatory,
         [property: JsonPropertyName("date")] DateOnly? Date);
 
-    private static readonly JsonSerializerOptions Json = new() { PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower };
-
-    private static JsonObject FindingView(Finding finding) => new()
-    {
-        ["pack"] = finding.Pack,
-        ["pack_version"] = finding.PackVersion,
-        ["rule_id"] = finding.Rule.Id,
-        ["title"] = finding.Rule.Title,
-        ["summary"] = finding.Rule.Summary,
-        ["strength"] = finding.Rule.Strength,
-        ["binding"] = finding.Binding,
-        ["status"] = finding.Status == FindingStatus.InForce ? "in_force" : "upcoming",
-        ["applies_from"] = finding.AppliesFrom.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture),
-        ["requires"] = new JsonArray([.. finding.Rule.Requires.Select(r => JsonValue.Create(r))]),
-        ["quote"] = finding.Rule.Quote,
-        ["page"] = finding.Rule.Page,
-        ["unverified"] = finding.Rule.Unverified,
-        ["sources"] = new JsonArray([.. finding.Sources.Select(s => (JsonNode)new JsonObject
-        {
-            ["title"] = s.Title,
-            ["url"] = s.Url,
-            ["read"] = s.Read.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture),
-        })]),
-    };
 }

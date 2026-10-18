@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "dependencies": {
+    "net10.0": {
+      "Ulid": {
+        "type": "Transitive",
+        "resolved": "1.4.1",
+        "contentHash": "V6crLJ8a29raWeNwxYGfH9RTKA3H0nR0D9LAGzN3KtEsbiiaWkUjDor6OT5Oz7pxCK+NaY2hu2FLoYEOa8oCkA=="
+      },
+      "signunder.core": {
+        "type": "Project",
+        "dependencies": {
+          "Ulid": "[1.4.1, )"
+        }
+      },
+      "signunder.rules": {
+        "type": "Project",
+        "dependencies": {
+          "Signunder.Core": "[1.0.0, )"
+        }
+      }
+    }
+  }
+}
