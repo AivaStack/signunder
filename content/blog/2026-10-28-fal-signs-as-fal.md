@@ -30,7 +30,7 @@ related:
   - /platforms/fal
   - /compare/fal
   - /guides/sign-under-your-own-name
-draft: true
+draft: false
 ---
 
 If your product generates images through fal and a customer drops one into a Content Credentials verifier, the name they see is fal's, not yours. That is not a setting fal has left off. It follows from how C2PA certificates are issued, and it is the same for every hosted signer. fal is the only one of the eleven inference platforms we read that marks output at all, so this is a post about what the best case looks like.
@@ -67,8 +67,8 @@ Three ordinary things can remove or break it:
 
 ## What this means if you build on fal
 
-You start ahead of anyone on the other ten platforms: where fal signs, you have a supplier manifest and a watermark at no cost. Keep it. The step that remains is yours: a signature in your own name on what leaves your product, after your edits, whichever provider served the request, with fal's manifest preserved inside it as an ingredient.
+You start ahead of anyone on the other ten platforms: where fal signs, you have a supplier manifest and a watermark at no cost. Keep it. The step that remains is yours: a signature in your own name on what leaves your product, after your edits, whichever provider served the request. Ideally fal's manifest travels inside it as an ingredient, so the record shows both who generated the image and who published it.
 
-SignUnder's proxy mode sits in front of fal's API and does that; it is pre-launch, and the waitlist is on the homepage. We have asked fal to document its API scope and will update the [fal page](/platforms/fal) when it does.
+SignUnder's proxy mode sits in front of fal's API and signs each result as it comes back, with a watermark and a fingerprint on record. It is in free early access: [get a key](/dashboard) and see [the docs](/docs#proxy). Two limits, stated plainly: until your company is listed it signs with SignUnder's test certificate, and it does not yet carry fal's manifest forward as an ingredient. We will update the [fal page](/platforms/fal) if fal documents which API calls it signs.
 
 *Not legal advice. Quotations are from fal's own pages and the C2PA Certificate Policy on the dates shown.*
