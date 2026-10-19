@@ -35,7 +35,7 @@ related:
   - /guides/sign-under-your-own-name
   - /guides/c2pa-conformance-program
   - /guides/why-content-credentials-say-unrecognized
-draft: true
+draft: false
 ---
 
 A certificate does not put your company's name on a Content Credentials manifest. A listing does, and the certificate follows from it. Under the C2PA's rules a claim signing certificate can be issued only to a product that is already on the Conforming Products List, and its subject must match that entry. People reach for the certificate first because that is how TLS works. Here it is the second step, and the first one is free.
@@ -84,6 +84,6 @@ The [conformance guide](/guides/c2pa-conformance-program) has the forms; the [ow
 
 Budget for a short document and a few weeks of waiting, not for a purchase. The certificate is the cheap part, and one is free. The listing is the part nobody can do in your place, though the paperwork can be prepared for you.
 
-SignUnder prepares the listing from your answers, requests the certificate, holds the key in a KMS and keeps the renewal clock; it is pre-launch, and the waitlist is on the homepage.
+SignUnder is built around that order. Today it signs your output with Content Credentials, an invisible watermark and a fingerprint, using SignUnder's test certificate while you are unlisted; it is in free early access ([get a key](/dashboard)). The onboarding that prepares your listing from your answers, requests the certificate, holds the key in a KMS and keeps the renewal clock is being built.
 
 *Not legal advice, and not a certificate authority: the C2PA documents govern. Vendor facts are from the vendors' own pages on the dates shown.*
