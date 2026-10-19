@@ -89,7 +89,6 @@ def main() -> None:
     company.update(identity[0] if identity else {"domain": None, "domain_verified_at": None, "approved_name": None, "approved_at": None})
     members = sql(f"select email from registry.tenant_member where tenant_id = {tenant_id}")
     company["members"] = ", ".join(m["email"] for m in members)
-    company = rows[0]
     print(f"Company:         {company['legal_name']}  ({company['slug']}, since {company['created_at'][:10]})")
     print(f"Signed up by:    {company['members'] or '(no member)'}")
     print(f"Domain:          {company['domain'] or '(none)'}")
