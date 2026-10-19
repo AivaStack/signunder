@@ -34,6 +34,9 @@ public class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
     /// <summary>Stands in for the Supabase project's Auth issuer.</summary>
     public const string AuthIssuer = "https://auth.signunder.example/auth/v1";
 
+    /// <summary>Stands in for the DNS-over-HTTPS resolver.</summary>
+    public const string FakeDns = "https://dns.signunder.example/dns-query";
+
     /// <summary>Stands in for the Supabase project's token signing key (ES256, as Supabase's).</summary>
     public static readonly ECDsaSecurityKey AuthKey = new(ECDsa.Create(ECCurve.NamedCurves.nistP256)) { KeyId = "test" };
 
@@ -94,6 +97,7 @@ public class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
         builder.UseSetting("Development:ApiKey", DemoKey);
         builder.UseSetting("Website:AllowedOrigins", AllowedOrigin);
         builder.UseSetting("SupabaseAuth:Issuer", AuthIssuer);
+        builder.UseSetting("Identity:DnsResolver", FakeDns);
         builder.ConfigureTestServices(services =>
         {
             services.RemoveAll<SignService.SignServiceClient>();
@@ -103,6 +107,8 @@ public class ApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
             services.AddSingleton<IMediaStore>(Media);
             services.AddHttpClient(Signunder.Api.Proxy.ProxyEndpoints.Upstream)
                 .ConfigurePrimaryHttpMessageHandler(() => Upstream);
+            // DNS-over-HTTPS lookups go to the same fake, at FakeDns.
+            services.AddHttpClient(DomainVerifier.Client).ConfigurePrimaryHttpMessageHandler(() => Upstream);
             // The issuer's keys come from AuthKey, not a discovery document.
             services.PostConfigure<JwtBearerOptions>(AccountEndpoints.Scheme, options =>
             {

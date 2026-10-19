@@ -104,6 +104,23 @@ public sealed class ImageSigner(
             },
         };
 
+        // A company whose domain is verified, whose name Eoin approved and which holds an
+        // identity certificate is named in a CAWG identity assertion (ADR 0014).
+        var tenant = await db.Tenants.AsNoTracking().SingleAsync(t => t.Id == tenantId, ct);
+        var identity = await db.TenantIdentities.AsNoTracking().SingleOrDefaultAsync(i => i.TenantId == tenantId, ct);
+        string? publishedBy = null;
+        if (identity is not null && identity.IsActive(tenant.LegalName))
+        {
+            request.Identity = new IdentityRef
+            {
+                KeyRef = identity.KeyRef,
+                Algorithm = "es256",
+                CertChainPem = identity.CertChainPem,
+                Roles = { "cawg.publisher" },
+            };
+            publishedBy = new JsonObject { ["name"] = identity.ApprovedName, ["domain"] = identity.Domain }.ToJsonString();
+        }
+
         SignResponse reply;
         try
         {
@@ -123,6 +140,7 @@ public sealed class ImageSigner(
         var record = AssetRecord.ForSignedImage(
             key, mime, signed, reply.ManifestStore.Span, reply.ValidationReportJson,
             ToCore(reply.ValidationState), DateTimeOffset.UtcNow, marking, origin.Provider, origin.ModelName);
+        record.PublishedBy = publishedBy;
         if (keepCopy)
         {
             record.RetainedMediaKey = $"{tenantId}/{record.Id}.{Extension(mime)}";

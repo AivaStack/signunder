@@ -29,9 +29,20 @@ public static class PublicVerifyEndpoints
 
         // The company's public name, so its verify page can greet visitors by it.
         routes.MapGet("", async (string tenant, RegistryDbContext db, CancellationToken ct) =>
-            await db.Tenants.AsNoTracking().SingleOrDefaultAsync(t => t.Slug == tenant, ct) is { } owner
-                ? Results.Json(Tenant(owner))
-                : Results.Problem($"No company {tenant}.", statusCode: 404));
+        {
+            if (await db.Tenants.AsNoTracking().SingleOrDefaultAsync(t => t.Slug == tenant, ct) is not { } owner)
+            {
+                return Results.Problem($"No company {tenant}.", statusCode: 404);
+            }
+            var view = Tenant(owner);
+            var identity = await db.TenantIdentities.AsNoTracking().SingleOrDefaultAsync(i => i.TenantId == owner.Id, ct);
+            if (identity is not null && identity.IsActive(owner.LegalName))
+            {
+                // Only once verified and approved (ADR 0014).
+                view["verified_domain"] = identity.Domain;
+            }
+            return Results.Json(view);
+        });
 
         routes.MapGet("/records/{id}", async (string tenant, string id, HttpContext http, RegistryDbContext db, CancellationToken ct) =>
         {
@@ -206,7 +217,19 @@ public static class PublicVerifyEndpoints
             ["provider"] = record.Provider,
             ["model_name"] = record.ModelName,
             ["media_url"] = record.RetainedMediaKey is null ? null : $"{http.Request.Scheme}://{http.Request.Host}/media/{record.Id}",
+            ["published_by"] = PublishedBy(record.PublishedBy),
         };
+    }
+
+    /// <summary>The company a CAWG identity assertion in the output names, and who verified it.</summary>
+    private static JsonObject? PublishedBy(string? json)
+    {
+        if (json is null || JsonNode.Parse(json) is not JsonObject named)
+        {
+            return null;
+        }
+        named["verified_by"] = "SignUnder";
+        return named;
     }
 
     private static JsonObject Tenant(Tenant owner) => new() { ["slug"] = owner.Slug, ["name"] = owner.LegalName };

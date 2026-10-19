@@ -193,6 +193,10 @@ namespace Signunder.Api.Data.Migrations
                         .HasColumnType("text")
                         .HasColumnName("provider");
 
+                    b.Property<string>("PublishedBy")
+                        .HasColumnType("jsonb")
+                        .HasColumnName("published_by");
+
                     b.Property<string>("RetainedMediaKey")
                         .HasColumnType("text")
                         .HasColumnName("retained_media_key");
@@ -281,6 +285,52 @@ namespace Signunder.Api.Data.Migrations
                         .HasDatabaseName("ix_tenant_slug");
 
                     b.ToTable("tenant", "registry");
+                });
+
+            modelBuilder.Entity("Signunder.Core.Registry.TenantIdentity", b =>
+                {
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<DateTimeOffset?>("ApprovedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("approved_at");
+
+                    b.Property<string>("ApprovedName")
+                        .HasColumnType("text")
+                        .HasColumnName("approved_name");
+
+                    b.Property<string>("CertChainPem")
+                        .HasColumnType("text")
+                        .HasColumnName("cert_chain_pem");
+
+                    b.Property<string>("Domain")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("domain");
+
+                    b.Property<DateTimeOffset?>("DomainVerifiedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("domain_verified_at");
+
+                    b.Property<string>("KeyRef")
+                        .HasColumnType("text")
+                        .HasColumnName("key_ref");
+
+                    b.Property<string>("Token")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("token");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("TenantId")
+                        .HasName("pk_tenant_identity");
+
+                    b.ToTable("tenant_identity", "registry");
                 });
 
             modelBuilder.Entity("Signunder.Core.Registry.TenantKey", b =>
@@ -406,6 +456,16 @@ namespace Signunder.Api.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_asset_record_tenant_key_tenant_key_id");
+                });
+
+            modelBuilder.Entity("Signunder.Core.Registry.TenantIdentity", b =>
+                {
+                    b.HasOne("Signunder.Core.Registry.Tenant", null)
+                        .WithOne()
+                        .HasForeignKey("Signunder.Core.Registry.TenantIdentity", "TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_tenant_identity_tenant_tenant_id");
                 });
 
             modelBuilder.Entity("Signunder.Core.Registry.TenantKey", b =>

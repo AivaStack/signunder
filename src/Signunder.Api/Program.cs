@@ -95,6 +95,8 @@ builder.Services.AddRateLimiter(o =>
 });
 builder.Services.AddScoped<ImageSigner>();
 builder.Services.AddScoped<Quotas>();
+builder.Services.AddHttpClient(DomainVerifier.Client, http => http.Timeout = TimeSpan.FromSeconds(10));
+builder.Services.AddScoped<DomainVerifier>();
 builder.Services.AddSingleton(TimeProvider.System);
 if (builder.Configuration["Media:ServiceUrl"] is { Length: > 0 } mediaUrl)
 {

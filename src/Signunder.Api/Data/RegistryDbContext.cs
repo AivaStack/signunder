@@ -10,6 +10,7 @@ public sealed class RegistryDbContext(DbContextOptions<RegistryDbContext> option
     public DbSet<AssetRecord> AssetRecords => Set<AssetRecord>();
     public DbSet<ApiKey> ApiKeys => Set<ApiKey>();
     public DbSet<TenantMember> TenantMembers => Set<TenantMember>();
+    public DbSet<TenantIdentity> TenantIdentities => Set<TenantIdentity>();
     public DbSet<ProxyResult> ProxyResults => Set<ProxyResult>();
     public DbSet<ProxyRequest> ProxyRequests => Set<ProxyRequest>();
 
@@ -33,6 +34,14 @@ public sealed class RegistryDbContext(DbContextOptions<RegistryDbContext> option
             key.ToTable("tenant_key");
             key.Property(k => k.Status).HasConversion<string>();
             key.HasOne<Tenant>().WithMany().HasForeignKey(k => k.TenantId);
+        });
+
+        model.Entity<TenantIdentity>(identity =>
+        {
+            identity.ToTable("tenant_identity");
+            identity.HasKey(i => i.TenantId);
+            identity.Ignore(i => i.TxtValue);
+            identity.HasOne<Tenant>().WithOne().HasForeignKey<TenantIdentity>(i => i.TenantId);
         });
 
         model.Entity<TenantMember>(member =>
@@ -74,6 +83,7 @@ public sealed class RegistryDbContext(DbContextOptions<RegistryDbContext> option
             record.Property(r => r.Actions).HasColumnType("jsonb");
             record.Property(r => r.Layers).HasColumnType("jsonb");
             record.Property(r => r.ValidationReport).HasColumnType("jsonb");
+            record.Property(r => r.PublishedBy).HasColumnType("jsonb");
             record.HasOne<Tenant>().WithMany().HasForeignKey(r => r.TenantId);
             record.HasOne<TenantKey>().WithMany().HasForeignKey(r => r.TenantKeyId);
             record.HasIndex(r => r.ManifestHash);

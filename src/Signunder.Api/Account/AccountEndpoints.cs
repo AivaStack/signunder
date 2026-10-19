@@ -72,10 +72,12 @@ public static class AccountEndpoints
                 ? []
                 : await db.ApiKeys.AsNoTracking().Where(k => k.TenantId == member.TenantId).OrderBy(k => k.CreatedAt).ToListAsync(ct);
             var usage = tenant is null ? null : await quotas.StateAsync(tenant.Id, ct);
+            var identity = tenant is null ? null : await db.TenantIdentities.AsNoTracking().SingleOrDefaultAsync(i => i.TenantId == tenant.Id, ct);
             return Results.Json(new JsonObject
             {
                 ["email"] = Email(user),
                 ["tenant"] = tenant is null ? null : TenantView(tenant),
+                ["identity"] = identity is null ? null : IdentityView(identity, tenant!),
                 ["api_keys"] = new JsonArray([.. keys.Select(KeyView)]),
                 ["usage"] = usage is null ? null : new JsonObject
                 {
@@ -129,6 +131,66 @@ public static class AccountEndpoints
             }, statusCode: 201);
         });
 
+        // The company's domain, proved by a DNS TXT record, so its name can go into its
+        // signatures once Eoin has approved it (ADR 0014).
+        account.MapPost("/domain", async (DomainRequest request, ClaimsPrincipal user, RegistryDbContext db, CancellationToken ct) =>
+        {
+            if (await MemberAsync(db, user, ct) is not { } member)
+            {
+                return Results.Problem("Create your company first.", statusCode: 404);
+            }
+            if (TenantIdentity.NormaliseDomain(request.Domain) is not { } domain)
+            {
+                return Results.Problem("Give your company's domain, for example acme.com.", statusCode: 400);
+            }
+            var tenant = await db.Tenants.AsNoTracking().SingleAsync(t => t.Id == member.TenantId, ct);
+            var identity = await db.TenantIdentities.SingleOrDefaultAsync(i => i.TenantId == member.TenantId, ct);
+            if (identity is null)
+            {
+                identity = new TenantIdentity { TenantId = member.TenantId, Domain = domain, Token = TenantIdentity.NewToken() };
+                db.TenantIdentities.Add(identity);
+            }
+            else if (identity.Domain != domain)
+            {
+                // A new domain starts over: verification, approval and certificate.
+                identity.Domain = domain;
+                identity.Token = TenantIdentity.NewToken();
+                identity.DomainVerifiedAt = null;
+                identity.ApprovedName = null;
+                identity.ApprovedAt = null;
+                identity.CertChainPem = null;
+                identity.KeyRef = null;
+            }
+            identity.UpdatedAt = DateTimeOffset.UtcNow;
+            await db.SaveChangesAsync(ct);
+            return Results.Json(IdentityView(identity, tenant));
+        });
+
+        account.MapPost("/domain/check", async (ClaimsPrincipal user, RegistryDbContext db, DomainVerifier dns, CancellationToken ct) =>
+        {
+            var member = await MemberAsync(db, user, ct);
+            var identity = member is null ? null : await db.TenantIdentities.SingleOrDefaultAsync(i => i.TenantId == member.TenantId, ct);
+            if (member is null || identity is null)
+            {
+                return Results.Problem("Add your domain first.", statusCode: 404);
+            }
+            var tenant = await db.Tenants.AsNoTracking().SingleAsync(t => t.Id == member.TenantId, ct);
+            if (identity.DomainVerifiedAt is null)
+            {
+                var records = await dns.TxtRecordsAsync(identity.Domain, ct);
+                if (!records.Contains(identity.TxtValue))
+                {
+                    return Results.Problem(
+                        $"No TXT record \"{identity.TxtValue}\" on {identity.Domain} yet. DNS changes can take a few minutes to an hour to appear.",
+                        statusCode: 409);
+                }
+                identity.DomainVerifiedAt = DateTimeOffset.UtcNow;
+                identity.UpdatedAt = identity.DomainVerifiedAt.Value;
+                await db.SaveChangesAsync(ct);
+            }
+            return Results.Json(IdentityView(identity, tenant));
+        });
+
         account.MapPost("/keys", async (ClaimsPrincipal user, RegistryDbContext db, IConfiguration config, CancellationToken ct) =>
         {
             if (await MemberAsync(db, user, ct) is not { } member)
@@ -161,6 +223,17 @@ public static class AccountEndpoints
     }
 
     public sealed record TenantRequest(string? Name);
+
+    public sealed record DomainRequest(string? Domain);
+
+    private static JsonObject IdentityView(TenantIdentity identity, Tenant tenant) => new()
+    {
+        ["domain"] = identity.Domain,
+        ["status"] = identity.Status(tenant.LegalName),
+        ["txt_record"] = new JsonObject { ["host"] = identity.Domain, ["type"] = "TXT", ["value"] = identity.TxtValue },
+        ["domain_verified_at"] = identity.DomainVerifiedAt,
+        ["approved_name"] = identity.ApprovedName,
+    };
 
     private static Guid UserId(ClaimsPrincipal user) => Guid.Parse(user.FindFirstValue("sub")!);
 

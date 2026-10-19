@@ -57,6 +57,12 @@ public sealed class AssetRecord
     /// </summary>
     public string? RetainedMediaKey { get; set; }
 
+    /// <summary>
+    /// The company a CAWG identity assertion in the output names, as JSON
+    /// (<c>{"name": …, "domain": …}</c>); null if the output carries none (ADR 0014).
+    /// </summary>
+    public string? PublishedBy { get; set; }
+
     public static AssetRecord ForSignedImage(
         TenantKey key,
         string mime,
