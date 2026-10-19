@@ -38,7 +38,7 @@ PYTHON_AGENT = "SignUnder rules watch (+https://signunder.com/checker; hello@sig
 # report as a reminder to check them by hand.
 MANUAL = json.loads((Path(__file__).resolve().parent / "manual.json").read_text())
 REGIONAL = {"Your California Privacy Choices", "Do Not Sell or Share My Personal Information"}
-SKIP_TAGS = {"script", "style", "noscript", "svg", "head", "template", "iframe"}
+SKIP_TAGS = {"script", "style", "noscript", "svg", "head", "template", "iframe", "title"}
 DIFF_LINES = 40
 
 
