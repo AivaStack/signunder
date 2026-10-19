@@ -24,7 +24,7 @@ related:
   - /platforms
   - /law/eu-ai-act-article-50
   - /compare/fal
-draft: true
+draft: false
 ---
 
 Of eleven inference platforms that host open-weight image, video and audio models, one attaches Content Credentials to what it generates, and it signs them in its own name. The other ten attach nothing. All eleven, in their terms, make the customer responsible for output. We read every set of terms on 12 October 2026 and published a page per platform with the clause quoted; this is what the eleven say together.

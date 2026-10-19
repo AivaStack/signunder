@@ -1,0 +1,21 @@
+# signunder.com pulls content/ from this repository at build time but is deployed
+# from signunder-web. A change to content/ on main triggers a rebuild there, so
+# edited posts, law pages and the checker's rules appear without a website commit.
+name: content-rebuild
+
+on:
+  push:
+    branches: [main]
+    paths: ["content/**"]
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  rebuild:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger the Vercel deploy hook
+        env:
+          HOOK: ${{ secrets.VERCEL_DEPLOY_HOOK }}
+        run: curl -fsS -X POST "$HOOK" -o /dev/null
