@@ -3,7 +3,7 @@ SIDECAR := src/sign-sidecar/Cargo.toml
 
 WORKER := src/wm-worker
 
-.PHONY: up down logs build test test-kms test-gcp robustness fmt sample conformance scan rules
+.PHONY: up down logs build test test-kms test-gcp robustness fmt sample conformance scan rules watch watch-accept
 
 up: ## Build and start the local stack
 	$(COMPOSE) up --build -d --wait
@@ -25,6 +25,12 @@ test:
 
 rules: ## Publish the rule packs and the checker's common answers into content/rules
 	dotnet run --project tools/rules-export -- content/rules
+
+watch: ## Check the rule packs' primary sources for changes since they were last accepted
+	python3 tools/rules-watch/watch.py check
+
+watch-accept: ## After reviewing a change: save what the sources say now as the new baseline
+	python3 tools/rules-watch/watch.py accept
 
 robustness: ## Watermark and fingerprint survival table, then its assertions
 	cd $(WORKER) && uv run python ../../tests/robustness/robustness.py

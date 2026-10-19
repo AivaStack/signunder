@@ -1,0 +1,36 @@
+# Weekly check of the primary sources behind the rule packs (tools/rules-watch).
+# A change, an unreadable source or a source without a baseline opens an issue, or
+# comments on the open one; nothing here edits a rule. Sources no script can read
+# are listed in every report as a reminder to check them by hand.
+name: rules-watch
+
+on:
+  schedule:
+    - cron: "23 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  watch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check sources
+        id: check
+        run: python3 tools/rules-watch/watch.py check --report report.md
+        continue-on-error: true
+      - name: Open or update the rules-watch issue
+        if: steps.check.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh label create rules-watch --color B60205 --description "A rule pack's source changed or could not be read" --force
+          open=$(gh issue list --label rules-watch --state open --json number --jq '.[0].number')
+          if [ -n "$open" ]; then
+            gh issue comment "$open" --body-file report.md
+          else
+            gh issue create --title "Rule sources changed or unreadable" --label rules-watch --body-file report.md
+          fi

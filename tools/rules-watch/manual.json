@@ -1,0 +1,9 @@
+{
+  "https://codes.findlaw.com/ca/business-and-professions-code/bpc-sect-22757-3/": "FindLaw refuses every automated read, and the California Legislature's own site blocks them too. Check sections 22757.1 to 22757.6 by hand, at least monthly.",
+  "https://eur-lex.europa.eu/eli/reg/2024/1689/oj": "EUR-Lex answers every automated read with a challenge page. An Official Journal act changes only by a new amending act: check the act's 'Current consolidated version' and amendment list on EUR-Lex by hand, at least monthly.",
+  "https://eur-lex.europa.eu/eli/reg/2026/1744/oj": "EUR-Lex answers every automated read with a challenge page. An Official Journal act changes only by a new amending act: check the act's 'Current consolidated version' and amendment list on EUR-Lex by hand, at least monthly.",
+  "https://transparency.meta.com/governance/tracking-impact/labeling-ai-content": "The page is built by JavaScript, so a script gets no text to compare. Meta's Help Center page on the same rules is watched automatically; check this one by hand monthly.",
+  "https://www.tiktok.com/community-guidelines/en/integrity-authenticity": "The page is built by JavaScript, so a script gets no text to compare. It carries TikTok's labelling duty for creators: check it by hand monthly.",
+  "https://www.law.go.kr/법령/인공지능발전과신뢰기반조성등에관한기본법": "The page is built by JavaScript, so a script gets no text to compare. Check the consolidated text's in-force date and amendment history on the National Law Information Center by hand, at least monthly.",
+  "https://www.law.go.kr/법령/인공지능발전과신뢰기반조성등에관한기본법시행령": "The page is built by JavaScript, so a script gets no text to compare. Check the consolidated text's in-force date and amendment history on the National Law Information Center by hand, at least monthly."
+}
