@@ -2,6 +2,7 @@ COMPOSE := docker compose -f deploy/docker-compose.yml
 SIDECAR := src/sign-sidecar/Cargo.toml
 
 WORKER := src/wm-worker
+PYSDK := src/signunder-py
 
 .PHONY: up down logs build test test-kms test-gcp robustness fmt sample conformance scan rules watch watch-accept
 
@@ -22,6 +23,7 @@ test:
 	dotnet test Signunder.sln
 	cargo test --manifest-path $(SIDECAR)
 	cd $(WORKER) && uv run ./genproto.sh && uv run pytest -q
+	cd $(PYSDK) && uv run pytest -q
 
 rules: ## Publish the rule packs and the checker's common answers into content/rules
 	dotnet run --project tools/rules-export -- content/rules
@@ -49,6 +51,7 @@ fmt:
 	dotnet format Signunder.sln
 	cargo fmt --manifest-path $(SIDECAR)
 	cd $(WORKER) && uv run ruff format . ../../tests/robustness
+	cd $(PYSDK) && uv run ruff format .
 
 sample: ## Sign the fixtures through the running stack into docs/conformance/samples
 	tests/conformance/generate-samples.sh
