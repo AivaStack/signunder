@@ -74,6 +74,6 @@ For each output your system generates: a machine-readable mark that survives ord
 
 If you were live before 2 August, you have until 2 December and no longer. If you launched since, you are already inside the rule. If you route between platforms or self-host open models, the marking is yours to add after generation, whichever model served the request. The [Article 50 tracker](/law/eu-ai-act-article-50) carries the texts and the dates each was read.
 
-SignUnder is built to do that under your own name; it is pre-launch, and the waitlist is on the homepage.
+SignUnder signs each output with Content Credentials, an invisible watermark and a fingerprint on record, and gives you a public page to detect your own outputs; it is in free early access ([get a key](/dashboard), [docs](/docs)). Until your company is listed it signs with SignUnder's test certificate, and under your own once it is. The free [checker](/checker) tells you which other rules apply to you.
 
 *SignUnder is not a law firm and this is not legal advice. Every rule here cites its primary source and the date we read it.*
