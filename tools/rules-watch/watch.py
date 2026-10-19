@@ -37,6 +37,7 @@ PYTHON_AGENT = "SignUnder rules watch (+https://signunder.com/checker; hello@sig
 # Sources no script can read (they refuse every automated request): listed in each
 # report as a reminder to check them by hand.
 MANUAL = json.loads((Path(__file__).resolve().parent / "manual.json").read_text())
+REGIONAL = {"Your California Privacy Choices", "Do Not Sell or Share My Personal Information"}
 SKIP_TAGS = {"script", "style", "noscript", "svg", "head", "template", "iframe"}
 DIFF_LINES = 40
 
@@ -68,8 +69,9 @@ def visible_text(html: str) -> str:
     parser = _Text()
     parser.feed(html)
     lines = (re.sub(r"\s+", " ", line).strip() for line in "".join(parser.parts).split("\n"))
-    # A line that is only a long number is a session or build id, not policy text.
-    return "\n".join(line for line in lines if line and not re.fullmatch(r"\d{10,}", line))
+    # A line that is only a long number is a session or build id, not policy text; some
+    # footers add links for visitors from particular places (CI runs in the US).
+    return "\n".join(line for line in lines if line and not re.fullmatch(r"\d{10,}", line) and line not in REGIONAL)
 
 
 @dataclass
