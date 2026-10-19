@@ -14,6 +14,7 @@ Hosted service that gets a company signing AI-generated content under its own na
 
 - `src/Signunder.Api`, `Signunder.Core`, `Signunder.Rules`, `Signunder.Sdk`: .NET 10 (version pinned in `global.json`, shared settings in `Directory.Build.props`, warnings are errors).
 - `src/sign-sidecar`: Rust, wraps c2pa-rs, talks gRPC to the API.
+- `src/signunder-py`: the Python SDK, published to PyPI as `signunder` (Apache-2.0) by pushing a tag `python-vX.Y.Z` that matches `pyproject.toml`; trusted publishing, no token. Live test against staging: `SIGNUNDER_LIVE=1 SIGNUNDER_API_KEY=… uv run pytest`.
 - `src/wm-worker`: Python, managed with uv. TrustMark watermarking and PDQ fingerprinting over gRPC; its generated gRPC code (`src/wm_worker/pb`) is not committed, `uv run ./genproto.sh` makes it.
 - `proto/signunder/sign/v1/sign.proto`: the API-to-sidecar contract.
 - `proto/signunder/wm/v1/wm.proto`: the API-to-watermark-worker contract.
