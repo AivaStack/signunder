@@ -33,7 +33,7 @@ related:
   - /platforms
   - /law/eu-ai-act-article-50
   - /guides/sign-under-your-own-name
-draft: true
+draft: false
 ---
 
 Replicate, Together, Runware and Baseten attach no manifest and no watermark to what they generate, and each one's terms say that output and its compliance belong to the customer. None of that is hidden. It is in the terms of service, and the four use four different ways of saying it. Here are the clauses, with section numbers, as read on 12 October 2026.
@@ -76,6 +76,6 @@ Runware and Baseten both document EU processing; Together offers it on dedicated
 
 Every file that comes back is unmarked, and by contract its compliance is yours. If your users are in the EU and your system was on the market before 2 August 2026, the marking grace ends on 2 December 2026; if you launched later, the duty already applies. If you route between several of these platforms, one mark in your own name across all of them is the only consistent record you will have.
 
-Each platform has [its own page](/platforms) with the full clauses, dates and what to check. SignUnder signs output from all four under your name; it is pre-launch, and the waitlist is on the homepage.
+Each platform has [its own page](/platforms) with the full clauses, dates and what to check. SignUnder's API signs output from any of them, and Replicate's directly in proxy mode, with a watermark and a fingerprint on record; it is in free early access ([get a key](/dashboard), [docs](/docs)). Until your company is listed it signs with SignUnder's test certificate, and under your own once it is.
 
 *Not legal advice. Every quotation is from the platform's own terms on the date shown.*
