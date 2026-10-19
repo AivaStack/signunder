@@ -1,0 +1,50 @@
+# Publishes the Python SDK (src/signunder-py) to PyPI when a tag python-vX.Y.Z is
+# pushed whose version matches pyproject.toml. PyPI trusts this workflow directly
+# (trusted publishing), so no PyPI token is stored anywhere. Any other run only
+# tests and builds.
+name: publish-python
+
+on:
+  push:
+    tags: ["python-v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: src/signunder-py
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - name: Test
+        run: uv run pytest -q
+      - name: The tag matches the package version
+        if: startsWith(github.ref, 'refs/tags/python-v')
+        run: |
+          version=$(sed -n 's/^version = "\(.*\)"/\1/p' pyproject.toml)
+          test "python-v$version" = "$GITHUB_REF_NAME" || { echo "Tag $GITHUB_REF_NAME does not match version $version"; exit 1; }
+      - name: Build
+        run: uv build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: src/signunder-py/dist/
+
+  publish:
+    if: startsWith(github.ref, 'refs/tags/python-v')
+    needs: build
+    runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+      - uses: pypa/gh-action-pypi-publish@release/v1
