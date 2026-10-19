@@ -52,6 +52,12 @@ draft: false
 
 `date`, `updated` and `reviewed` are ISO dates. `sources[].read` is the date the source was read, not published. Every number in the body must be traceable to an entry in `sources`.
 
+## Publishing on a date
+
+A page appears on signunder.com once `draft: false` **and** its `date` has arrived (UTC, at build time). So a finished post can be pushed with `draft: false` days ahead: the website rebuilds at 00:07 UTC every day and publishes it that morning. Any push that changes `content/` on `main` also rebuilds the website, so edits go live within minutes. To preview the site as it will be on a given day, build `signunder-web` with `CONTENT_BUILD_DAY=YYYY-MM-DD` (and `CONTENT_INCLUDE_DRAFTS=1` to see drafts too).
+
+Before marking a dated post ready, re-check its quoted clauses and claims against the live sources; if any have moved, update the text, and `reviewed` only if every source was re-read.
+
 ## House style (what makes a page citable)
 
 1. **Answer first.** The first two sentences answer the question in the title. No preamble.
