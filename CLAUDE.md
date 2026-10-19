@@ -19,6 +19,7 @@ Hosted service that gets a company signing AI-generated content under its own na
 - `proto/signunder/sign/v1/sign.proto`: the API-to-sidecar contract.
 - `proto/signunder/wm/v1/wm.proto`: the API-to-watermark-worker contract.
 - `tests/`: xUnit projects for Core, Rules and the API (`Signunder.Api.Tests` hosts the API against Postgres in a container with a stand-in sidecar); `tests/conformance` holds the sample generator; `tests/robustness` holds the watermark survival suite, run from the worker's environment; the other folders are placeholders.
+- `tools/approve-identity.py`: approves a company's name for the CAWG identity assertion and issues its certificate with the sidecar's `identity-ca` binary; `deploy/identity-ca/root.pem` is the Identity CA's root certificate (ADR 0014).
 - `tools/security/`: the vulnerability scan (`scan.sh`) and the check that `.trivyignore.yaml` defers nothing beyond 90 days (ADR 0009).
 - `deploy/docker-compose.yml`: local stack.
 - `deploy/fly/`: Fly.io configurations for staging (ADR 0012); deploy from the repository root. The API's browser callers come from `Website:AllowedOrigins`, and dashboard sign-in tokens from `SupabaseAuth:Issuer` (ADR 0013). `tools/supabase.sh` runs the Supabase CLI with this project's own token from `.env`, leaving the machine's global Supabase login alone.
