@@ -276,6 +276,72 @@ fn is_unauthenticated(e: &google_cloud_kms_v1::Error) -> bool {
         == Some(google_cloud_gax::error::rpc::Code::Unauthenticated)
 }
 
+/// A KMS key as the raw ES256 signer c2pa-rs uses for identity credentials. Blocks on
+/// `runtime`, so use it from a blocking thread.
+pub struct KmsRawSigner {
+    kms: Arc<Kms>,
+    runtime: Handle,
+    key_ref: String,
+}
+
+impl c2pa_raw_crypto::RawSigner for KmsRawSigner {
+    fn sign(&self, data: &[u8]) -> Result<Vec<u8>, c2pa_raw_crypto::RawSignerError> {
+        let digest: [u8; 32] = Sha256::digest(data).into();
+        let der = self
+            .runtime
+            .block_on(self.kms.sign_digest(&self.key_ref, &digest))
+            .map_err(|status| {
+                c2pa_raw_crypto::RawSignerError::CryptoLibraryError(status.message().to_owned())
+            })?;
+        // KMS returns DER; COSE wants the fixed-width r || s form.
+        c2pa_raw_crypto::ec_utils::der_to_p1363(&der, 64)
+    }
+
+    fn alg(&self) -> SigningAlg {
+        SigningAlg::Es256
+    }
+
+    fn max_signature_size(&self) -> usize {
+        64
+    }
+}
+
+impl Kms {
+    /// A raw signer for the KMS key `key_ref`, after checking that the identity
+    /// certificate first in `cert_chain_pem` is for that key. Blocks on `runtime`.
+    pub fn identity_signer(
+        self: &Arc<Self>,
+        runtime: Handle,
+        key_ref: String,
+        algorithm: &str,
+        cert_chain_pem: &str,
+    ) -> Result<KmsRawSigner, Status> {
+        if algorithm != "es256" {
+            return Err(Status::invalid_argument(
+                "identity keys sign with es256 only",
+            ));
+        }
+        Self::backend(&key_ref)?;
+        let bad_chain = || {
+            Status::invalid_argument(
+                "identity cert_chain_pem must hold the PEM certificate chain for the KMS key",
+            )
+        };
+        let (_, leaf) = parse_x509_pem(cert_chain_pem.as_bytes()).map_err(|_| bad_chain())?;
+        let leaf = leaf.parse_x509().map_err(|_| bad_chain())?;
+        if leaf.public_key().raw != runtime.block_on(self.public_key(&key_ref))? {
+            return Err(Status::failed_precondition(format!(
+                "the identity certificate is not for KMS key {key_ref}"
+            )));
+        }
+        Ok(KmsRawSigner {
+            kms: Arc::clone(self),
+            runtime,
+            key_ref,
+        })
+    }
+}
+
 fn google_status(call: &str, key_ref: &str, e: &google_cloud_kms_v1::Error) -> Status {
     match e.status().map(|status| status.code) {
         Some(google_cloud_gax::error::rpc::Code::NotFound) => {

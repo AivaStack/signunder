@@ -9,6 +9,8 @@ aws-sdk-kms = { version = "1.123.0", default-features = false, features = ["defa
 base64 = "0.22.1"
 # Pinned exactly: manifest construction must not drift under us (SIGNUNDER.md §4.10).
 c2pa = "=0.91.2"
+# The raw signer trait c2pa-rs uses for identity credentials; the version c2pa 0.91.2 locks.
+c2pa_raw_crypto = "=0.1.2"
 google-cloud-gax = "1.15.0"
 # Without its default TLS provider (aws-lc): the sidecar installs ring for the process.
 google-cloud-kms-v1 = { version = "1.15.0", default-features = false }

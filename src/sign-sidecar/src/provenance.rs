@@ -36,6 +36,12 @@ impl DevSigner {
         create_signer::from_keys(&self.chain_pem, &self.key_pem, SigningAlg::Es256, tsa_url)
             .map_err(internal)
     }
+
+    /// The development key as a raw signer, for identity assertions in local development.
+    pub fn raw_signer(&self) -> Result<Box<dyn c2pa_raw_crypto::RawSigner + Send + Sync>, Status> {
+        c2pa_raw_crypto::signer_from_private_key(&self.key_pem, SigningAlg::Es256)
+            .map_err(|e| Status::internal(format!("development identity key: {e}")))
+    }
 }
 
 pub struct Signed {

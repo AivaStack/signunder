@@ -42,6 +42,21 @@ message SignRequest {
   // is base64; the sidecar stores it as bytes.
   string manifest_definition_json = 3;
   SignerRef signer = 4;
+  // Optional: a CAWG identity assertion (cawg.x509.cose) naming the company that
+  // publishes the content, signed with this identity key and certificate. The claim
+  // itself is still signed by `signer`.
+  IdentityRef identity = 5;
+}
+
+message IdentityRef {
+  // A KMS key reference, or "dev:local" to use the development signer's key.
+  string key_ref = 1;
+  // "es256".
+  string algorithm = 2;
+  // The identity certificate naming the company, first; then its issuers.
+  string cert_chain_pem = 3;
+  // CAWG named actor roles, for example "cawg.publisher".
+  repeated string roles = 4;
 }
 
 message SignResponse {

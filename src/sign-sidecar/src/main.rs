@@ -14,7 +14,7 @@ use pb::sign_service_server::{SignService, SignServiceServer};
 use pb::{SignRequest, SignResponse, SignerRef, ValidateRequest, ValidateResponse};
 use provenance::{DEV_KEY_REF, DevSigner};
 use sign_sidecar::kms::{self, Kms};
-use sign_sidecar::{internal_tls, provenance};
+use sign_sidecar::{identity, internal_tls, provenance};
 
 /// Assets travel as unary bytes (see sign.proto), so tonic's 4 MB default is too small.
 const MAX_MESSAGE_BYTES: usize = 64 * 1024 * 1024;
@@ -71,20 +71,49 @@ impl SignService for Sidecar {
                 "key_ref must be a Cloud KMS key version, a KMS key ARN or {DEV_KEY_REF}"
             )));
         };
+        let identity_dev = match &request.identity {
+            Some(identity) if identity.key_ref == DEV_KEY_REF => {
+                Some(self.dev_signer(&SignerRef {
+                    key_ref: DEV_KEY_REF.into(),
+                    algorithm: identity.algorithm.clone(),
+                    ..Default::default()
+                })?)
+            }
+            Some(identity) if kms::Backend::of(&identity.key_ref).is_none() => {
+                return Err(Status::invalid_argument(format!(
+                    "identity key_ref must be a Cloud KMS key version, a KMS key ARN or {DEV_KEY_REF}"
+                )));
+            }
+            _ => None,
+        };
         let kms = self.kms.clone();
         let runtime = tokio::runtime::Handle::current();
 
         let signed = blocking(move || {
-            let signer: Box<dyn c2pa::Signer> = match dev {
+            let mut signer: Box<dyn c2pa::Signer> = match dev {
                 Some(dev) => dev.signer(tsa_url)?,
                 None => Box::new(kms.signer(
-                    runtime,
+                    runtime.clone(),
                     signer.key_ref,
                     &signer.algorithm,
                     &signer.cert_chain_pem,
                     tsa_url,
                 )?),
             };
+            if let Some(identity) = request.identity {
+                let raw: Box<dyn c2pa_raw_crypto::RawSigner + Send + Sync> = match identity_dev {
+                    Some(dev) => dev.raw_signer()?,
+                    None => Box::new(kms.identity_signer(
+                        runtime,
+                        identity.key_ref,
+                        &identity.algorithm,
+                        &identity.cert_chain_pem,
+                    )?),
+                };
+                let assertion =
+                    identity::assertion(raw, &identity.cert_chain_pem, &identity.roles)?;
+                signer = Box::new(identity::WithIdentity::new(signer, vec![assertion]));
+            }
             provenance::sign(
                 signer.as_ref(),
                 &request.asset,
