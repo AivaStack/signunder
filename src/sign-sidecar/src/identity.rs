@@ -125,10 +125,7 @@ pub fn assertion(
 mod tests {
     use std::path::Path;
 
-    use rcgen::{
-        BasicConstraints, CertificateParams, DnType, ExtendedKeyUsagePurpose, IsCa, KeyPair,
-        KeyUsagePurpose,
-    };
+    use rcgen::{BasicConstraints, CertificateParams, DnType, IsCa, KeyPair, KeyUsagePurpose};
 
     use super::*;
     use crate::provenance::{self, DevSigner};
@@ -154,21 +151,8 @@ mod tests {
         let ca_cert = ca.self_signed(&ca_key).unwrap();
 
         let key = KeyPair::generate().unwrap();
-        let mut leaf = CertificateParams::new(vec!["acme.example".into()]).unwrap();
-        leaf.distinguished_name = rcgen::DistinguishedName::new();
-        leaf.distinguished_name.push(DnType::CountryName, "IE");
-        leaf.distinguished_name
-            .push(DnType::OrganizationName, "Acme Images Ltd");
-        leaf.distinguished_name
-            .push(DnType::CommonName, "acme.example");
-        leaf.is_ca = IsCa::ExplicitNoCa;
-        leaf.key_usages = vec![KeyUsagePurpose::DigitalSignature];
-        leaf.extended_key_usages = vec![
-            ExtendedKeyUsagePurpose::EmailProtection,
-            // id-kp-documentSigning, RFC 9336
-            ExtendedKeyUsagePurpose::Other(vec![1, 3, 6, 1, 5, 5, 7, 3, 36]),
-        ];
-        leaf.use_authority_key_identifier_extension = true;
+        // Exactly what the Identity CA issues.
+        let leaf = crate::identity_ca::leaf_params("Acme Images Ltd", "acme.example", 365).unwrap();
         let issuer = rcgen::Issuer::from_params(&ca, &ca_key);
         let cert = leaf.signed_by(&key, &issuer).unwrap();
         (
