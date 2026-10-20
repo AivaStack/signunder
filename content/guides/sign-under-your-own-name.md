@@ -4,7 +4,7 @@ description: "The Certificate Policy ties each signing certificate to a listed p
 slug: sign-under-your-own-name
 type: guide
 date: 2026-10-12
-updated: 2026-10-12
+updated: 2026-10-20
 reviewed: 2026-10-12
 authors: [eoin]
 tags: [c2pa, certificates, trust-list, own-name, cawg]
@@ -42,6 +42,7 @@ faq:
   - q: "Does the signer's name matter to a regulator?"
     a: "Article 50(2) puts the marking duty on the provider of the system. A manifest naming your supplier records that your supplier generated the content. We know of no guidance that says a supplier's mark discharges your duty, and no verifier that shows your name from it."
 related:
+  - /guides/company-name-in-content-credentials
   - /guides/c2pa-conformance-program
   - /guides/why-content-credentials-say-unrecognized
   - /platforms
@@ -91,7 +92,7 @@ A vendor that is not on the list at all, whatever it markets, produces signature
 
 The Creator Assertions Working Group's identity assertion lets a manifest carry a verified statement of who is responsible for the content, backed by an identity certificate separate from the claim signing certificate. Trufo issues such certificates. It is the right tool for "this content is ours" when a service signs on your behalf, and we use it ourselves for interim signing before a customer's own listing.
 
-What it does not do is change the signer. The claim signature still chains to the service's certificate, and the verifiers we have read display the claim signer's organisation, not the identity assertion. Whether TikTok, Meta, LinkedIn or Google surface the assertion anywhere is undocumented as of 12 October 2026; we are testing it with real uploads and will publish what displays.
+What it does not do is change the signer. The claim signature still chains to the service's certificate, and the verifiers we have read display the claim signer's organisation, not the identity assertion. Whether TikTok, Meta, LinkedIn or Google surface the assertion anywhere is undocumented as of 12 October 2026; we are testing it with real uploads and will publish what displays. [How SignUnder adds your verified company name](/guides/company-name-in-content-credentials), and what the viewers we have tried show, is a guide of its own.
 
 ## So what is the route to your own name?
 
