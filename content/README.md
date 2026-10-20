@@ -1,6 +1,6 @@
 # content/
 
-Blog posts and reference pages for signunder.com, as plain Markdown. This folder is the source; the publication is `https://signunder.com`. The private `signunder-web` repository pulls this folder at build time and renders it (see `docs/marketing/SEO-GEO-PLAN.md` §6 and `CHECKLIST.md` A11–A12). Nothing here is rendered from GitHub, and every page sets its canonical to signunder.com.
+Blog posts and reference pages for signunder.com, as plain Markdown. This folder is the source; the publication is `https://signunder.com`. The private `signunder-web` repository pulls this folder at build time and renders it. Nothing here is rendered from GitHub, and every page sets its canonical to signunder.com.
 
 The plan behind this folder is `docs/marketing/SEO-GEO-PLAN.md`; the work list is `docs/marketing/CHECKLIST.md`.
 
