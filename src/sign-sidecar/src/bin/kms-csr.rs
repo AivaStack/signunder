@@ -236,7 +236,9 @@ mod tests {
             String::from_utf8_lossy(&output.stderr)
         );
         // OpenSSL 3.0 writes "C = IE"; later versions write "C=IE".
-        String::from_utf8(output.stdout).unwrap().replace(" = ", "=")
+        String::from_utf8(output.stdout)
+            .unwrap()
+            .replace(" = ", "=")
     }
 
     fn assert_profile(text: &str) {
