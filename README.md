@@ -17,7 +17,7 @@ The hosted service is at [signunder.com](https://signunder.com); the API is docu
 |---|---|
 | `src/Signunder.Api` | The API (.NET 10): signing, verification, the registry, accounts, the public verify routes |
 | `src/Signunder.Core`, `src/Signunder.Rules` | The domain model and the rules engine with its rule packs |
-| `src/Signunder.Sdk` | The .NET SDK |
+| `src/Signunder.Sdk` | The .NET SDK, on nuget.org as [`Signunder`](https://www.nuget.org/packages/Signunder) |
 | `src/signunder-py` | The Python SDK, on PyPI as [`signunder`](https://pypi.org/project/signunder/) |
 | `src/sign-sidecar` | The signer (Rust, c2pa-rs) behind gRPC, with Cloud KMS and the identity CA tools |
 | `src/wm-worker` | Watermarking and fingerprinting (Python, TrustMark and PDQ) behind gRPC |
