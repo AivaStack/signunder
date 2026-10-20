@@ -3,7 +3,7 @@ from __future__ import annotations
 import os
 from os import PathLike
 from pathlib import Path
-from typing import IO, Any, Union
+from typing import IO, Any
 from urllib.parse import quote
 
 import httpx
@@ -15,7 +15,7 @@ from ._models import Record, SignedAsset, SignunderError, Verification
 DEFAULT_BASE_URL = "https://signunder-staging-api.fly.dev"
 
 #: A path, the image's bytes, or an open binary file.
-Image = Union[str, PathLike, bytes, bytearray, IO[bytes]]
+Image = str | PathLike | bytes | bytearray | IO[bytes]
 
 _EXTENSIONS = {
     ".jpg": "image/jpeg",

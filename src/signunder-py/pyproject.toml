@@ -3,7 +3,7 @@ name = "signunder"
 version = "0.1.0"
 description = "Python client for SignUnder: sign AI-generated images with Content Credentials, an invisible watermark and a fingerprint, and verify them."
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 license = "Apache-2.0"
 license-files = ["LICENSE"]
 dependencies = ["httpx>=0.27"]
@@ -26,7 +26,7 @@ build-backend = "hatchling.build"
 
 [tool.ruff]
 line-length = 100
-target-version = "py39"
+target-version = "py310"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
