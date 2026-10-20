@@ -51,3 +51,5 @@ Toolchains are listed in the `Brewfile`. Install the missing formulae one by one
 ## Hosting
 
 Vercel for the web front end, Supabase (EU) for Postgres, auth, storage and the queue, Fly.io (Frankfurt) for the API, sidecar and worker containers, Google Cloud KMS (HSM, Frankfurt) for signing keys; no AWS account (ADR 0011). See ADRs 0002 and 0011.
+
+Monitoring: Better Stack's free plan pings signunder.com, `/verify` and the staging API's `/healthz` (never `/readyz`: the sidecar sleeps when idle), alerting Eoin by email; `.github/workflows/uptime.yml` signs and verifies an image on staging every six hours and opens an `uptime` issue on failure. Upgrade once there are paying customers.
