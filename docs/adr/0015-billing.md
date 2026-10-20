@@ -6,7 +6,7 @@
 
 ## Context
 
-Paid plans are due by the 2 December launch. There is no Stripe account yet and no company to hold one (AivaStack Ltd is not registered). The first customers will be few, and each will want a conversation anyway, so a hand-sent invoice is enough to start; the code should not need to change when card payment arrives.
+Paid plans are due by the 2 December launch. The billing account with Stripe is not set up yet. The first customers will be few, and each will want a conversation anyway, so a hand-sent invoice is enough to start; the code should not need to change when card payment arrives.
 
 ## Decision
 
@@ -25,6 +25,6 @@ Paid plans are due by the 2 December launch. There is no Stripe account yet and 
 
 ## Open
 
-- VAT and invoicing entity, once AivaStack Ltd exists.
+- VAT handling and the invoicing details, when the Stripe account is set up.
 - Automatic overage billing (Stripe meters).
 - Whether the founding offer is honoured on yearly plans.
