@@ -28,7 +28,7 @@ The hosted service is at [signunder.com](https://signunder.com); the API is docu
 
 ## Running it locally
 
-You need .NET 10, Rust, Python with [uv](https://docs.astral.sh/uv/), protobuf and Docker (`Brewfile` lists them for macOS).
+To run the whole stack you need only Docker: `make up` builds and starts it (about ten minutes the first time), and the API answers on `http://localhost:8080` with the development key `su_test_local_development_only_public_key_0000`. To build and test outside Docker you also need .NET 10, Rust, Python with [uv](https://docs.astral.sh/uv/) and protobuf (`Brewfile` lists them for macOS).
 
 ```
 make build   # .NET and Rust
