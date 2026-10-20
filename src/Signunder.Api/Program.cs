@@ -97,6 +97,8 @@ builder.Services.AddScoped<ImageSigner>();
 builder.Services.AddScoped<Quotas>();
 builder.Services.AddHttpClient(DomainVerifier.Client, http => http.Timeout = TimeSpan.FromSeconds(10));
 builder.Services.AddScoped<DomainVerifier>();
+builder.Services.AddHttpClient(StripeBilling.Client, http => http.Timeout = TimeSpan.FromSeconds(20));
+builder.Services.AddScoped<StripeBilling>();
 builder.Services.AddSingleton(TimeProvider.System);
 if (builder.Configuration["Media:ServiceUrl"] is { Length: > 0 } mediaUrl)
 {
@@ -329,6 +331,7 @@ app.MapProxy();
 app.MapPublicVerify();
 app.MapRules();
 app.MapAccount(app.Configuration);
+app.MapStripeWebhook();
 
 app.Run();
 

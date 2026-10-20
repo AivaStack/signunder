@@ -287,6 +287,58 @@ namespace Signunder.Api.Data.Migrations
                     b.ToTable("tenant", "registry");
                 });
 
+            modelBuilder.Entity("Signunder.Core.Registry.TenantBilling", b =>
+                {
+                    b.Property<Guid>("TenantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<DateTimeOffset?>("RequestedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("requested_at");
+
+                    b.Property<string>("RequestedBy")
+                        .HasColumnType("text")
+                        .HasColumnName("requested_by");
+
+                    b.Property<string>("RequestedCurrency")
+                        .HasColumnType("text")
+                        .HasColumnName("requested_currency");
+
+                    b.Property<string>("RequestedInterval")
+                        .HasColumnType("text")
+                        .HasColumnName("requested_interval");
+
+                    b.Property<string>("RequestedTier")
+                        .HasColumnType("text")
+                        .HasColumnName("requested_tier");
+
+                    b.Property<string>("StripeCustomerId")
+                        .HasColumnType("text")
+                        .HasColumnName("stripe_customer_id");
+
+                    b.Property<string>("StripeSubscriptionId")
+                        .HasColumnType("text")
+                        .HasColumnName("stripe_subscription_id");
+
+                    b.Property<string>("SubscriptionStatus")
+                        .HasColumnType("text")
+                        .HasColumnName("subscription_status");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("TenantId")
+                        .HasName("pk_tenant_billing");
+
+                    b.HasIndex("StripeSubscriptionId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_tenant_billing_stripe_subscription_id");
+
+                    b.ToTable("tenant_billing", "registry");
+                });
+
             modelBuilder.Entity("Signunder.Core.Registry.TenantIdentity", b =>
                 {
                     b.Property<Guid>("TenantId")
@@ -456,6 +508,16 @@ namespace Signunder.Api.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_asset_record_tenant_key_tenant_key_id");
+                });
+
+            modelBuilder.Entity("Signunder.Core.Registry.TenantBilling", b =>
+                {
+                    b.HasOne("Signunder.Core.Registry.Tenant", null)
+                        .WithOne()
+                        .HasForeignKey("Signunder.Core.Registry.TenantBilling", "TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_tenant_billing_tenant_tenant_id");
                 });
 
             modelBuilder.Entity("Signunder.Core.Registry.TenantIdentity", b =>

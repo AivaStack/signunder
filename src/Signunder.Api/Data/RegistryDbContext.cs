@@ -11,6 +11,7 @@ public sealed class RegistryDbContext(DbContextOptions<RegistryDbContext> option
     public DbSet<ApiKey> ApiKeys => Set<ApiKey>();
     public DbSet<TenantMember> TenantMembers => Set<TenantMember>();
     public DbSet<TenantIdentity> TenantIdentities => Set<TenantIdentity>();
+    public DbSet<TenantBilling> TenantBillings => Set<TenantBilling>();
     public DbSet<ProxyResult> ProxyResults => Set<ProxyResult>();
     public DbSet<ProxyRequest> ProxyRequests => Set<ProxyRequest>();
 
@@ -42,6 +43,14 @@ public sealed class RegistryDbContext(DbContextOptions<RegistryDbContext> option
             identity.HasKey(i => i.TenantId);
             identity.Ignore(i => i.TxtValue);
             identity.HasOne<Tenant>().WithOne().HasForeignKey<TenantIdentity>(i => i.TenantId);
+        });
+
+        model.Entity<TenantBilling>(billing =>
+        {
+            billing.ToTable("tenant_billing");
+            billing.HasKey(b => b.TenantId);
+            billing.HasIndex(b => b.StripeSubscriptionId).IsUnique();
+            billing.HasOne<Tenant>().WithOne().HasForeignKey<TenantBilling>(b => b.TenantId);
         });
 
         model.Entity<TenantMember>(member =>

@@ -64,7 +64,9 @@ public static class AccountEndpoints
             .RequireCors(Website.CorsPolicy)
             .RequireRateLimiting(RateLimits.PerKey);
 
-        account.MapGet("", async (ClaimsPrincipal user, RegistryDbContext db, Signing.Quotas quotas, CancellationToken ct) =>
+        account.MapBilling();
+
+        account.MapGet("", async (ClaimsPrincipal user, RegistryDbContext db, Signing.Quotas quotas, StripeBilling stripe, CancellationToken ct) =>
         {
             var member = await MemberAsync(db, user, ct);
             var tenant = member is null ? null : await db.Tenants.AsNoTracking().SingleAsync(t => t.Id == member.TenantId, ct);
@@ -73,17 +75,21 @@ public static class AccountEndpoints
                 : await db.ApiKeys.AsNoTracking().Where(k => k.TenantId == member.TenantId).OrderBy(k => k.CreatedAt).ToListAsync(ct);
             var usage = tenant is null ? null : await quotas.StateAsync(tenant.Id, ct);
             var identity = tenant is null ? null : await db.TenantIdentities.AsNoTracking().SingleOrDefaultAsync(i => i.TenantId == tenant.Id, ct);
+            var billing = tenant is null ? null : await db.TenantBillings.AsNoTracking().SingleOrDefaultAsync(b => b.TenantId == tenant.Id, ct);
             return Results.Json(new JsonObject
             {
                 ["email"] = Email(user),
                 ["tenant"] = tenant is null ? null : TenantView(tenant),
                 ["identity"] = identity is null ? null : IdentityView(identity, tenant!),
+                ["billing"] = tenant is null ? null : BillingEndpoints.View(tenant, billing, stripe),
                 ["api_keys"] = new JsonArray([.. keys.Select(KeyView)]),
                 ["usage"] = usage is null ? null : new JsonObject
                 {
                     ["signed"] = usage.Used,
                     // Null when the plan has no monthly limit.
                     ["limit"] = usage.Limit,
+                    // Outputs past the limit on a plan that allows them, billed per thousand.
+                    ["overage"] = usage.Overage,
                     ["period_start"] = usage.PeriodStart,
                     ["resets_at"] = usage.ResetsAt,
                 },
@@ -239,7 +245,7 @@ public static class AccountEndpoints
 
     private static string Email(ClaimsPrincipal user) => user.FindFirstValue("email")!;
 
-    private static Task<TenantMember?> MemberAsync(RegistryDbContext db, ClaimsPrincipal user, CancellationToken ct)
+    internal static Task<TenantMember?> MemberAsync(RegistryDbContext db, ClaimsPrincipal user, CancellationToken ct)
     {
         var userId = UserId(user);
         return db.TenantMembers.AsNoTracking().SingleOrDefaultAsync(m => m.UserId == userId, ct);

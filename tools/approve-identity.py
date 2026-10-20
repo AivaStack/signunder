@@ -4,8 +4,8 @@
     python3 tools/approve-identity.py SLUG --yes      # approve without asking
     python3 tools/approve-identity.py SLUG --show     # only show
 
-Reads and writes the staging registry through the Supabase management API, as
-tools/supabase.sh does, with SUPABASE_ACCESS_TOKEN from .env. Issues the identity
+Reads and writes the staging registry through the Supabase management API
+(tools/registry_sql.py), with SUPABASE_ACCESS_TOKEN from .env. Issues the identity
 certificate with identity-ca, from IDENTITY_CA_KEY (the CA's Cloud KMS key version),
 deploy/identity-ca/root.pem, and IDENTITY_SIGNING_KEY (the key that signs identity
 assertions); gcloud application-default credentials must be current.
@@ -17,56 +17,12 @@ this is run again.
 
 from __future__ import annotations
 
-import json
-import os
 import subprocess
 import sys
-import urllib.error
-import urllib.request
-from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[1]
-PROJECT = "lqxxcrkimjbysfqmedmt"
+from registry_sql import ROOT, env, literal, sql
+
 ROOT_CERT = ROOT / "deploy" / "identity-ca" / "root.pem"
-
-
-def env(name: str) -> str:
-    """This project's setting from .env, falling back to the environment. .env comes
-    first: the shell may hold another project's Supabase token (see tools/supabase.sh).
-    The last line wins, as with the shell tools."""
-    values = [
-        line.split("=", 1)[1].strip()
-        for line in (ROOT / ".env").read_text().splitlines()
-        if line.startswith(f"{name}=")
-    ]
-    value = values[-1] if values and values[-1] else os.environ.get(name)
-    if not value:
-        sys.exit(f"{name} is not set (.env or environment)")
-    return value
-
-
-def sql(query: str) -> list[dict]:
-    request = urllib.request.Request(
-        f"https://api.supabase.com/v1/projects/{PROJECT}/database/query",
-        data=json.dumps({"query": query}).encode(),
-        headers={
-            "Authorization": f"Bearer {env('SUPABASE_ACCESS_TOKEN')}",
-            "Content-Type": "application/json",
-            # The API refuses Python's default client name.
-            "User-Agent": "signunder-approve-identity",
-        },
-        method="POST",
-    )
-    try:
-        with urllib.request.urlopen(request, timeout=60) as response:
-            return json.loads(response.read())
-    except urllib.error.HTTPError as error:
-        sys.exit(f"Supabase answered {error.code}: {error.read().decode(errors='replace')[:300]}")
-
-
-def literal(value: str) -> str:
-    """A SQL string literal: the value with single quotes doubled."""
-    return "'" + value.replace("'", "''") + "'"
 
 
 def main() -> None:
