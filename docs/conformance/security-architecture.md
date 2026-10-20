@@ -6,7 +6,7 @@
 > status:
 >
 > - **[Built]** exists in this repository and has been run.
-> - **[Planned]** is the production design (SIGNUNDER.md §4.9, ADR 0002, ADR 0004) and is
+> - **[Planned]** is the production design (docs/ARCHITECTURE.md §1.9, ADR 0002, ADR 0004) and is
 >   not yet deployed. It must be built and checked before this document is submitted.
 > - **[Gap]** is required at Assurance Level 1 and neither built nor designed in detail.
 > - **[Eoin]** needs information only the applicant can give.
@@ -35,7 +35,7 @@
 ### 1.1 Applicant organization details
 
 [Eoin] Full legal name, registered address, and contact name, email and telephone of the
-applicant organisation. SIGNUNDER.md names AivaStack as the parent company; confirm it is
+applicant organisation. The plan names AivaStack as the parent company; confirm it is
 the applicant.
 
 ### 1.2 C2PA Conformance Program Version
@@ -336,7 +336,7 @@ Not applicable (Assurance Level 1).
    - Google Cloud IAM for the KMS key and its service account (§2.2.1);
    - Fly.io organisation roles and scoped deploy tokens for the application machines;
    - Supabase organisation roles for the database and storage, with Postgres roles and
-     row-level security for tenant isolation (SIGNUNDER.md §4.10).
+     row-level security for tenant isolation (docs/ARCHITECTURE.md §1.10).
 2. **Principal Access Policies.** [Planned]
    - *Non-human:* the CI deployer holds a Fly.io deploy token scoped to the SignUnder
      apps. The sidecar's service account may only sign

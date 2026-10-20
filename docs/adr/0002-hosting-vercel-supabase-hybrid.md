@@ -6,7 +6,7 @@
 
 ## Context
 
-ADR 0001 put the marketing site and dashboard on Next.js and left its hosting open. SIGNUNDER.md §4.9 planned two EU boxes, a managed Postgres, Redis and an S3-compatible object store. Eoin wants to build and deploy on Vercel and to use Supabase.
+ADR 0001 put the marketing site and dashboard on Next.js and left its hosting open. docs/ARCHITECTURE.md §1.9 planned two EU boxes, a managed Postgres, Redis and an S3-compatible object store. Eoin wants to build and deploy on Vercel and to use Supabase.
 
 Vercel runs Node and small Python functions. It does not run long-lived containers, and it limits request bodies to about 4.5 MB (*from memory*, UNVERIFIED). The .NET API, the Rust sign sidecar (c2pa-rs) and the Python watermark worker (TrustMark, which loads model weights) cannot run there as designed.
 

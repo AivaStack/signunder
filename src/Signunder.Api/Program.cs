@@ -209,7 +209,7 @@ app.MapGet("/readyz", async (Health.HealthClient sidecar, CancellationToken ct) 
     }
 });
 
-// First slice of POST /v1/sign (SIGNUNDER.md §4.6): one image in, the signed image out,
+// First slice of POST /v1/sign (docs/ARCHITECTURE.md §1.6): one image in, the signed image out,
 // watermarked and fingerprinted if the worker is configured, signed with the calling
 // tenant's active key, and a registry record whose id comes back in a header. No rules yet.
 app.MapPost("/v1/sign", async (IFormFile file, ImageSigner signer, HttpContext http, CancellationToken ct) =>
@@ -229,7 +229,7 @@ app.MapPost("/v1/sign", async (IFormFile file, ImageSigner signer, HttpContext h
     return Results.File(outcome.Signed!, file.ContentType, file.FileName);
 }).DisableAntiforgery().RequireAuthorization(ApiScopes.Sign).RequireRateLimiting(RateLimits.PerKey);
 
-// Phase 0 slice of POST /v1/verify (SIGNUNDER.md §4.6): what the asset's active manifest
+// Phase 0 slice of POST /v1/verify (docs/ARCHITECTURE.md §1.6): what the asset's active manifest
 // says and whether it still holds. Ingredients are not summarised yet; they are in the report.
 app.MapPost("/v1/verify", async (
     IFormFile file,

@@ -4,8 +4,8 @@ using Signunder.Api.Data;
 namespace Signunder.Api.Signing;
 
 /// <summary>
-/// Deletes signed copies older than <c>Media:RetentionDays</c> (default 30, SIGNUNDER.md
-/// §4.10) and clears their records' link to them. Supabase Storage cannot expire current
+/// Deletes signed copies older than <c>Media:RetentionDays</c> (default 30, docs/ARCHITECTURE.md
+/// §1.10) and clears their records' link to them. Supabase Storage cannot expire current
 /// objects itself, so the API does it: at start-up and then hourly while it is awake. A
 /// suspended API runs nothing, so the sweep catches up when it next wakes.
 /// </summary>

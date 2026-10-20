@@ -6,7 +6,7 @@
 
 ## Context
 
-SIGNUNDER.md §4.1 and §4.5 require that a signing key never exists in software: it lives in AWS KMS and signing is a KMS `Sign` call. The sidecar contract (`sign.proto`) already carries a `key_ref`, an algorithm and a certificate chain. ADR 0003 gave the sidecar a file-based development signer; this record covers the KMS path. c2pa-rs is pinned at 0.91.2.
+docs/ARCHITECTURE.md §1.1 and §1.5 require that a signing key never exists in software: it lives in AWS KMS and signing is a KMS `Sign` call. The sidecar contract (`sign.proto`) already carries a `key_ref`, an algorithm and a certificate chain. ADR 0003 gave the sidecar a file-based development signer; this record covers the KMS path. c2pa-rs is pinned at 0.91.2.
 
 No AWS account, credentials or CLI were available when this was built, so nothing here has run against real AWS KMS.
 

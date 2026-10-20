@@ -9,7 +9,7 @@ public enum TenantKeyStatus
 
 /// <summary>
 /// A tenant's signing key. Only the reference and the certificate are stored; the
-/// private key stays in KMS (SIGNUNDER.md §4.5).
+/// private key stays in KMS (docs/ARCHITECTURE.md §1.5).
 /// </summary>
 public sealed class TenantKey
 {

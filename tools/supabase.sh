@@ -5,7 +5,7 @@
 #   tools/supabase.sh <any supabase command>
 #
 # Reads SUPABASE_ACCESS_TOKEN from .env at the repository root (git ignores it), and
-# defaults SUPABASE_PROJECT_REF to the SignUnder project (SIGNUNDER.md §4.9).
+# defaults SUPABASE_PROJECT_REF to the SignUnder project (docs/ARCHITECTURE.md §1.9).
 set -euo pipefail
 cd "$(dirname "$0")/.."
 

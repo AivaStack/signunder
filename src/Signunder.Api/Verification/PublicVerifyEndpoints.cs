@@ -14,7 +14,7 @@ using Signunder.Wm.V1;
 namespace Signunder.Api.Verification;
 
 /// <summary>
-/// The public verify page's data (SIGNUNDER.md §1.2, §4.6): "was this made by Customer X,
+/// The public verify page's data (docs/ARCHITECTURE.md §1.6): "was this made by Customer X,
 /// when, with what, and has it been altered?" No API key. Answers only about the named
 /// tenant's own outputs, found by manifest, by watermark, or by fingerprint when both are
 /// stripped. Never says whether an image is AI-made in general (§1.3).

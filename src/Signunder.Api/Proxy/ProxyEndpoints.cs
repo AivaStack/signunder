@@ -15,7 +15,7 @@ using Signunder.Core.Registry;
 namespace Signunder.Api.Proxy;
 
 /// <summary>
-/// Proxy mode (SIGNUNDER.md §4.3): the customer points their fal or Replicate client at
+/// Proxy mode (docs/ARCHITECTURE.md §1.3): the customer points their fal or Replicate client at
 /// SignUnder, which forwards each call with the customer's own provider key and signs
 /// the images in the results before they come back. The SignUnder key travels in
 /// <c>X-SignUnder-Key</c>, because <c>Authorization</c> carries the provider's key.

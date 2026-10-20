@@ -1,5 +1,5 @@
 //! A c2pa-rs signer whose private key stays in a cloud KMS: each signature is one KMS
-//! signing call on a digest (SIGNUNDER.md §4.5, ADR 0004, ADR 0011).
+//! signing call on a digest (docs/ARCHITECTURE.md §1.5, ADR 0004, ADR 0011).
 //!
 //! Two backends, chosen by the key reference:
 //! - **Google Cloud KMS** (`projects/…/cryptoKeyVersions/N`), the production signer;

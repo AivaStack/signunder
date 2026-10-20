@@ -6,7 +6,7 @@
 
 ## Context
 
-SIGNUNDER.md §4.3 left the dashboard as "Blazor or a small TS front end" and said nothing about the marketing site. Eoin holds a shadcnblocks licence and wants to use the Zippay template (https://www.shadcnblocks.com/template/zippay): a 25-page marketing template with 100+ components, built on shadcn/ui, Tailwind 4 and TypeScript, sold in Next.js and Astro editions.
+docs/ARCHITECTURE.md §1.3 left the dashboard as "Blazor or a small TS front end" and said nothing about the marketing site. Eoin holds a shadcnblocks licence and wants to use the Zippay template (https://www.shadcnblocks.com/template/zippay): a 25-page marketing template with 100+ components, built on shadcn/ui, Tailwind 4 and TypeScript, sold in Next.js and Astro editions.
 
 shadcn/ui components are React. A Blazor dashboard would mean re-creating the same look by hand and keeping two UI systems in step.
 

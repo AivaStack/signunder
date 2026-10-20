@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-    <!-- Rule packs are data shipped inside the assembly (SIGNUNDER.md §4.8). -->
+    <!-- Rule packs are data shipped inside the assembly (docs/ARCHITECTURE.md §1.8). -->
     <EmbeddedResource Include="packs\*.json" />
   </ItemGroup>
 

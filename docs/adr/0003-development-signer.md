@@ -6,7 +6,7 @@
 
 ## Context
 
-Phase 0 needs the sign sidecar to produce and validate real C2PA manifests locally, in tests and in CI, before there is a KMS key or a certificate from a C2PA-listed CA (SIGNUNDER.md §6, "local compose with software signer"). c2pa-rs is pinned at 0.91.2. That version offers two ways to sign without real credentials:
+Phase 0 needs the sign sidecar to produce and validate real C2PA manifests locally, in tests and in CI, before there is a KMS key or a certificate from a C2PA-listed CA. c2pa-rs is pinned at 0.91.2. That version offers two ways to sign without real credentials:
 
 - `EphemeralSigner`, which generates a new Ed25519 chain on every call. The certificate changes on each start, and it is not one of the two algorithms the sidecar contract names (`es256`, `ps256`).
 - `create_signer::from_keys`, which takes a PEM chain and a PEM private key. The crate's own test certificates are in its git repository but not in the published crate.

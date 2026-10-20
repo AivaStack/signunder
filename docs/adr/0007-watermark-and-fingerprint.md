@@ -6,7 +6,7 @@
 
 ## Context
 
-SIGNUNDER.md §4.3 and §4.7 call for an invisible watermark and a perceptual fingerprint on every output, with the watermark payload recorded in the manifest as a soft binding so that manifest and watermark cross-reference. A manifest is stripped by most platforms; the other two layers are what remain. §4.3 names TrustMark and PDQ and assumes a payload of about 100 bits, "enough for a registry ID".
+docs/ARCHITECTURE.md §1.3 and §1.7 call for an invisible watermark and a perceptual fingerprint on every output, with the watermark payload recorded in the manifest as a soft binding so that manifest and watermark cross-reference. A manifest is stripped by most platforms; the other two layers are what remain. §4.3 names TrustMark and PDQ and assumes a payload of about 100 bits, "enough for a registry ID".
 
 ## Decision
 

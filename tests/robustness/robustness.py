@@ -1,4 +1,4 @@
-"""Watermark and fingerprint survival suite (SIGNUNDER.md §5).
+"""Watermark and fingerprint survival suite (docs/ARCHITECTURE.md §2).
 
 Marks each image, puts it through the changes a shared image commonly suffers, and
 records whether the watermark payload still decodes and how far the PDQ fingerprint

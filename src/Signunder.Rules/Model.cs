@@ -2,7 +2,7 @@ namespace Signunder.Rules;
 
 /// <summary>
 /// One versioned set of rules from one jurisdiction, code or group of platforms
-/// (SIGNUNDER.md §4.8). Rules are data: a change to the law or a policy is a new
+/// (docs/ARCHITECTURE.md §1.8). Rules are data: a change to the law or a policy is a new
 /// version of a pack, never a code change.
 /// </summary>
 public sealed record RulePack(

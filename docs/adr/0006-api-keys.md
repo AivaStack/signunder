@@ -6,7 +6,7 @@
 
 ## Context
 
-ADR 0002 split authentication in two: the dashboard signs users in with Supabase Auth, and customer API keys remain the API's own. SIGNUNDER.md §4.4 sketches an `api_key` table. With the registry in place (ADR 0005), every request needed to resolve to a tenant.
+ADR 0002 split authentication in two: the dashboard signs users in with Supabase Auth, and customer API keys remain the API's own. docs/ARCHITECTURE.md §1.4 sketches an `api_key` table. With the registry in place (ADR 0005), every request needed to resolve to a tenant.
 
 ## Decision
 

@@ -100,7 +100,7 @@ pub fn sign(
         })?;
     let asset = dest.into_inner();
 
-    // Nothing leaves the sidecar unverified (SIGNUNDER.md §4.7).
+    // Nothing leaves the sidecar unverified (docs/ARCHITECTURE.md §1.7).
     let (state, report_json) = validate(&asset, mime_type)?;
     if state == ValidationState::Invalid {
         return Err(Status::internal(format!(

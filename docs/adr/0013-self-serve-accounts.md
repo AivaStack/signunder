@@ -14,7 +14,7 @@ A prospect should be able to try SignUnder without Eoin making a tenant and an A
 - **The API trusts the session token directly.** Routes under `/v1/account` take only a Supabase session token from `SupabaseAuth:Issuer`, checked against the keys in its discovery document (ES256), audience `authenticated`, and `role` `authenticated`. An API key is not accepted there, and the API-key handler stays out of those routes.
 - **Routes:** `GET /v1/account`; `POST /v1/account/tenant` (a company name, from which the slug is made); `POST /v1/account/keys`; `POST /v1/account/keys/{id}/revoke`.
 - **One company per person** for now (`registry.tenant_member`, unique on the Supabase user id). Roles and invitations later.
-- **New companies sign with the configured signer**, SignUnder's own key and certificate, until they are listed and have their own (SIGNUNDER.md §3.1, Cloud Free; §6, Phase 3).
+- **New companies sign with the configured signer**, SignUnder's own key and certificate, until they are listed and have their own.
 - **Keys:** the first comes with the company; at most five active; the plaintext is shown once. Keys start `su_test_` unless `ApiKeys:Live` is set, which production will set.
 - **Slugs** are lower-case ASCII from the name; a taken or reserved one (`demo`, `api`, `verify`, …) gets a random six-hex-digit suffix.
 - **Browser origins** for every browser caller (verify page, dashboard) are `Website:AllowedOrigins`.

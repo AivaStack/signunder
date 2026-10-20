@@ -1,7 +1,7 @@
 //! CAWG identity assertions (`cawg.identity`, X.509 credentials, CAWG identity 1.1):
 //! a statement inside the manifest, signed with a certificate naming the company that
 //! publishes the content, while SignUnder's certificate still signs the claim
-//! (SIGNUNDER.md §1.3; ADR 0014).
+//! (ADR 0014).
 //!
 //! c2pa-rs offers `IdentityAssertionSigner` for this, but it signs the claim without a
 //! timestamp. [`WithIdentity`] keeps the claim signer exactly as it was, timestamp

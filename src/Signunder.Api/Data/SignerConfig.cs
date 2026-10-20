@@ -4,7 +4,7 @@ namespace Signunder.Api.Data;
 
 /// <summary>
 /// The signer named in configuration (<c>Signer:*</c>). Until tenants are listed and sign
-/// under their own certificates (SIGNUNDER.md §6, Phase 3), every tenant signs with it.
+/// under their own certificates, every tenant signs with it.
 /// </summary>
 public static class SignerConfig
 {

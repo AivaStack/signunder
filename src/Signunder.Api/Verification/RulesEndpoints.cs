@@ -6,7 +6,7 @@ using Signunder.Rules;
 namespace Signunder.Api.Verification;
 
 /// <summary>
-/// The free coverage checker's data (SIGNUNDER.md §1.2 Rules, §4.6): which marking rules
+/// The free coverage checker's data (docs/ARCHITECTURE.md §1.6): which marking rules
 /// apply to what someone generates and where it goes, from the rule packs shipped with
 /// this build. No key; the answers and the date are the whole input, and the answer names
 /// the pack versions so it can be reproduced.

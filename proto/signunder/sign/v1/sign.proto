@@ -4,7 +4,7 @@ package signunder.sign.v1;
 
 option csharp_namespace = "Signunder.Sign.V1";
 
-// Contract between the .NET control plane and the Rust sign sidecar (SIGNUNDER.md §4.3).
+// Contract between the .NET control plane and the Rust sign sidecar (docs/ARCHITECTURE.md §1.3).
 // Assets travel as unary bytes, so callers must raise the gRPC message size limit
 // above the 4 MB default; video will need a streaming RPC.
 service SignService {

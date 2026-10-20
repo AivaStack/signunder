@@ -66,7 +66,7 @@ Before marking a dated post ready, re-check its quoted clauses and claims agains
 4. **Every number has a source, inline.** "median 17 days (C2PA CPL JSON, read 8 Oct 2026)". The sources footer repeats URL and date.
 5. **Name things precisely.** Regulation (EU) 2024/1689 Article 50(2); C2PA Certificate Policy v0.2; Conforming Products List; Commission guidelines of 20 July 2026. Entities, not pronouns.
 6. **Dates everywhere.** Platforms and laws change. "As read on 9 October 2026" is a feature.
-7. **UNVERIFIED and *secondary*** exactly as in `SIGNUNDER.md`: a claim not read from a primary source says so.
+7. **UNVERIFIED and *secondary*** exactly as in `docs/ARCHITECTURE.md`: a claim not read from a primary source says so.
 8. **Tables for anything comparative.** Columns are facts, not adjectives.
 9. **A real byline.** Every page has an author with a bio on `/about`.
 10. **Last reviewed.** Visible on every hub, from `reviewed`.

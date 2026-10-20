@@ -5,7 +5,7 @@ namespace Signunder.Api.Signing;
 
 /// <summary>
 /// Holds signed copies that SignUnder serves itself (proxy mode). Copies are transient:
-/// the bucket deletes them after 30 days (SIGNUNDER.md §4.10).
+/// the bucket deletes them after 30 days (docs/ARCHITECTURE.md §1.10).
 /// </summary>
 public interface IMediaStore
 {

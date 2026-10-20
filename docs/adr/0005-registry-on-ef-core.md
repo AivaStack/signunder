@@ -6,7 +6,7 @@
 
 ## Context
 
-SIGNUNDER.md §4.4 defines the core tables and §4.1 sets the rule that the registry holds hashes, not media. ADR 0002 moved data to Supabase and left three things open: one migration tool or two, what local development runs against, and how tenant isolation meets the API's own schema. The first registry slice (tenant, tenant key, asset record) needed the first two answered.
+docs/ARCHITECTURE.md §1.4 defines the core tables and §1.1 sets the rule that the registry holds hashes, not media. ADR 0002 moved data to Supabase and left three things open: one migration tool or two, what local development runs against, and how tenant isolation meets the API's own schema. The first registry slice (tenant, tenant key, asset record) needed the first two answered.
 
 ## Decision
 

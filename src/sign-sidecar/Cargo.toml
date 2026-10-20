@@ -7,7 +7,7 @@ edition = "2024"
 aws-config = { version = "1.12.0", default-features = false, features = ["behavior-version-latest", "default-https-client", "rt-tokio", "credentials-process"] }
 aws-sdk-kms = { version = "1.123.0", default-features = false, features = ["default-https-client", "rt-tokio"] }
 base64 = "0.22.1"
-# Pinned exactly: manifest construction must not drift under us (SIGNUNDER.md §4.10).
+# Pinned exactly: manifest construction must not drift under us (docs/ARCHITECTURE.md §1.10).
 c2pa = "=0.91.2"
 # The raw signer trait c2pa-rs uses for identity credentials; the version c2pa 0.91.2 locks.
 c2pa_raw_crypto = "=0.1.2"

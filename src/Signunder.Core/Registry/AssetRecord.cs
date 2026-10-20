@@ -6,7 +6,7 @@ namespace Signunder.Core.Registry;
 
 /// <summary>
 /// One signed output. Holds hashes and the manifest's description, never the media
-/// (SIGNUNDER.md §4.1, principle 3).
+/// (docs/ARCHITECTURE.md §1.1, principle 3).
 /// </summary>
 public sealed class AssetRecord
 {

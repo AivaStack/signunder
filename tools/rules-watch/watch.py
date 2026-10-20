@@ -8,6 +8,11 @@ edit, `make rules`, Eoin's review and the release steps.
     python tools/rules-watch/watch.py check [--report report.md]   # exit 1 on any change or failure
     python tools/rules-watch/watch.py accept                        # save what is live now as the baseline
 
+The snapshots hold third-party pages' text, so they are kept out of this public
+repository, in the private one (AivaStack/signunder-private, rules-watch/snapshots).
+RULES_WATCH_SNAPSHOTS names the folder; by default it is that repository checked out
+next to this one. The weekly run is a workflow there.
+
 Standard library only.
 """
 
@@ -18,6 +23,7 @@ import difflib
 import glob
 import hashlib
 import json
+import os
 import re
 import subprocess
 import sys
@@ -28,7 +34,9 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 PACKS = ROOT / "src" / "Signunder.Rules" / "packs"
-SNAPSHOTS = Path(__file__).resolve().parent / "snapshots"
+SNAPSHOTS = Path(
+    os.environ.get("RULES_WATCH_SNAPSHOTS") or ROOT.parent / "signunder-private" / "rules-watch" / "snapshots"
+)
 # Sites differ in which clients they let through: some government sites refuse anything
 # that does not look like curl, Sidley refuses curl, EUR-Lex challenges curl but serves
 # Python's client. Each is tried in turn; every one names the watcher honestly.
@@ -164,7 +172,7 @@ def saved(source: Source) -> str | None:
 
 
 def save(source: Source, text: str) -> None:
-    SNAPSHOTS.mkdir(exist_ok=True)
+    SNAPSHOTS.mkdir(parents=True, exist_ok=True)
     source.snapshot.write_text(f"{source.url}\n{text}\n")
 
 
@@ -239,4 +247,6 @@ if __name__ == "__main__":
     parser.add_argument("command", choices=["check", "accept"])
     parser.add_argument("--report")
     args = parser.parse_args()
+    if args.command == "check" and not SNAPSHOTS.is_dir():
+        sys.exit(f"No snapshots at {SNAPSHOTS}: check out AivaStack/signunder-private next to this repository, or set RULES_WATCH_SNAPSHOTS.")
     sys.exit(check(args.report) if args.command == "check" else accept())

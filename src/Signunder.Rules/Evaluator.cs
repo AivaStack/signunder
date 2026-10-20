@@ -2,7 +2,7 @@ namespace Signunder.Rules;
 
 /// <summary>
 /// Which rules apply to someone's answers, and what they require, on a given date
-/// (SIGNUNDER.md §4.3, "Rules engine"). Deterministic: the same answers, date and pack
+/// (docs/ARCHITECTURE.md §1.3, "Rules engine"). Deterministic: the same answers, date and pack
 /// versions always give the same evaluation.
 /// </summary>
 public static class Evaluator

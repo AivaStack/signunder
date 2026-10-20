@@ -6,7 +6,7 @@
 
 ## Context
 
-SIGNUNDER.md §4.3 describes a proxy that sits in front of fal and Replicate and signs their outputs in flight. Their documentation (read 14 Oct 2026) changed the picture:
+docs/ARCHITECTURE.md §1.3 describes a proxy that sits in front of fal and Replicate and signs their outputs in flight. Their documentation (read 14 Oct 2026) changed the picture:
 
 - Neither returns image bytes. fal returns `images[].url` on `*.fal.media`, subject to expiry; Replicate returns URLs on `replicate.delivery`, deleted after an hour and fetched with the customer's token.
 - fal works through a queue (`queue.fal.run`: submit, poll `status_url`, fetch `response_url`); Replicate creates a prediction, optionally waiting up to 60 s with `Prefer: wait`, otherwise it is polled at `urls.get`.

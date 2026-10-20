@@ -5,7 +5,7 @@ namespace Signunder.Api.Signing;
 
 /// <summary>
 /// Signed outputs a tenant may make per calendar month (UTC), by tier
-/// (<c>Quotas:MonthlyOutputs:{tier}</c>; SIGNUNDER.md §3.1). A tier with no entry is
+/// (<c>Quotas:MonthlyOutputs:{tier}</c>). A tier with no entry is
 /// unlimited. The count is of registry records, so a burst of simultaneous signs can
 /// pass the limit by a few.
 /// </summary>

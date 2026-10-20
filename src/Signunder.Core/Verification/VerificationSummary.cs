@@ -3,7 +3,7 @@ using System.Text.Json;
 namespace Signunder.Core.Verification;
 
 /// <summary>
-/// What <c>POST /v1/verify</c> says about an asset's active manifest (SIGNUNDER.md §4.6),
+/// What <c>POST /v1/verify</c> says about an asset's active manifest (docs/ARCHITECTURE.md §1.6),
 /// read from the sidecar's crJSON report.
 /// </summary>
 public sealed record VerificationSummary(
