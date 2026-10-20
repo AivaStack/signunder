@@ -1,0 +1,59 @@
+# Daily: the companies whose domain is verified and whose name waits for Eoin's approval
+# (ADR 0014), from the view registry.identity_awaiting_review, read with a role that may
+# read only that view (secret REVIEW_WATCH_DATABASE_URL). Keeps one issue labelled
+# identity-review up to date: opened when someone is waiting, its list replaced as it
+# changes, closed when nobody is. Approve with tools/approve-identity.py SLUG.
+name: identity-reviews
+
+on:
+  schedule:
+    - cron: "5 7 * * *"
+  workflow_dispatch:
+
+permissions:
+  issues: write
+
+jobs:
+  reviews:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Companies awaiting review
+        env:
+          DATABASE_URL: ${{ secrets.REVIEW_WATCH_DATABASE_URL }}
+        run: |
+          psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -At -F $'\t' -c \
+            "SELECT slug, legal_name, domain, to_char(domain_verified_at AT TIME ZONE 'UTC', 'DD Mon YYYY HH24:MI'), coalesce(approved_name, '')
+             FROM registry.identity_awaiting_review ORDER BY domain_verified_at" > waiting.tsv
+          {
+            echo "Companies whose domain is verified and whose name waits for approval. For each, check the name belongs to whoever controls the domain (their website, a company register), then run \`python3 tools/approve-identity.py SLUG\`."
+            echo
+            echo "| Company | Slug | Domain | Verified (UTC) | Previously approved as |"
+            echo "|---|---|---|---|---|"
+            while IFS=$'\t' read -r slug name domain verified previous; do
+              # Names are typed by customers: keep a | from breaking the table.
+              echo "| ${name//|/\\|} | \`$slug\` | $domain | $verified | ${previous//|/\\|} |"
+            done < waiting.tsv
+          } > report.md
+          echo "count=$(wc -l < waiting.tsv | tr -d ' ')" >> "$GITHUB_ENV"
+          cat report.md
+      - name: Update the identity-review issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          gh label create identity-review --color 1D76DB --description "A company's name waits for approval (ADR 0014)" --force
+          open=$(gh issue list --label identity-review --state open --json number --jq '.[0].number')
+          if [ "$count" -gt 0 ]; then
+            if [ -n "$open" ]; then
+              # Editing the body notifies nobody: comment when the list changes.
+              if [ "$(gh issue view "$open" --json body --jq .body)" != "$(cat report.md)" ]; then
+                gh issue edit "$open" --body-file report.md
+                gh issue comment "$open" --body "The list changed: $count waiting."
+              fi
+            else
+              gh issue create --title "Identity reviews waiting" --label identity-review --body-file report.md
+            fi
+          elif [ -n "$open" ]; then
+            gh issue close "$open" --comment "Nobody is waiting for review."
+          fi

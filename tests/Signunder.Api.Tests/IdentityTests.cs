@@ -127,4 +127,28 @@ public class IdentityTests(ApiFactory api) : IClassFixture<ApiFactory>
 
         Assert.Null(api.Sidecar.LastRequest!.Identity);
     }
+
+    [Fact]
+    public async Task The_review_list_holds_verified_companies_until_their_name_is_approved()
+    {
+        var (token, _, slug) = await CompanyAsync("Review Co");
+        var client = api.ClientWithUser(token);
+        var set = await Json(await client.PostAsJsonAsync("/v1/account/domain", new { domain = "review-co.example" }));
+        Assert.DoesNotContain(slug, await AwaitingReviewAsync());
+
+        DnsAnswers("review-co.example", (string)set["txt_record"]!["value"]!);
+        await client.PostAsync("/v1/account/domain/check", null);
+        Assert.Contains(slug, await AwaitingReviewAsync());
+
+        await ApproveAsync(slug, "Review Co");
+        Assert.DoesNotContain(slug, await AwaitingReviewAsync());
+    }
+
+    /// <summary>The slugs in the view .github/workflows/identity-reviews.yml reads.</summary>
+    private async Task<List<string>> AwaitingReviewAsync()
+    {
+        await using var scope = api.Services.CreateAsyncScope();
+        var db = scope.ServiceProvider.GetRequiredService<RegistryDbContext>();
+        return await db.Database.SqlQueryRaw<string>("SELECT slug AS \"Value\" FROM registry.identity_awaiting_review").ToListAsync();
+    }
 }
