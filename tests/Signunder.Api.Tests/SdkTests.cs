@@ -110,7 +110,40 @@ public class SdkTests(ApiFactory api) : IClassFixture<ApiFactory>
         using var provider = services.BuildServiceProvider();
         Assert.NotNull(provider.GetRequiredService<SignunderClient>());
 
-        Assert.Throws<ArgumentNullException>(() => new ServiceCollection().AddSignunderClient(o => o.ApiKey = "su_test_key")
+        // Without an address it uses the default; without a key it refuses.
+        Assert.NotNull(new ServiceCollection().AddSignunderClient(o => o.ApiKey = "su_test_key")
             .Services.BuildServiceProvider().GetRequiredService<SignunderClient>());
+        Assert.Throws<ArgumentNullException>(() => new ServiceCollection().AddSignunderClient(o => o.BaseAddress = new Uri("https://api.example.test/"))
+            .Services.BuildServiceProvider().GetRequiredService<SignunderClient>());
+    }
+
+    [Fact]
+    public async Task Sign_and_verify_a_file_by_its_path()
+    {
+        var path = Path.Combine(Path.GetTempPath(), $"sdk-{Guid.NewGuid():N}.bin");
+        await File.WriteAllBytesAsync(path, Jpeg);
+        try
+        {
+            // The type comes from the bytes, not the name.
+            var signed = await Client().SignAsync(path);
+            Assert.Equal("image/jpeg", signed.ContentType);
+
+            await File.WriteAllBytesAsync(path, signed.Content);
+            Assert.True((await Client().VerifyAsync(path)).ManifestFound);
+
+            await File.WriteAllTextAsync(path, "not an image");
+            await Assert.ThrowsAsync<ArgumentException>(() => Client().SignAsync(path));
+        }
+        finally
+        {
+            File.Delete(path);
+        }
+    }
+
+    [Fact]
+    public void A_failure_on_our_side_carries_the_reference_to_quote()
+    {
+        Assert.Equal("01ABC", new SignunderException(HttpStatusCode.BadGateway, "Signing failed. Quote reference 01ABC to support.").Reference);
+        Assert.Null(new SignunderException(HttpStatusCode.BadRequest, "The file is empty.").Reference);
     }
 }

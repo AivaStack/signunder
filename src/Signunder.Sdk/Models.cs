@@ -1,5 +1,6 @@
 using System.Net;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 
 namespace Signunder.Sdk;
 
@@ -52,6 +53,9 @@ public sealed record Verification(
 /// <param name="WmPayload">The number carried by the output's invisible watermark, as 16 hex digits; null if it has none.</param>
 /// <param name="Fingerprint">The output's PDQ perceptual hash, as 64 hex digits; null if it was not fingerprinted.</param>
 /// <param name="FingerprintQuality">PDQ's 0 to 100 measure of how reliable the fingerprint is.</param>
+/// <param name="Provider">Where the output came from in proxy mode, for example <c>fal</c>.</param>
+/// <param name="ModelName">The model that made it, in proxy mode.</param>
+/// <param name="MediaUrl">Where SignUnder serves its own copy (proxy mode), while it keeps one.</param>
 public sealed record AssetRecord(
     string Id,
     Guid TenantId,
@@ -68,11 +72,20 @@ public sealed record AssetRecord(
     JsonElement ValidationReport,
     string? WmPayload = null,
     string? Fingerprint = null,
-    int? FingerprintQuality = null);
+    int? FingerprintQuality = null,
+    string? Provider = null,
+    string? ModelName = null,
+    string? MediaUrl = null);
 
 /// <summary>The SignUnder API refused a request.</summary>
-public sealed class SignunderException(HttpStatusCode statusCode, string message) : Exception(message)
+public sealed partial class SignunderException(HttpStatusCode statusCode, string message) : Exception(message)
 {
     /// <summary>The HTTP status the API answered with.</summary>
     public HttpStatusCode StatusCode { get; } = statusCode;
+
+    /// <summary>For a failure on SignUnder's side, the reference to quote to support; otherwise null.</summary>
+    public string? Reference { get; } = QuoteReference().Match(message) is { Success: true } match ? match.Groups[1].Value : null;
+
+    [GeneratedRegex(@"Quote reference (\w+)")]
+    private static partial Regex QuoteReference();
 }

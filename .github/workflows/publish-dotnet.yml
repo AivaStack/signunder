@@ -1,0 +1,61 @@
+# Publishes the .NET SDK (src/Signunder.Sdk, package Signunder) to nuget.org when a tag
+# dotnet-vX.Y.Z is pushed whose version matches the project's <Version>. nuget.org trusts
+# this workflow (trusted publishing): NuGet/login exchanges GitHub's identity token for
+# an API key that lasts an hour, so no NuGet key is stored anywhere. The nuget.org
+# account name is the repository variable NUGET_USER. Any other run only tests and packs.
+name: publish-dotnet
+
+on:
+  push:
+    tags: ["dotnet-v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  pack:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+          # The package also targets .NET 8.
+          dotnet-version: 8.0.x
+      - name: Test
+        run: dotnet test tests/Signunder.Api.Tests --filter "FullyQualifiedName~SdkTests"
+      - name: The tag matches the package version
+        if: startsWith(github.ref, 'refs/tags/dotnet-v')
+        run: |
+          version=$(sed -n 's:.*<Version>\(.*\)</Version>.*:\1:p' src/Signunder.Sdk/Signunder.Sdk.csproj)
+          test "dotnet-v$version" = "$GITHUB_REF_NAME" || { echo "Tag $GITHUB_REF_NAME does not match version $version"; exit 1; }
+      - name: Pack
+        run: dotnet pack src/Signunder.Sdk -c Release -o nupkg
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nupkg
+          path: nupkg/
+
+  publish:
+    if: startsWith(github.ref, 'refs/tags/dotnet-v')
+    needs: pack
+    runs-on: ubuntu-latest
+    environment: nuget
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: nupkg
+          path: nupkg/
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - name: NuGet login (GitHub identity token for a one-hour key)
+        id: login
+        uses: NuGet/login@v1
+        with:
+          user: ${{ vars.NUGET_USER }}
+      - name: Push
+        run: dotnet nuget push "nupkg/*.nupkg" --api-key "${{ steps.login.outputs.NUGET_API_KEY }}" --source https://api.nuget.org/v3/index.json

@@ -12,6 +12,9 @@ namespace Signunder.Sdk;
 /// </summary>
 public sealed class SignunderClient
 {
+    /// <summary>The API's address when none is given: the early-access service in Frankfurt.</summary>
+    public static readonly Uri DefaultBaseAddress = new("https://signunder-staging-api.fly.dev/");
+
     private readonly HttpClient _http;
 
     /// <summary>
@@ -31,11 +34,34 @@ public sealed class SignunderClient
     {
     }
 
+    /// <summary>Creates a client for the API at <see cref="DefaultBaseAddress"/> that sends <paramref name="apiKey"/>.</summary>
+    public SignunderClient(string apiKey)
+        : this(DefaultBaseAddress, apiKey)
+    {
+    }
+
+    /// <summary>
+    /// Creates a client from the environment: the key from <c>SIGNUNDER_API_KEY</c>, and the
+    /// address from <c>SIGNUNDER_BASE_URL</c> if set, otherwise <see cref="DefaultBaseAddress"/>.
+    /// </summary>
+    /// <exception cref="InvalidOperationException"><c>SIGNUNDER_API_KEY</c> is not set.</exception>
+    public static SignunderClient FromEnvironment()
+    {
+        var key = Environment.GetEnvironmentVariable("SIGNUNDER_API_KEY");
+        if (string.IsNullOrWhiteSpace(key))
+        {
+            throw new InvalidOperationException("No API key: set SIGNUNDER_API_KEY. Get one at https://signunder.com/dashboard.");
+        }
+        var url = Environment.GetEnvironmentVariable("SIGNUNDER_BASE_URL");
+        return new SignunderClient(string.IsNullOrWhiteSpace(url) ? DefaultBaseAddress : new Uri(url), key);
+    }
+
     internal static HttpClient Configure(HttpClient http, Uri? baseAddress, string? apiKey)
     {
-        ArgumentNullException.ThrowIfNull(baseAddress);
         ArgumentException.ThrowIfNullOrWhiteSpace(apiKey);
-        http.BaseAddress = baseAddress;
+        baseAddress ??= DefaultBaseAddress;
+        // Relative paths resolve under the base only when it ends in a slash.
+        http.BaseAddress = baseAddress.AbsoluteUri.EndsWith('/') ? baseAddress : new Uri(baseAddress.AbsoluteUri + "/");
         http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
         return http;
     }
@@ -68,6 +94,17 @@ public sealed class SignunderClient
     }
 
     /// <summary>
+    /// Signs the JPEG, PNG or WebP image at <paramref name="path"/>, its type read from the file.
+    /// </summary>
+    /// <exception cref="ArgumentException">The file is not a JPEG, PNG or WebP image.</exception>
+    /// <exception cref="SignunderException">The API refused the request.</exception>
+    public async Task<SignedAsset> SignAsync(string path, CancellationToken cancellationToken = default)
+    {
+        var (content, contentType) = await ReadImageAsync(path, cancellationToken).ConfigureAwait(false);
+        return await SignAsync(content, Path.GetFileName(path), contentType, cancellationToken).ConfigureAwait(false);
+    }
+
+    /// <summary>
     /// Reads and validates the Content Credentials in an image. An image without any is
     /// not an error: <see cref="Verification.ManifestFound"/> is false.
     /// </summary>
@@ -89,6 +126,17 @@ public sealed class SignunderClient
         return await VerifyAsync(stream, fileName, contentType, cancellationToken).ConfigureAwait(false);
     }
 
+    /// <summary>
+    /// Reads and validates the Content Credentials in the image at <paramref name="path"/>, its type read from the file.
+    /// </summary>
+    /// <exception cref="ArgumentException">The file is not a JPEG, PNG or WebP image.</exception>
+    /// <exception cref="SignunderException">The API refused the request.</exception>
+    public async Task<Verification> VerifyAsync(string path, CancellationToken cancellationToken = default)
+    {
+        var (content, contentType) = await ReadImageAsync(path, cancellationToken).ConfigureAwait(false);
+        return await VerifyAsync(content, Path.GetFileName(path), contentType, cancellationToken).ConfigureAwait(false);
+    }
+
     /// <summary>Reads one of the tenant's registry records, or null if there is none with that id.</summary>
     /// <exception cref="SignunderException">The API refused the request.</exception>
     public async Task<AssetRecord?> GetRecordAsync(string id, CancellationToken cancellationToken = default)
@@ -102,6 +150,20 @@ public sealed class SignunderClient
         await ThrowUnlessSuccessAsync(response, cancellationToken).ConfigureAwait(false);
         return await ReadAsync(response, SdkJson.Default.AssetRecord, cancellationToken).ConfigureAwait(false);
     }
+
+    private static async Task<(byte[] Content, string ContentType)> ReadImageAsync(string path, CancellationToken cancellationToken)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(path);
+        var content = await File.ReadAllBytesAsync(path, cancellationToken).ConfigureAwait(false);
+        return (content, ImageType(content) ?? throw new ArgumentException($"{path} is not a JPEG, PNG or WebP image.", nameof(path)));
+    }
+
+    /// <summary>The media type from the file's first bytes, or null if it is not one the API signs.</summary>
+    internal static string? ImageType(ReadOnlySpan<byte> head) =>
+        head.StartsWith((ReadOnlySpan<byte>)[0xFF, 0xD8, 0xFF]) ? "image/jpeg"
+        : head.StartsWith((ReadOnlySpan<byte>)[0x89, (byte)'P', (byte)'N', (byte)'G', 0x0D, 0x0A, 0x1A, 0x0A]) ? "image/png"
+        : head.Length >= 12 && head[..4].SequenceEqual("RIFF"u8) && head[8..12].SequenceEqual("WEBP"u8) ? "image/webp"
+        : null;
 
     private static MultipartFormDataContent Form(Stream content, string fileName, string contentType)
     {

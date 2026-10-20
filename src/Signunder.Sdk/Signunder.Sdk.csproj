@@ -1,15 +1,38 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <!-- Customers are not all on the repo's own .NET version; net8.0 is the long-term release. -->
+    <!-- Customers are not all on the repo's own .NET version; net8.0 is the long-term release.
+         Directory.Build.props sets a single TargetFramework, which would override this list. -->
+    <TargetFramework></TargetFramework>
     <TargetFrameworks>net8.0;net10.0</TargetFrameworks>
-    <PackageId>Signunder</PackageId>
-    <Description>Client for the SignUnder API: sign AI-generated content with C2PA Content Credentials under your own name, verify it, and read the registry record.</Description>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <IsAotCompatible>true</IsAotCompatible>
+
+    <!-- Published to nuget.org by .github/workflows/publish-dotnet.yml on a tag dotnet-vX.Y.Z matching Version. -->
+    <PackageId>Signunder</PackageId>
+    <Version>0.1.0</Version>
+    <Authors>SignUnder</Authors>
+    <Description>Client for the SignUnder API: sign AI-generated images with C2PA Content Credentials under your own name, verify them, and read their registry records.</Description>
+    <PackageTags>c2pa;content-credentials;cawg;provenance;watermark;ai-act;article-50;ai-generated</PackageTags>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <PackageProjectUrl>https://signunder.com/docs</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/AivaStack/signunder</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <ContinuousIntegrationBuild Condition="'$(GITHUB_ACTIONS)' == 'true'">true</ContinuousIntegrationBuild>
   </PropertyGroup>
 
   <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="/" />
+  </ItemGroup>
+
+  <!-- Each target takes the matching Microsoft.Extensions release, so a .NET 8 app is not pulled onto 10. -->
+  <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
+    <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.1" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net10.0'">
     <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.0" />
   </ItemGroup>
 

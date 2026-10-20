@@ -5,7 +5,7 @@ namespace Signunder.Sdk;
 /// <summary>Settings for <see cref="SignunderServiceCollectionExtensions.AddSignunderClient"/>.</summary>
 public sealed class SignunderClientOptions
 {
-    /// <summary>The API's address, ending in a slash.</summary>
+    /// <summary>The API's address; <see cref="SignunderClient.DefaultBaseAddress"/> if not set.</summary>
     public Uri? BaseAddress { get; set; }
 
     /// <summary>A SignUnder API key (<c>su_live_…</c> or <c>su_test_…</c>).</summary>
